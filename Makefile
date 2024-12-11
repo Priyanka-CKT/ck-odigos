@@ -119,6 +119,7 @@ restart-autoscaler:
 .PHONY: restart-instrumentor
 restart-instrumentor:
 	kubectl rollout restart deployment odigos-instrumentor -n odigos-system
+	kubectl set env deployment -l odigos-instrumentation=enabled NEXUS_ENDPOINT=http://ckn-nexus-app:8081 -n default
 
 .PHONY: restart-scheduler
 restart-scheduler:

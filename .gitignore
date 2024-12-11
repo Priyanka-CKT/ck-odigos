@@ -6,6 +6,7 @@ go.work.sum
 go.work
 cli/odigos
 .venv
+.vscode/settings.json
 **/__pycache__/
 **/*.pyc
 serving-certs/

@@ -64,7 +64,7 @@ export const ChooseDestinationBody: React.FC<Props> = ({ onSelect, hidden }) => 
 
   return (
     <Container>
-      <SectionTitle title='Choose destination' description='Add backend destination you want to connect with Odigos.' />
+      <SectionTitle title='Choose destination' description='Add backend destination you want to connect with CKarma.' />
 
       <Filters>
         <WidthConstraint>

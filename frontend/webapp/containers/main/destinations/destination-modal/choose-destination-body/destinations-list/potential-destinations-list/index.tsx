@@ -25,8 +25,8 @@ export const PotentialDestinationsList: React.FC<PotentialDestinationsListProps>
       <SectionTitle
         size='small'
         icon='/brand/odigos-icon.svg'
-        title='Detected by Odigos'
-        description='Odigos detects destinations for which automatic connection is available. All data will be filled out automatically.'
+        title='Detected by CKarma'
+        description='CKarma detects destinations for which automatic connection is available. All data will be filled out automatically.'
       />
       {loading ? <SkeletonLoader size={1} /> : data.map((item) => <DestinationListItem key={item.displayName} item={item} onSelect={setSelectedItems} />)}
     </ListsWrapper>

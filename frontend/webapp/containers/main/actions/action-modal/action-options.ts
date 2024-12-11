@@ -26,7 +26,7 @@ export const ACTION_OPTIONS: ActionOption[] = [
         type: ActionsType.ADD_CLUSTER_INFO,
         icon: getActionIcon(ActionsType.ADD_CLUSTER_INFO),
         docsEndpoint: '/pipeline/actions/attributes/addclusterinfo',
-        docsDescription: 'The “Add Cluster Info” Odigos Action can be used to add resource attributes to telemetry signals originated from the k8s cluster where the Odigos is running.',
+        docsDescription: 'The “Add Cluster Info” CKarma Action can be used to add resource attributes to telemetry signals originated from the k8s cluster where the CKarma is running.',
         allowedSignals: ['TRACES', 'METRICS', 'LOGS'],
       },
       {
@@ -36,7 +36,7 @@ export const ACTION_OPTIONS: ActionOption[] = [
         type: ActionsType.DELETE_ATTRIBUTES,
         icon: getActionIcon(ActionsType.DELETE_ATTRIBUTES),
         docsEndpoint: '/pipeline/actions/attributes/deleteattribute',
-        docsDescription: 'The “Delete Attribute” Odigos Action can be used to delete attributes from logs, metrics, and traces.',
+        docsDescription: 'The “Delete Attribute” CKarma Action can be used to delete attributes from logs, metrics, and traces.',
         allowedSignals: ['TRACES', 'METRICS', 'LOGS'],
       },
       {
@@ -47,7 +47,7 @@ export const ACTION_OPTIONS: ActionOption[] = [
         icon: getActionIcon(ActionsType.RENAME_ATTRIBUTES),
         docsEndpoint: '/pipeline/actions/attributes/rename-attribute',
         docsDescription:
-          'The “Rename Attribute” Odigos Action can be used to rename attributes from logs, metrics, and traces. Different instrumentations might use different attribute names for similar information. This action let’s you to consolidate the names across your cluster.',
+          'The “Rename Attribute” CKarma Action can be used to rename attributes from logs, metrics, and traces. Different instrumentations might use different attribute names for similar information. This action let’s you to consolidate the names across your cluster.',
         allowedSignals: ['TRACES', 'METRICS', 'LOGS'],
       },
       {
@@ -57,7 +57,7 @@ export const ACTION_OPTIONS: ActionOption[] = [
         type: ActionsType.PII_MASKING,
         icon: getActionIcon(ActionsType.PII_MASKING),
         docsEndpoint: '/pipeline/actions/attributes/piimasking',
-        docsDescription: 'The “PII Masking” Odigos Action can be used to mask PII data from span attribute values.',
+        docsDescription: 'The “PII Masking” CKarma Action can be used to mask PII data from span attribute values.',
         allowedSignals: ['TRACES'],
       },
     ],
@@ -74,7 +74,7 @@ export const ACTION_OPTIONS: ActionOption[] = [
         type: ActionsType.ERROR_SAMPLER,
         icon: getActionIcon('sampler'),
         docsEndpoint: '/pipeline/actions/sampling/errorsampler',
-        docsDescription: 'The “Error Sampler” Odigos Action is a Global Action that supports error sampling by filtering out non-error traces.',
+        docsDescription: 'The “Error Sampler” CKarma Action is a Global Action that supports error sampling by filtering out non-error traces.',
         allowedSignals: ['TRACES'],
       },
       {
@@ -84,7 +84,7 @@ export const ACTION_OPTIONS: ActionOption[] = [
         type: ActionsType.PROBABILISTIC_SAMPLER,
         icon: getActionIcon('sampler'),
         docsEndpoint: '/pipeline/actions/sampling/probabilisticsampler',
-        docsDescription: 'The “Probabilistic Sampler” Odigos Action supports probabilistic sampling based on a configured sampling percentage applied to the TraceID.',
+        docsDescription: 'The “Probabilistic Sampler” CKarma Action supports probabilistic sampling based on a configured sampling percentage applied to the TraceID.',
         allowedSignals: ['TRACES'],
       },
       {
@@ -94,7 +94,7 @@ export const ACTION_OPTIONS: ActionOption[] = [
         type: ActionsType.LATENCY_SAMPLER,
         icon: getActionIcon('sampler'),
         docsEndpoint: '/pipeline/actions/sampling/latencysampler',
-        docsDescription: 'The “Latency Sampler” Odigos Action is an Endpoint Action that samples traces based on their duration for a specific service and endpoint (HTTP route) filter.',
+        docsDescription: 'The “Latency Sampler” CKarma Action is an Endpoint Action that samples traces based on their duration for a specific service and endpoint (HTTP route) filter.',
         allowedSignals: ['TRACES'],
       },
     ],

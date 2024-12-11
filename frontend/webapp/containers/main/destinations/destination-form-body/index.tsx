@@ -78,7 +78,7 @@ export function DestinationFormBody({ isUpdate, destination, formData, formError
         <>
           <SectionTitle
             title='Create connection'
-            description={`Connect ${displayName} with Odigos.`}
+            description={`Connect ${displayName} with CKarma.`}
             actionButton={
               testConnectionSupported && (
                 <TestConnection
@@ -103,7 +103,7 @@ export function DestinationFormBody({ isUpdate, destination, formData, formError
             <NotesWrapper>
               {connectionStatus === 'error' && <NotificationNote type='error' message='Connection failed. Please check your input and try again.' />}
               {connectionStatus === 'success' && <NotificationNote type='success' message='Connection succeeded.' />}
-              {!connectionStatus && <NotificationNote type='default' message={`Odigos autocompleted ${displayName} connection details.`} />}
+              {!connectionStatus && <NotificationNote type='default' message={`CKarma autocompleted ${displayName} connection details.`} />}
             </NotesWrapper>
           )}
 

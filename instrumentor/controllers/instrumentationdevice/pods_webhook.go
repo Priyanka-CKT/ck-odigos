@@ -53,6 +53,10 @@ func injectOdigosEnvVars(pod *corev1.Pod) {
 				},
 			},
 		},
+		{
+			Name:  consts.CkNexusEndpoint,
+			Value: "http://ckn-nexus-app:8081",
+		},
 	}
 
 	for i := range pod.Spec.Containers {

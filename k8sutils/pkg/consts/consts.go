@@ -46,10 +46,12 @@ const (
 	OdigosEnvVarNamespace     = "ODIGOS_WORKLOAD_NAMESPACE"
 	OdigosEnvVarContainerName = "ODIGOS_CONTAINER_NAME"
 	OdigosEnvVarPodName       = "ODIGOS_POD_NAME"
+	CkNexusEndpoint			  = "NEXUS_ENDPOINT"
 )
 
 func OdigosInjectedEnvVars() []string {
 	return []string{
+		CkNexusEndpoint,
 		OdigosEnvVarNamespace,
 		OdigosEnvVarContainerName,
 		OdigosEnvVarPodName,

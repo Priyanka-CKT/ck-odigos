@@ -1,7 +1,7 @@
 image:
   tag: "v1.0.138"
 imagePullSecrets: 
-  - name: ck-ghcr-secret
+  - name: ckn-ghcr-secret
 
 # namespaces not to show in odigos ui
 ignoredNamespaces:

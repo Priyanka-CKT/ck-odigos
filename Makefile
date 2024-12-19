@@ -1,6 +1,6 @@
 TAG ?= v1.0.138
 ODIGOS_CLI_VERSION ?= v1.0.138
-ORG ?= keyval
+ORG ?= ghcr.io/sabareesh-ckt/myrepo/keyval
 
 .PHONY: build-odiglet
 build-odiglet:

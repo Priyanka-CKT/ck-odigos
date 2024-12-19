@@ -1,5 +1,5 @@
-TAG ?= $(shell odigos version --cluster)
-ODIGOS_CLI_VERSION ?= $(shell odigos version --cli)
+TAG ?= v1.0.138
+ODIGOS_CLI_VERSION ?= v1.0.138
 ORG ?= keyval
 
 .PHONY: build-odiglet

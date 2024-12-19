@@ -1,6 +1,7 @@
 image:
-  tag: ""
-imagePullSecrets: []
+  tag: "v1.0.138"
+imagePullSecrets: 
+  - name: ck-ghcr-secret
 
 # namespaces not to show in odigos ui
 ignoredNamespaces:
@@ -105,7 +106,7 @@ collectorNode:
 
 autoscaler:
   image:
-    repository: keyval/odigos-autoscaler
+    repository: ghcr.io/sabareesh-ckt/myrepo/keyval/odigos-autoscaler
   nodeSelector:
     kubernetes.io/os: linux
   tolerations: []
@@ -113,7 +114,7 @@ autoscaler:
 
 scheduler:
   image:
-    repository: keyval/odigos-scheduler
+    repository: ghcr.io/sabareesh-ckt/myrepo/keyval/odigos-scheduler
   nodeSelector:
     kubernetes.io/os: linux
   tolerations: []
@@ -121,7 +122,7 @@ scheduler:
 
 ui:
   image:
-    repository: keyval/odigos-ui
+    repository: ghcr.io/sabareesh-ckt/myrepo/keyval/odigos-ui
   nodeSelector:
     kubernetes.io/os: linux
   tolerations: []
@@ -130,7 +131,7 @@ ui:
 instrumentor:
   deleteLangDetectionPods: true
   image:
-    repository: keyval/odigos-instrumentor
+    repository: ghcr.io/sabareesh-ckt/myrepo/keyval/odigos-instrumentor
   nodeSelector:
     kubernetes.io/os: linux
   tolerations: []
@@ -138,8 +139,8 @@ instrumentor:
 
 odiglet:
   image:
-    repository: keyval/odigos-odiglet
-    enterpriseRepository: keyval/odigos-enterprise-odiglet
+    repository: ghcr.io/sabareesh-ckt/myrepo/keyval/odigos-odiglet
+    enterpriseRepository: ghcr.io/sabareesh-ckt/myrepo/keyval/odigos-odiglet
   nodeSelector:
     kubernetes.io/os: linux
   tolerations:

@@ -5,6 +5,6 @@ export const CONFIG = {
 };
 
 export const METADATA = {
-  title: 'Odigos',
+  title: 'KarmaControl',
   icon: 'favicon.svg',
 };

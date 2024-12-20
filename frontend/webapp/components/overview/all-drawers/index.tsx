@@ -22,7 +22,7 @@ const AllDrawers = () => {
     case OVERVIEW_ENTITY_TYPES.DESTINATION:
       return <DestinationDrawer />;
 
-    case DRAWER_OTHER_TYPES.DESCRIBE_ODIGOS:
+    case DRAWER_OTHER_TYPES.DESCRIBE_CK:
       return <DescribeDrawer />;
 
     default:

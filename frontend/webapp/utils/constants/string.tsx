@@ -56,7 +56,7 @@ export const DATA_CARDS = {
   DETECTED_CONTAINERS: 'Detected Containers',
   DETECTED_CONTAINERS_DESCRIPTION: 'The system automatically instruments the containers it detects with a supported programming language.',
   DESCRIBE_SOURCE: 'Describe Source',
-  DESCRIBE_ODIGOS: 'Describe Odigos',
+  DESCRIBE_CK: 'Describe CodeKarma',
 };
 
 export const DISPLAY_TITLES = {

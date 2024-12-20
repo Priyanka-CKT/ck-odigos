@@ -34,7 +34,7 @@ export const MainHeader: React.FC<MainHeaderProps> = () => {
   const { setSelectedItem } = useDrawerStore();
   const { connecting, active, title, message } = useConnectionStore();
 
-  const handleClickDescribe = () => setSelectedItem({ type: DRAWER_OTHER_TYPES.DESCRIBE_ODIGOS, id: DRAWER_OTHER_TYPES.DESCRIBE_ODIGOS });
+  const handleClickDescribe = () => setSelectedItem({ type: DRAWER_OTHER_TYPES.DESCRIBE_CK, id: DRAWER_OTHER_TYPES.DESCRIBE_CK });
   const handleClickSlack = () => window.open(SLACK_LINK, '_blank', 'noopener noreferrer');
 
   return (
@@ -47,7 +47,7 @@ export const MainHeader: React.FC<MainHeaderProps> = () => {
 
       <AlignRight>
         <NotificationManager />
-        <IconButton onClick={handleClickDescribe} tooltip='Describe Odigos'>
+        <IconButton onClick={handleClickDescribe} tooltip='Describe CodeKarma'>
           <OdigosLogo />
         </IconButton>
         <IconButton onClick={handleClickSlack} tooltip='Join our Slack community'>

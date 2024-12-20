@@ -40,8 +40,9 @@ var EnvValuesMap = map[string]envValues{
 		delim:               " ",
 		programmingLanguage: common.JavaProgrammingLanguage,
 		values: map[common.OtelSdk]string{
-			common.OtelSdkNativeCommunity: "-javaagent:/var/odigos/java/javaagent.jar",
-			common.OtelSdkEbpfEnterprise:  "-javaagent:/var/odigos/java-ebpf/dtrace-injector.jar",
+			common.OtelSdkNativeCommunity: "-javaagent:/var/odigos/java/javaagent.jar " +
+				"-Dotel.javaagent.extensions=/var/odigos/java/javaagent-extension.jar",
+			common.OtelSdkEbpfEnterprise: "-javaagent:/var/odigos/java-ebpf/dtrace-injector.jar",
 			common.OtelSdkNativeEnterprise: "-javaagent:/var/odigos/java-ext-ebpf/javaagent.jar " +
 				"-Dotel.javaagent.extensions=/var/odigos/java-ext-ebpf/otel_agent_extension.jar",
 		},
@@ -50,8 +51,9 @@ var EnvValuesMap = map[string]envValues{
 		delim:               " ",
 		programmingLanguage: common.JavaProgrammingLanguage,
 		values: map[common.OtelSdk]string{
-			common.OtelSdkNativeCommunity: "-javaagent:/var/odigos/java/javaagent.jar",
-			common.OtelSdkEbpfEnterprise:  "-javaagent:/var/odigos/java-ebpf/dtrace-injector.jar",
+			common.OtelSdkNativeCommunity: "-javaagent:/var/odigos/java/javaagent.jar " +
+				"-Dotel.javaagent.extensions=/var/odigos/java/javaagent-extension.jar",
+			common.OtelSdkEbpfEnterprise: "-javaagent:/var/odigos/java-ebpf/dtrace-injector.jar",
 			common.OtelSdkNativeEnterprise: "-javaagent:/var/odigos/java-ext-ebpf/javaagent.jar " +
 				"-Dotel.javaagent.extensions=/var/odigos/java-ext-ebpf/otel_agent_extension.jar",
 		},

@@ -1,6 +1,6 @@
 import { gql } from '@apollo/client';
 
-export const DESCRIBE_ODIGOS = gql`
+export const DESCRIBE_CK = gql`
   query DescribeOdigos {
     describeOdigos {
       odigosVersion {

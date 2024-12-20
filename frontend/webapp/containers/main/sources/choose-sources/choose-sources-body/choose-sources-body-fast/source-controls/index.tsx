@@ -27,7 +27,7 @@ export const SourceControls: React.FC<Props> = ({ selectedSources, searchText, s
       <SectionTitle
         title='Select Sources for Instrumentation'
         badgeLabel={selectedAppsCount}
-        description='Select apps to monitor in each namespace. Odigos will instrument them and send telemetry data to your destinations.'
+        description='Select apps to monitor in each namespace. KarmaControl will instrument them and send telemetry data to your destinations.'
       />
 
       <FlexContainer style={{ marginTop: 24 }}>

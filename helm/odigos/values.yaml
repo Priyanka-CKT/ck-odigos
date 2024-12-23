@@ -1,5 +1,5 @@
 image:
-  tag: "v1.0.138"
+  tag: "v1.0.139"
 imagePullSecrets: 
   - name: ckn-ghcr-secret
 

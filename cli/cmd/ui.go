@@ -91,7 +91,7 @@ func portForwardWithContext(ctx context.Context, uiPod *corev1.Pod, client *kube
 		close(stopChannel)
 	}()
 
-	fmt.Printf("Odigos UI is available at: http://%s:%s\n\n", localAddress, localPort)
+	fmt.Printf("KarmaControl UI is available at: http://%s:%s\n\n", localAddress, localPort)
 	fmt.Printf("Port-forwarding from %s/%s\n", uiPod.Namespace, uiPod.Name)
 	fmt.Printf("Press Ctrl+C to stop\n")
 
@@ -154,7 +154,7 @@ func findOdigosUIPod(client *kube.Client, ctx context.Context, ns string) (*core
 
 	pod := &pods.Items[0]
 	if pod.Status.Phase != corev1.PodRunning {
-		return nil, fmt.Errorf("odigos-ui pod is not running")
+		return nil, fmt.Errorf("karmacontrol-ui pod is not running")
 	}
 
 	return &pods.Items[0], nil

@@ -18,7 +18,7 @@ import (
 	commonInstrumentation "github.com/odigos-io/odigos/instrumentation"
 	"k8s.io/client-go/kubernetes"
 	"k8s.io/client-go/rest"
-	"sigs.k8s.io/controller-runtime"
+	controllerruntime "sigs.k8s.io/controller-runtime"
 )
 
 type Odiglet struct {

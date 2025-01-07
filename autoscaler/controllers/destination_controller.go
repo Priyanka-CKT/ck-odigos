@@ -41,6 +41,23 @@ type DestinationReconciler struct {
 func (r *DestinationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 	logger.V(0).Info("Reconciling Destination")
+	var destination v1.Destination
+	if err := r.Get(ctx, req.NamespacedName, &destination); err != nil {
+		logger.Error(err, "Failed to get Destination",
+			"namespace", req.Namespace,
+			"name", req.Name)
+		return ctrl.Result{}, client.IgnoreNotFound(err)
+	}
+
+	logger.V(0).Info("Processing Destination",
+		"name", destination.Name,
+		"namespace", destination.Namespace,
+		"type", destination.Spec.Type,
+		"signals", destination.Spec.Signals,
+		"status", destination.Status,
+		"creationTimestamp", destination.CreationTimestamp,
+		"resourceVersion", destination.ResourceVersion,
+		"generation", destination.Generation)
 	err := gateway.Sync(ctx, r.Client, r.Scheme, r.ImagePullSecrets, r.OdigosVersion, r.Config)
 	if err != nil {
 		return ctrl.Result{}, err

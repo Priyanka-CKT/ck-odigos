@@ -330,38 +330,50 @@ func NewMutatingWebhookConfiguration(ns string, caBundle []byte) *admissionregis
 		},
 		Webhooks: []admissionregistrationv1.MutatingWebhook{
 			{
+				// This webhook is responsible for mutating pods that need instrumentation
 				Name: "pod-mutating-webhook.odigos.io",
+				
+				// Configure the webhook service endpoint
 				ClientConfig: admissionregistrationv1.WebhookClientConfig{
 					Service: &admissionregistrationv1.ServiceReference{
-						Name:      "odigos-instrumentor",
-						Namespace: ns,
-						Path:      ptrString("/mutate--v1-pod"),
-						Port:      intPtr(9443),
+						Name:      "odigos-instrumentor", // Service name that handles webhook requests
+						Namespace: ns,                    // Namespace where service runs
+						Path:      ptrString("/mutate--v1-pod"), // API endpoint path
+						Port:      intPtr(9443),         // Port the service listens on
 					},
 				},
+
+				// Define which operations this webhook handles
 				Rules: []admissionregistrationv1.RuleWithOperations{
 					{
+						// Trigger on pod creation and updates
 						Operations: []admissionregistrationv1.OperationType{
 							admissionregistrationv1.Create,
 							admissionregistrationv1.Update,
 						},
 						Rule: admissionregistrationv1.Rule{
-							APIGroups:   []string{""},
-							APIVersions: []string{"v1"},
-							Resources:   []string{"pods"},
-							Scope:       ptrGeneric(admissionregistrationv1.NamespacedScope),
+							APIGroups:   []string{""},      // Core API group
+							APIVersions: []string{"v1"},    // API version
+							Resources:   []string{"pods"},  // Only handle pod resources
+							Scope:       ptrGeneric(admissionregistrationv1.NamespacedScope), // Only namespaced resources
 						},
 					},
 				},
-				FailurePolicy:      ptrGeneric(admissionregistrationv1.Ignore),
-				ReinvocationPolicy: ptrGeneric(admissionregistrationv1.IfNeededReinvocationPolicy),
-				SideEffects:        ptrGeneric(admissionregistrationv1.SideEffectClassNone),
-				TimeoutSeconds:     intPtr(10),
+
+				// Webhook behavior configuration
+				FailurePolicy:      ptrGeneric(admissionregistrationv1.Ignore),  // Continue if webhook fails
+				ReinvocationPolicy: ptrGeneric(admissionregistrationv1.IfNeededReinvocationPolicy), // Allow multiple invocations if needed
+				SideEffects:        ptrGeneric(admissionregistrationv1.SideEffectClassNone), // Webhook has no side effects
+				TimeoutSeconds:     intPtr(10), // Timeout after 10 seconds
+
+				// Only process pods with this label
 				ObjectSelector: &metav1.LabelSelector{
 					MatchLabels: map[string]string{
 						"odigos.io/inject-instrumentation": "true",
 					},
 				},
+
+				// Supported webhook API versions
 				AdmissionReviewVersions: []string{
 					"v1",
 				},

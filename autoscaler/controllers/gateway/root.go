@@ -28,6 +28,7 @@ func Sync(ctx context.Context, k8sClient client.Client, scheme *runtime.Scheme, 
 	var gatewayCollectorGroup odigosv1.CollectorsGroup
 	err := k8sClient.Get(ctx, client.ObjectKey{Namespace: odigosNs, Name: k8sconsts.OdigosClusterCollectorConfigMapName}, &gatewayCollectorGroup)
 	if err != nil {
+		logger.Info("Collectors group not found", "namespace", odigosNs, "name", k8sconsts.OdigosClusterCollectorConfigMapName)
 		// collectors group is created by the scheduler, after the first destination is added.
 		// it is however possible that some reconciler (like deployment) triggered and the collectors group will be created shortly.
 		return client.IgnoreNotFound(err)
@@ -35,11 +36,26 @@ func Sync(ctx context.Context, k8sClient client.Client, scheme *runtime.Scheme, 
 
 	var dests odigosv1.DestinationList
 	if err := k8sClient.List(ctx, &dests); err != nil {
+		logger.Info("Failed to list destinations",
+			"namespace", odigosNs,
+			"collectorsGroup", gatewayCollectorGroup.Name,
+			"collectorsGroupNamespace", gatewayCollectorGroup.Namespace,
+			"error", err)
 		logger.Error(err, "Failed to list destinations")
 		return err
 	}
 
 	var processors odigosv1.ProcessorList
+	logger.V(0).Info("Listing all processors fields")
+	for _, processor := range processors.Items {
+		logger.V(0).Info("Processor fields",
+			"name", processor.Name,
+			"namespace", processor.Namespace,
+			"type", processor.Spec.Type,
+			"processorName", processor.Spec.ProcessorName,
+			"signals", processor.Spec.Signals,
+			"status", processor.Status)
+	}
 	if err := k8sClient.List(ctx, &processors); err != nil {
 		logger.Error(err, "Failed to list processors")
 		return err

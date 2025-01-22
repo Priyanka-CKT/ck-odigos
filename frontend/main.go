@@ -66,7 +66,7 @@ func parseFlags() Flags {
 	defaultKubeConfig := env.GetDefaultKubeConfigPath()
 
 	var flags Flags
-	flag.BoolVar(&flags.Version, "version", false, "Print Odigos UI version.")
+	flag.BoolVar(&flags.Version, "version", false, "Print KarmaControl UI version.")
 	flag.StringVar(&flags.Address, "address", "localhost", "Address to listen on")
 	flag.IntVar(&flags.Port, "port", defaultPort, "Port to listen on")
 	flag.IntVar(&flags.LegacyPort, "legacy-port", legacyPort, "Port to listen on for legacy UI")
@@ -336,7 +336,7 @@ func main() {
 	r.GET("/api/events", sse.HandleSSEConnections)
 	d.GET("/api/events", sse.HandleSSEConnections)
 
-	log.Printf("Odigos UI is available at: http://%s:%d", flags.Address, flags.Port)
+	log.Printf("KarmaControl UI is available at: http://%s:%d", flags.Address, flags.Port)
 
 	go func() {
 		err = r.Run(fmt.Sprintf("%s:%d", flags.Address, flags.Port))
@@ -346,7 +346,7 @@ func main() {
 	}()
 
 	go func() {
-		log.Printf("Odigos Legacy UI is available at: http://%s:%d", flags.Address, flags.LegacyPort)
+		log.Printf("KarmaControl Legacy UI is available at: http://%s:%d", flags.Address, flags.LegacyPort)
 		err = d.Run(fmt.Sprintf("%s:%d", flags.Address, flags.LegacyPort))
 		if err != nil {
 			log.Fatalf("Error starting server: %s", err)
@@ -354,7 +354,7 @@ func main() {
 	}()
 
 	<-ch
-	log.Println("Shutting down Odigos UI...")
+	log.Println("Shutting down KarmaControl UI...")
 	cancel()
 	wg.Wait()
 }

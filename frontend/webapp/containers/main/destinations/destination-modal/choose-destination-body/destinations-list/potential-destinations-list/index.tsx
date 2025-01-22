@@ -25,8 +25,8 @@ export const PotentialDestinationsList: React.FC<Props> = ({ setSelectedItems })
       <SectionTitle
         size='small'
         icon={OdigosLogo}
-        title='Detected by Odigos'
-        description='Odigos detects destinations for which automatic connection is available. All data will be filled out automatically.'
+        title='Detected by KarmaControl'
+        description='KarmaControl detects destinations for which automatic connection is available. All data will be filled out automatically.'
       />
       {loading ? (
         <SkeletonLoader size={1} />

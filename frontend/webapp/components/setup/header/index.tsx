@@ -27,7 +27,7 @@ export const SetupHeader: React.FC<Props> = ({ navigationButtons }) => {
   return (
     <Container>
       <OdigosLogoText size={80} />
-      <Title family='secondary'>START WITH ODIGOS</Title>
+      <Title family='secondary'>START WITH CODEKARMA</Title>
       <NavigationButtons buttons={navigationButtons} />
     </Container>
   );

@@ -45,6 +45,11 @@ func instrumentedApplicationToActualSource(instrumentedApp v1alpha1.Instrumented
 	// Map the container runtime details
 	var containers []*gqlmodel.SourceContainerRuntimeDetails
 	for _, container := range instrumentedApp.Spec.RuntimeDetails {
+		println("Container Language:", string(container.Language))
+		// Filter to include only containers with Language "Java" or "Go"
+		if container.Language != "Java" && container.Language != "Go" {
+			continue
+		}
 		var otherAgentName *string
 		if container.OtherAgent != nil {
 			otherAgentName = &container.OtherAgent.Name

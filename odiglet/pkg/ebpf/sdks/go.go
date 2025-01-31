@@ -2,6 +2,7 @@ package sdks
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 
 	odigosv1 "github.com/odigos-io/odigos/api/odigos/v1alpha1"
@@ -32,6 +33,11 @@ func NewGoInstrumentationFactory() instrumentation.Factory {
 }
 
 func (g *GoInstrumentationFactory) CreateInstrumentation(ctx context.Context, pid int, settings instrumentation.Settings) (instrumentation.Instrumentation, error) {
+
+	log.Logger.Info("Creating Go instrumentation with context", "context", ctx)
+	log.Logger.Info("Process ID", "pid", pid)
+	log.Logger.Info("Instrumentation settings", "settings", settings)
+
 	defaultExporter, err := otlptracegrpc.New(
 		ctx,
 		otlptracegrpc.WithInsecure(),
@@ -47,6 +53,23 @@ func (g *GoInstrumentationFactory) CreateInstrumentation(ctx context.Context, pi
 	}
 
 	cp := ebpf.NewConfigProvider(initialConfig)
+
+	log.Logger.Info("Creating Go instrumentation",
+		"pid", pid,
+		"serviceName", settings.ServiceName,
+		"resourceAttributes", settings.ResourceAttributes)
+
+	// For complex objects, you might want to use JSON formatting
+	configJSON, _ := json.Marshal(initialConfig)
+	log.Logger.Info("Initial configuration",
+		"config", string(configJSON))
+
+	// Log resource attributes
+	for k, v := range settings.ResourceAttributes {
+		log.Logger.Info(fmt.Sprintf("resourceAttribute[%s]", k), v)
+	}
+
+	log.Logger.Info("creating new instrumentation with settings")
 
 	inst, err := auto.NewInstrumentation(
 		ctx,

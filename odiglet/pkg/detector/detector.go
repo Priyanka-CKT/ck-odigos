@@ -7,7 +7,7 @@ import (
 	"github.com/odigos-io/odigos/common/envOverwrite"
 	"github.com/odigos-io/odigos/k8sutils/pkg/consts"
 	"github.com/odigos-io/odigos/procdiscovery/pkg/process"
-	"github.com/odigos-io/runtime-detector"
+	detector "github.com/odigos-io/runtime-detector"
 )
 
 func K8sDetectorOptions(logger logr.Logger) []detector.DetectorOption {

@@ -5,6 +5,8 @@ import "fmt"
 var ImagePrefix string
 
 func GetCollectorContainerImage(origName string, version string) string {
+
+	fmt.Printf("Getting collector container image for name: %s, version: %s\n", origName, version)
 	imageWithTag := fmt.Sprintf("%s:%s", origName, version)
 	if ImagePrefix == "" {
 		return imageWithTag

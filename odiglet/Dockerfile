@@ -79,6 +79,14 @@ RUN ARCH_SUFFIX=$(cat /tmp/arch_suffix) && \
     rm opentelemetry-dotnet-instrumentation-linux-musl-${ARCH_SUFFIX}.zip
 
 FROM --platform=$BUILDPLATFORM keyval/odiglet-base:v1.7 AS builder
+# Add GitHub authentication
+ARG GITHUB_TOKEN
+# Configure Git to use the token only for your specific repository
+RUN git config --global url."https://${GITHUB_TOKEN}@github.com/codekarma-tech/ck-go-agent".insteadOf "https://github.com/codekarma-tech/ck-go-agent"
+
+# Set GOPRIVATE for your specific repository
+RUN go env -w GOPRIVATE=github.com/codekarma-tech/ck-go-agent
+
 WORKDIR /go/src/github.com/odigos-io/odigos
 # Copy local modules required by the build
 COPY api/ api/

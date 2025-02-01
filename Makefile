@@ -1,10 +1,14 @@
 TAG ?= v1.0.139
 ODIGOS_CLI_VERSION ?= v1.0.139
 ORG ?= ghcr.io/sabareesh-ckt/myrepo/keyval
+-include .env
 
+# Define GITHUB_TOKEN with a default empty value
+GITHUB_TOKEN ?=
 .PHONY: build-odiglet
 build-odiglet:
-	docker build -t $(ORG)/odigos-odiglet:$(TAG) . -f odiglet/Dockerfile --build-arg ODIGOS_VERSION=$(TAG)
+    
+	docker build -t $(ORG)/odigos-odiglet:$(TAG) --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} --build-arg ODIGOS_VERSION=$(TAG) -f odiglet/Dockerfile .
 
 .PHONY: verify-nodejs-agent
 verify-nodejs-agent:

@@ -93,7 +93,7 @@ func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, ser
 		},
 		{
 			Name:  "NEXUS_ENDPOINT",
-			Value: "http://ckn-nexus-app.default.svc.cluster.local:8081",
+			Value: "http://ckn-nexus-app.codekarma.svc.cluster.local:8081",
 		},
 	}
 

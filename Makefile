@@ -1,5 +1,5 @@
-TAG ?= v1.0.139
-ODIGOS_CLI_VERSION ?= v1.0.139
+TAG ?= v1.0.142
+ODIGOS_CLI_VERSION ?= v1.0.142
 ORG ?= ghcr.io/sabareesh-ckt/myrepo/keyval
 -include .env
 
@@ -48,7 +48,7 @@ build-images:
 
 .PHONY: push-odiglet
 push-odiglet:
-	docker buildx build --platform linux/amd64,linux/arm64/v8 --push -t $(ORG)/odigos-odiglet:$(TAG) . -f odiglet/Dockerfile
+	docker buildx build --platform linux/amd64,linux/arm64/v8 --push -t $(ORG)/odigos-odiglet:$(TAG) --build-arg GITHUB_TOKEN=${GITHUB_TOKEN} --build-arg ODIGOS_VERSION=$(TAG) -f odiglet/Dockerfile .
 
 .PHONY: push-autoscaler
 push-autoscaler:
@@ -168,7 +168,9 @@ deploy-scheduler:
 
 .PHONY: debug-odiglet
 debug-odiglet:
-	docker build -t $(ORG)/odigos-odiglet:$(TAG) . -f odiglet/debug.Dockerfile
+
+	docker build -t $(ORG)/odigos-odiglet:$(TAG) --build-arg GITHUB_TOKEN=${GITHUB_TOKEN}  -f odiglet/debug.Dockerfile .
+	# docker build -t $(ORG)/odigos-odiglet:$(TAG)  . -f odiglet/debug.Dockerfile
 	kind load docker-image $(ORG)/odigos-odiglet:$(TAG)
 	kubectl delete pod -n odigos-system -l app.kubernetes.io/name=odiglet
 	kubectl wait --for=condition=ready pod -n odigos-system -l app.kubernetes.io/name=odiglet --timeout=180s

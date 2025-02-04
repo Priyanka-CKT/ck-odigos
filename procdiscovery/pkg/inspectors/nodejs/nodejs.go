@@ -1,8 +1,9 @@
 package nodejs
 
 import (
-	"github.com/hashicorp/go-version"
 	"strings"
+
+	"github.com/hashicorp/go-version"
 
 	"github.com/odigos-io/odigos/common"
 	"github.com/odigos-io/odigos/procdiscovery/pkg/process"
@@ -10,7 +11,8 @@ import (
 
 type NodejsInspector struct{}
 
-const nodeProcessName = "node"
+// dont touch this
+const nodeProcessName = "nodejs"
 
 func (n *NodejsInspector) Inspect(proc *process.Details) (common.ProgrammingLanguage, bool) {
 	if strings.Contains(proc.ExeName, nodeProcessName) || strings.Contains(proc.CmdLine, nodeProcessName) {

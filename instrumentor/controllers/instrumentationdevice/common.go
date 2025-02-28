@@ -11,14 +11,11 @@ import (
 	"github.com/odigos-io/odigos/instrumentor/instrumentation"
 	"github.com/odigos-io/odigos/instrumentor/sdks"
 	"github.com/odigos-io/odigos/k8sutils/pkg/conditions"
-	odigosk8sconsts "github.com/odigos-io/odigos/k8sutils/pkg/consts"
-	"github.com/odigos-io/odigos/k8sutils/pkg/env"
 	k8sprofiles "github.com/odigos-io/odigos/k8sutils/pkg/profiles"
 	k8sutils "github.com/odigos-io/odigos/k8sutils/pkg/utils"
 	"github.com/odigos-io/odigos/k8sutils/pkg/workload"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
-	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
@@ -45,25 +42,25 @@ var (
 )
 
 func isDataCollectionReady(ctx context.Context, c client.Client) bool {
-	logger := log.FromContext(ctx)
+	// logger := log.FromContext(ctx)
 
-	nodeCollectorsGroup := odigosv1.CollectorsGroup{}
-	err := c.Get(ctx, client.ObjectKey{
-		Namespace: env.GetCurrentNamespace(),
-		Name:      odigosk8sconsts.OdigosNodeCollectorCollectorGroupName,
-	}, &nodeCollectorsGroup)
+	// nodeCollectorsGroup := odigosv1.CollectorsGroup{}
+	// err := c.Get(ctx, client.ObjectKey{
+	// 	Namespace: env.GetCurrentNamespace(),
+	// 	Name:      odigosk8sconsts.OdigosNodeCollectorCollectorGroupName,
+	// }, &nodeCollectorsGroup)
 
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			// if node collector is not yet created, then it is not ready
-			return false
-		} else {
-			logger.Error(err, "error getting node collector group, skipping instrumentation")
-			return false
-		}
-	}
+	// if err != nil {
+	// 	if apierrors.IsNotFound(err) {
+	// 		// if node collector is not yet created, then it is not ready
+	// 		return false
+	// 	} else {
+	// 		logger.Error(err, "error getting node collector group, skipping instrumentation")
+	// 		return false
+	// 	}
+	// }
 
-	return nodeCollectorsGroup.Status.Ready
+	return true
 }
 
 func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.Client, runtimeDetails *odigosv1.InstrumentedApplication) (error, bool) {

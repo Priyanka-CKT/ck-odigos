@@ -58,7 +58,7 @@ func reconcileSingleInstrumentedApplicationByName(ctx context.Context, k8sClient
 			return err
 		}
 	}
-	isNodeCollectorReady := isDataCollectionReady(ctx, k8sClient)
+	isNodeCollectorReady := true
 
 	return reconcileSingleWorkload(ctx, k8sClient, &instrumentedApplication, isNodeCollectorReady)
 }

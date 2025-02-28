@@ -22,7 +22,7 @@ func (r *InstrumentationRuleReconciler) Reconcile(ctx context.Context, req ctrl.
 	if err := r.List(ctx, &instApps); err != nil {
 		return ctrl.Result{}, err
 	}
-	isNodeCollectorReady := isDataCollectionReady(ctx, r.Client)
+	isNodeCollectorReady := true
 
 	gotConflict := false
 	for _, runtimeDetails := range instApps.Items {

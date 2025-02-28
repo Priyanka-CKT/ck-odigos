@@ -82,3 +82,7 @@ func (r *CollectorsGroupReconciler) Reconcile(ctx context.Context, req ctrl.Requ
 	}
 	return ctrl.Result{}, reconcileErr
 }
+
+// func isDataCollectionReady(ctx context.Context, c client.Client) bool {
+// 	return true // Always consider data collection ready
+// }

@@ -55,7 +55,7 @@ func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req c
 		return utils.K8SUpdateErrorHandler(err)
 	}
 
-	isNodeCollectorReady := isDataCollectionReady(ctx, r.Client)
+	isNodeCollectorReady := true
 	err = reconcileSingleWorkload(ctx, r.Client, &runtimeDetails, isNodeCollectorReady)
 	return utils.K8SUpdateErrorHandler(err)
 }

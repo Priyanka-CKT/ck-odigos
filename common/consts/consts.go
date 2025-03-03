@@ -6,7 +6,7 @@ import (
 
 const (
 	CurrentNamespaceEnvVar       = "CURRENT_NS"
-	DefaultOdigosNamespace       = "odigos-system"
+	DefaultOdigosNamespace       = "codekarma"
 	OdigosConfigurationName      = "odigos-config"
 	OdigosConfigurationFileName  = "config.yaml"
 	OTLPPort                     = 4317

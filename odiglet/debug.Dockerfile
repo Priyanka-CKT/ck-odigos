@@ -96,9 +96,11 @@ WORKDIR /instrumentations
 # Java
 ARG JAVA_OTEL_VERSION=v2.6.0
 # ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/$JAVA_OTEL_VERSION/opentelemetry-javaagent.jar /instrumentations/java/javaagent.jar
-COPY agents/java/agent-1.0-SNAPSHOT-all.jar /instrumentations/java/javaagent.jar
+ADD https://ckn-agents.s3.us-east-1.amazonaws.com/agents/ck-agent-java-8.jar /instrumentations/java/ck-agent-java-8.jar
+RUN chmod 644 /instrumentations/java/ck-agent-java-8.jar
 
-RUN chmod 644 /instrumentations/java/javaagent.jar
+ADD https://ckn-agents.s3.us-east-1.amazonaws.com/agents/ck-agent-java-17.jar /instrumentations/java/ck-agent-java-17.jar
+RUN chmod 644 /instrumentations/java/ck-agent-java-17.jar
 
 # Python
 COPY --from=python-builder /python-instrumentation/workspace /instrumentations/python

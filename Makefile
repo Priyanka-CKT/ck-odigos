@@ -166,8 +166,8 @@ deploy-scheduler:
 	make build-scheduler TAG=$(TAG) && make load-to-kind-scheduler TAG=$(TAG) && make restart-scheduler
 
 
-.PHONY: debug-odiglet
-debug-odiglet:
+.PHONY: debug-karmaset
+debug-karmaset:
 
 	docker build -t $(ORG)/karmaset:$(TAG) --build-arg GITHUB_TOKEN=${GITHUB_TOKEN}  -f odiglet/debug.Dockerfile .
 	# docker build -t $(ORG)/karmaset:$(TAG)  . -f odiglet/debug.Dockerfile

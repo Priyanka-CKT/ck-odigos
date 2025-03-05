@@ -110,11 +110,11 @@ ARG JAVA_OTEL_VERSION=v2.10.0
 # ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/$JAVA_OTEL_VERSION/opentelemetry-javaagent.jar /instrumentations/java/javaagent.jar
 # RUN chmod 644 /instrumentations/java/javaagent.jar
 
-ADD https://ckn-agents.s3.us-east-1.amazonaws.com/agents/ck-agent-java-8.jar /instrumentations/java/ck-agent-java-8.jar
-RUN chmod 644 /instrumentations/java/ck-agent-java-8.jar
+ADD https://ckn-agents.s3.us-east-1.amazonaws.com/agents/ck-agent-universal.jar /instrumentations/java/ck-agent-universal.jar
+RUN chmod 644 /instrumentations/java/ck-agent-universal.jar
 
-ADD https://ckn-agents.s3.us-east-1.amazonaws.com/agents/ck-agent-java-17.jar /instrumentations/java/ck-agent-java-17.jar
-RUN chmod 644 /instrumentations/java/ck-agent-java-17.jar
+# ADD https://ckn-agents.s3.us-east-1.amazonaws.com/agents/ck-agent-java-17.jar /instrumentations/java/ck-agent-java-17.jar
+# RUN chmod 644 /instrumentations/java/ck-agent-java-17.jar
 
 # COPY agents/java/agent-1.0-SNAPSHOT-all.jar /instrumentations/java/javaagent.jar
 # RUN chmod 644 /instrumentations/java/javaagent.jar

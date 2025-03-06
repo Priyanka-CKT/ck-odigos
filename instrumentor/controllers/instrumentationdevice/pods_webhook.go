@@ -93,7 +93,7 @@ func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, ser
 		},
 		{
 			Name:  "CK_NEXUS_ENDPOINT",
-			Value: "https://api.codekarma.tech/nexus/test/",
+			Value: "https://api.codekarma.tech/nexus/swiggy/",
 		},
 		{
 			Name:  "CK_PG_ENDPOINT",

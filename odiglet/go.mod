@@ -17,7 +17,7 @@ require (
 	github.com/odigos-io/opentelemetry-zap-bridge v0.0.5
 	github.com/odigos-io/runtime-detector v0.0.4
 	github.com/stretchr/testify v1.10.0
-	go.opentelemetry.io/auto v0.19.9-alpha-ck
+	go.opentelemetry.io/auto v0.20.0-alpha-ck
 	go.opentelemetry.io/otel v1.34.0
 	go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc v1.34.0
 	go.uber.org/zap v1.27.0
@@ -123,5 +123,5 @@ replace (
 	github.com/odigos-io/odigos/k8sutils => ../k8sutils
 	github.com/odigos-io/odigos/opampserver => ../opampserver
 	github.com/odigos-io/odigos/procdiscovery => ../procdiscovery
-	go.opentelemetry.io/auto => github.com/codekarma-tech/ck-go-agent v0.19.9-alpha-ck
+	go.opentelemetry.io/auto => github.com/codekarma-tech/ck-go-agent v0.20.0-alpha-ck
 )

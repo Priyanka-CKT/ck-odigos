@@ -93,6 +93,7 @@ type OdigosConfiguration struct {
 	TelemetryEnabled      bool                           `json:"telemetryEnabled,omitempty"`
 	OpenshiftEnabled      bool                           `json:"openshiftEnabled,omitempty"`
 	IgnoredNamespaces     []string                       `json:"ignoredNamespaces,omitempty"`
+	IncludeNamespaces     []string                       `json:"includeNamespaces,omitempty"`
 	IgnoredContainers     []string                       `json:"ignoredContainers,omitempty"`
 	Psp                   bool                           `json:"psp,omitempty"`
 	ImagePrefix           string                         `json:"imagePrefix,omitempty"`

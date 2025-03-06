@@ -31,3 +31,16 @@ func IsItemIgnored(item string, ignoredList []string) bool {
 	}
 	return false
 }
+
+// ShouldIncludeNamespace checks if a namespace should be included based on includeNamespaces and ignoredNamespaces
+// If includeNamespaces is not empty, only namespaces in that list will be included
+// If includeNamespaces is empty, all namespaces except those in ignoredNamespaces will be included
+func ShouldIncludeNamespace(namespace string, includeNamespaces []string, ignoredNamespaces []string) bool {
+	// If includeNamespaces is not empty, only include namespaces in that list
+	if len(includeNamespaces) > 0 {
+		return arrayContainsString(includeNamespaces, namespace)
+	}
+
+	// Otherwise, include all namespaces except those in ignoredNamespaces
+	return !IsItemIgnored(namespace, ignoredNamespaces)
+}

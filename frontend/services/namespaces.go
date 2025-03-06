@@ -108,7 +108,7 @@ func getRelevantNameSpaces(ctx context.Context, odigosns string) ([]v1.Namespace
 
 	result := []v1.Namespace{}
 	for _, namespace := range list.Items {
-		if utils.IsItemIgnored(namespace.Name, odigosConfig.IgnoredNamespaces) {
+		if !utils.ShouldIncludeNamespace(namespace.Name, odigosConfig.IncludeNamespaces, odigosConfig.IgnoredNamespaces) {
 			continue
 		}
 

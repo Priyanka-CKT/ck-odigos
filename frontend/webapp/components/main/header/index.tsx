@@ -5,7 +5,7 @@ import styled from 'styled-components';
 import { PlatformTypes } from '@/types';
 import { PlatformTitle } from './cp-title';
 import { NotificationManager } from '@/components';
-import { OdigosLogo, OdigosLogoText, SlackLogo } from '@/assets';
+import { OdigosLogo, OdigosLogoText } from '@/assets';
 import { ConnectionStatus, IconButton } from '@/reuseable-components';
 import { DRAWER_OTHER_TYPES, useConnectionStore, useDrawerStore } from '@/store';
 
@@ -35,7 +35,6 @@ export const MainHeader: React.FC<MainHeaderProps> = () => {
   const { connecting, active, title, message } = useConnectionStore();
 
   const handleClickDescribe = () => setSelectedItem({ type: DRAWER_OTHER_TYPES.DESCRIBE_CK, id: DRAWER_OTHER_TYPES.DESCRIBE_CK });
-  const handleClickSlack = () => window.open(SLACK_LINK, '_blank', 'noopener noreferrer');
 
   return (
     <HeaderContainer>
@@ -45,15 +44,12 @@ export const MainHeader: React.FC<MainHeaderProps> = () => {
         {!connecting && <ConnectionStatus title={title} subtitle={message} isActive={active} />}
       </AlignLeft>
 
-      <AlignRight>
+      {/* <AlignRight>
         <NotificationManager />
         <IconButton onClick={handleClickDescribe} tooltip='Describe CodeKarma'>
           <OdigosLogo />
         </IconButton>
-        <IconButton onClick={handleClickSlack} tooltip='Join our Slack community'>
-          <SlackLogo />
-        </IconButton>
-      </AlignRight>
+      </AlignRight> */}
     </HeaderContainer>
   );
 };

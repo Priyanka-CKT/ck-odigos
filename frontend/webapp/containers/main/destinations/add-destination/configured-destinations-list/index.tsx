@@ -42,7 +42,7 @@ const ListItem: React.FC<{ item: ConfiguredDestination; isLastItem: boolean }> =
       <DeleteWarning
         isOpen={deleteWarning}
         name={item.displayName || item.type}
-        type={OVERVIEW_ENTITY_TYPES.DESTINATION}
+        type={'destination' as any}
         isLastItem={isLastItem}
         onApprove={() => removeConfiguredDestination(item)}
         onDeny={() => setDeleteWarning(false)}

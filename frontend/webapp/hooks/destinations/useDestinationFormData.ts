@@ -15,6 +15,8 @@ import {
   NOTIFICATION_TYPE,
 } from '@/types';
 
+// Commenting out destination functionality
+/*
 const INITIAL: DestinationInput = {
   type: '',
   name: '',
@@ -147,5 +149,42 @@ export function useDestinationFormData(params?: { destinationType?: string; supp
     destinationTypeDetails,
     dynamicFields,
     setDynamicFields,
+  };
+}
+*/
+
+// Placeholder export to avoid import errors
+export function useDestinationFormData(params?: { destinationType?: string; supportedSignals?: any; preLoadedFields?: any }) {
+  return {
+    formData: {
+      name: '',
+      type: params?.destinationType || '',
+      exportedSignals: {
+        traces: false,
+        metrics: false,
+        logs: false
+      },
+      fields: []
+    },
+    formErrors: {},
+    dynamicFields: [
+      {
+        name: 'placeholder',
+        componentType: 'input' as 'input' | 'dropdown' | 'multi_input' | 'textarea',
+        type: 'text',
+        title: 'Placeholder Field',
+        value: { value: '', label: '' },
+        required: false
+      }
+    ],
+    destinationTypeDetails: {
+      fields: []
+    },
+    setDynamicFields: () => {},
+    handleFormChange: (key: string, value: any) => {},
+    handleErrorChange: () => {},
+    resetFormData: () => {},
+    validateForm: (options?: { withAlert?: boolean; alertTitle?: string }) => ({ isValid: false }),
+    loadFormWithDrawerItem: (selectedItem: any) => {},
   };
 }

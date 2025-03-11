@@ -11,9 +11,9 @@ import { useComputePlatform, useContainerSize, useMetrics, useNodeDataFlowHandle
 import { buildEdges } from './build-edges';
 import { getEntityCounts } from './get-entity-counts';
 import { getNodePositions } from './get-node-positions';
-import { buildRuleNodes } from './build-rule-nodes';
-import { buildActionNodes } from './build-action-nodes';
-import { buildDestinationNodes } from './build-destination-nodes';
+// import { buildRuleNodes } from './build-rule-nodes';
+// import { buildActionNodes } from './build-action-nodes';
+// import { buildDestinationNodes } from './build-destination-nodes';
 import { buildSourceNodes } from './build-source-nodes';
 import nodeConfig from './node-config.json';
 
@@ -38,36 +38,36 @@ export default function OverviewDataFlowContainer() {
   const { data, filteredData, loading } = useComputePlatform();
   const unfilteredCounts = useMemo(() => getEntityCounts({ computePlatform: data?.computePlatform }), [data]);
 
-  const ruleNodes = useMemo(
-    () =>
-      buildRuleNodes({
-        loading,
-        entities: filteredData?.computePlatform.instrumentationRules || [],
-        positions,
-        unfilteredCounts,
-      }),
-    [loading, filteredData?.computePlatform.instrumentationRules, positions, unfilteredCounts],
-  );
-  const actionNodes = useMemo(
-    () =>
-      buildActionNodes({
-        loading,
-        entities: filteredData?.computePlatform.actions || [],
-        positions,
-        unfilteredCounts,
-      }),
-    [loading, filteredData?.computePlatform.actions, positions, unfilteredCounts],
-  );
-  const destinationNodes = useMemo(
-    () =>
-      buildDestinationNodes({
-        loading,
-        entities: filteredData?.computePlatform.destinations || [],
-        positions,
-        unfilteredCounts,
-      }),
-    [loading, filteredData?.computePlatform.destinations, positions, unfilteredCounts],
-  );
+  // const ruleNodes = useMemo(
+  //   () =>
+  //     buildRuleNodes({
+  //       loading,
+  //       entities: filteredData?.computePlatform.instrumentationRules || [],
+  //       positions,
+  //       unfilteredCounts,
+  //     }),
+  //   [loading, filteredData?.computePlatform.instrumentationRules, positions, unfilteredCounts],
+  // );
+  // const actionNodes = useMemo(
+  //   () =>
+  //     buildActionNodes({
+  //       loading,
+  //       entities: filteredData?.computePlatform.actions || [],
+  //       positions,
+  //       unfilteredCounts,
+  //     }),
+  //   [loading, filteredData?.computePlatform.actions, positions, unfilteredCounts],
+  // );
+  // const destinationNodes = useMemo(
+  //   () =>
+  //     buildDestinationNodes({
+  //       loading,
+  //       entities: filteredData?.computePlatform.destinations || [],
+  //       positions,
+  //       unfilteredCounts,
+  //     }),
+  //   [loading, filteredData?.computePlatform.destinations, positions, unfilteredCounts],
+  // );
   const sourceNodes = useMemo(
     () =>
       buildSourceNodes({
@@ -81,7 +81,12 @@ export default function OverviewDataFlowContainer() {
     [loading, filteredData?.computePlatform.k8sActualSources, positions, unfilteredCounts, containerHeight],
   );
 
-  const [nodes, setNodes, onNodesChange] = useNodesState(([] as Node[]).concat(actionNodes, ruleNodes, sourceNodes, destinationNodes));
+  // Define empty arrays for the commented out nodes
+  const ruleNodes: Node[] = [];
+  const actionNodes: Node[] = [];
+  const destinationNodes: Node[] = [];
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(([] as Node[]).concat(sourceNodes));
   const [edges, setEdges, onEdgesChange] = useEdgesState([] as Edge[]);
 
   const handleNodeState = useCallback((prevNodes: Node[], currNodes: Node[], key: OVERVIEW_ENTITY_TYPES, yOffset?: number) => {
@@ -101,9 +106,10 @@ export default function OverviewDataFlowContainer() {
     return filtered;
   }, []);
 
-  useEffect(() => setNodes((prev) => handleNodeState(prev, ruleNodes, OVERVIEW_ENTITY_TYPES.RULE)), [ruleNodes]);
-  useEffect(() => setNodes((prev) => handleNodeState(prev, actionNodes, OVERVIEW_ENTITY_TYPES.ACTION)), [actionNodes]);
-  useEffect(() => setNodes((prev) => handleNodeState(prev, destinationNodes, OVERVIEW_ENTITY_TYPES.DESTINATION)), [destinationNodes]);
+  // Comment out the effects for rule, action, and destination nodes
+  // useEffect(() => setNodes((prev) => handleNodeState(prev, ruleNodes, OVERVIEW_ENTITY_TYPES.RULE)), [ruleNodes]);
+  // useEffect(() => setNodes((prev) => handleNodeState(prev, actionNodes, OVERVIEW_ENTITY_TYPES.ACTION)), [actionNodes]);
+  // useEffect(() => setNodes((prev) => handleNodeState(prev, destinationNodes, OVERVIEW_ENTITY_TYPES.DESTINATION)), [destinationNodes]);
   useEffect(() => setNodes((prev) => handleNodeState(prev, sourceNodes, OVERVIEW_ENTITY_TYPES.SOURCE, scrollYOffset)), [sourceNodes, scrollYOffset]);
   useEffect(() => setEdges(buildEdges({ nodes, metrics, containerHeight })), [nodes, metrics, containerHeight]);
 

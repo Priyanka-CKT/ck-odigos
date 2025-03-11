@@ -12,17 +12,17 @@ const AllModals = () => {
   const handleClose = () => setSelected('');
 
   switch (selected) {
-    case OVERVIEW_ENTITY_TYPES.RULE:
-      return <RuleModal isOpen onClose={handleClose} />;
+    // case OVERVIEW_ENTITY_TYPES.RULE:
+    //   return <RuleModal isOpen onClose={handleClose} />;
 
     case OVERVIEW_ENTITY_TYPES.SOURCE:
       return <AddSourceModal isOpen onClose={handleClose} />;
 
-    case OVERVIEW_ENTITY_TYPES.ACTION:
-      return <ActionModal isOpen onClose={handleClose} />;
+    // case OVERVIEW_ENTITY_TYPES.ACTION:
+    //   return <ActionModal isOpen onClose={handleClose} />;
 
-    case OVERVIEW_ENTITY_TYPES.DESTINATION:
-      return <DestinationModal isOpen onClose={handleClose} />;
+    // case OVERVIEW_ENTITY_TYPES.DESTINATION:
+    //   return <DestinationModal isOpen onClose={handleClose} />;
 
     default:
       return <></>;

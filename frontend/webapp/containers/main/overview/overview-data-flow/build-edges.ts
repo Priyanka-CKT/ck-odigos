@@ -51,6 +51,8 @@ export const buildEdges = ({ nodes, metrics, containerHeight }: Params) => {
       }
     }
 
+    // Comment out destination-related edge creation
+    /*
     if (nodeType === NODE_TYPES.BASE && entityType === OVERVIEW_ENTITY_TYPES.DESTINATION) {
       const metric = metrics?.getOverviewMetrics.destinations.find((m) => m.id === entityId);
 
@@ -63,6 +65,7 @@ export const buildEdges = ({ nodes, metrics, containerHeight }: Params) => {
         }),
       );
     }
+    */
   });
 
   return edges;

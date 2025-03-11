@@ -7,7 +7,7 @@ import { Drawer } from '@/reuseable-components';
 import { OVERVIEW_ENTITY_TYPES } from '@/types';
 import DrawerHeader, { DrawerHeaderRef } from './drawer-header';
 import { CancelWarning, DeleteWarning } from '@/components/modals';
-import { useDestinationCRUD, useKeyDown, useSourceCRUD } from '@/hooks';
+import { useKeyDown, useSourceCRUD } from '@/hooks';
 
 const DRAWER_WIDTH = `${640 + 64}px`; // +64 because of "ContentArea" padding
 
@@ -42,7 +42,6 @@ const OverviewDrawer: React.FC<Props & PropsWithChildren> = ({ children, title, 
   useKeyDown({ key: 'Enter', active: !!selectedItem }, () => (isEdit ? clickSave() : closeDrawer()));
 
   const { sources } = useSourceCRUD();
-  const { destinations } = useDestinationCRUD();
 
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
@@ -50,7 +49,7 @@ const OverviewDrawer: React.FC<Props & PropsWithChildren> = ({ children, title, 
   const titleRef = useRef<DrawerHeaderRef>(null);
 
   const isSource = selectedItem?.type === OVERVIEW_ENTITY_TYPES.SOURCE;
-  const isDestination = selectedItem?.type === OVERVIEW_ENTITY_TYPES.DESTINATION;
+  // const isDestination = selectedItem?.type === OVERVIEW_ENTITY_TYPES.DESTINATION;
 
   const closeDrawer = () => {
     setSelectedItem(null);
@@ -96,7 +95,7 @@ const OverviewDrawer: React.FC<Props & PropsWithChildren> = ({ children, title, 
     let isLast = false;
 
     if (isSource) isLast = sources.length === 1;
-    if (isDestination) isLast = destinations.length === 1;
+    // if (isDestination) isLast = destinations.length === 1;
 
     return isLast;
   };

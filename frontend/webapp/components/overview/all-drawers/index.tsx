@@ -10,17 +10,17 @@ const AllDrawers = () => {
   if (!selected?.type) return null;
 
   switch (selected.type) {
-    case OVERVIEW_ENTITY_TYPES.RULE:
-      return <RuleDrawer />;
+    // case OVERVIEW_ENTITY_TYPES.RULE:
+    //   return <RuleDrawer />;
 
     case OVERVIEW_ENTITY_TYPES.SOURCE:
       return <SourceDrawer />;
 
-    case OVERVIEW_ENTITY_TYPES.ACTION:
-      return <ActionDrawer />;
+    // case OVERVIEW_ENTITY_TYPES.ACTION:
+    //   return <ActionDrawer />;
 
-    case OVERVIEW_ENTITY_TYPES.DESTINATION:
-      return <DestinationDrawer />;
+    // case OVERVIEW_ENTITY_TYPES.DESTINATION:
+    //   return <DestinationDrawer />;
 
     case DRAWER_OTHER_TYPES.DESCRIBE_CK:
       return <DescribeDrawer />;

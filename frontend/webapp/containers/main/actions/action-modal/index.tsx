@@ -36,7 +36,7 @@ export const ActionModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const isFormOk = validateForm({ withAlert: true, alertTitle: ACTION.CREATE });
     if (!isFormOk) return null;
 
-    await createAction(formData);
+    await createAction();
     handleClose();
   };
 

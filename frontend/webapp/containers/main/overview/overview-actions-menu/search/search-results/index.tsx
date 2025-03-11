@@ -6,7 +6,7 @@ import { AbsoluteContainer } from '../../styled';
 import { getEntityIcon, getEntityLabel } from '@/utils';
 import { buildSearchResults, type Category } from './builder';
 import { Divider, SelectionButton, Text } from '@/reuseable-components';
-import { useActionCRUD, useDestinationCRUD, useInstrumentationRuleCRUD, useNodeDataFlowHandlers, useSourceCRUD } from '@/hooks';
+import { useNodeDataFlowHandlers, useSourceCRUD } from '@/hooks';
 
 interface Props {
   searchText: string;
@@ -32,22 +32,18 @@ export const SearchResults = ({ searchText, onClose }: Props) => {
   const [selectedCategory, setSelectedCategory] = useState<Category>('all');
 
   const { sources } = useSourceCRUD();
-  const { actions } = useActionCRUD();
-  const { destinations } = useDestinationCRUD();
-  const { instrumentationRules } = useInstrumentationRuleCRUD();
   const { handleNodeClick } = useNodeDataFlowHandlers();
 
   const { categories, searchResults } = useMemo(
     () =>
       buildSearchResults({
-        rules: instrumentationRules,
+        rules: [],
         sources,
-        actions,
-        destinations,
+        actions: [],
         searchText,
         selectedCategory,
       }),
-    [instrumentationRules, sources, actions, destinations, searchText, selectedCategory],
+    [sources, searchText, selectedCategory],
   );
 
   return (
@@ -71,7 +67,7 @@ export const SearchResults = ({ searchText, onClose }: Props) => {
                 icon={getEntityIcon(category as OVERVIEW_ENTITY_TYPES)}
                 label={getEntityLabel(item, category as OVERVIEW_ENTITY_TYPES, { extended: true })}
                 onClick={() => {
-                  const id = item.id || item.ruleId || { kind: item.kind, name: item.name, namespace: item.namespace };
+                  const id = { kind: item.kind, name: item.name, namespace: item.namespace };
                   // @ts-ignore
                   handleNodeClick(null, { data: { type: category, id } });
                   onClose();

@@ -38,14 +38,14 @@ const mapToNodeData = (entity: Params['entities'][0]) => {
 
 export const buildSourceNodes = ({ loading, entities, positions, unfilteredCounts, containerHeight, onScroll }: Params) => {
   const nodes: Node[] = [];
-  const position = positions[OVERVIEW_ENTITY_TYPES.SOURCE];
+  const position = positions[OVERVIEW_ENTITY_TYPES.SOURCE] || { x: 0, y: () => 0 };
   const unfilteredCount = unfilteredCounts[OVERVIEW_ENTITY_TYPES.SOURCE];
 
   nodes.push({
     id: 'source-header',
     type: NODE_TYPES.HEADER,
     position: {
-      x: positions[OVERVIEW_ENTITY_TYPES.SOURCE]['x'],
+      x: position.x,
       y: 0,
     },
     data: {
@@ -61,8 +61,8 @@ export const buildSourceNodes = ({ loading, entities, positions, unfilteredCount
       id: 'source-skeleton',
       type: NODE_TYPES.SKELETON,
       position: {
-        x: position['x'],
-        y: position['y'](),
+        x: position.x,
+        y: position.y(),
       },
       data: {
         nodeWidth,
@@ -74,8 +74,8 @@ export const buildSourceNodes = ({ loading, entities, positions, unfilteredCount
       id: 'source-add',
       type: NODE_TYPES.ADD,
       position: {
-        x: position['x'],
-        y: position['y'](),
+        x: position.x,
+        y: position.y(),
       },
       data: {
         nodeWidth,
@@ -90,8 +90,8 @@ export const buildSourceNodes = ({ loading, entities, positions, unfilteredCount
       id: 'source-scroll',
       type: NODE_TYPES.SCROLL,
       position: {
-        x: position['x'],
-        y: position['y']() - framePadding,
+        x: position.x,
+        y: position.y() - framePadding,
       },
       data: {
         nodeWidth,
@@ -112,7 +112,7 @@ export const buildSourceNodes = ({ loading, entities, positions, unfilteredCount
         parentId: 'source-scroll',
         position: {
           x: framePadding,
-          y: position['y'](idx) - (nodeHeight - framePadding),
+          y: position.y(idx) - (nodeHeight - framePadding),
         },
         style: {
           zIndex: -1,

@@ -92,6 +92,7 @@ export const SideMenu: React.FC<{ data?: StepProps[]; currentStep?: number }> = 
     },
   ];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (currentStep) {
       const currentSteps = (data || steps).map((step, index) => {

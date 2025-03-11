@@ -13,6 +13,7 @@ export default function App() {
   const { data, error } = useConfig();
   const { addNotification } = useNotificationStore();
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (error) {
       addNotification({

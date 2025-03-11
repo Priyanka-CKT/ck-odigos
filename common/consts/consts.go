@@ -12,7 +12,7 @@ const (
 	OTLPPort                     = 4317
 	OTLPHttpPort                 = 4318
 	PprofOdigosPort              = 6060
-	OdigosInstrumentationLabel   = "odigos-instrumentation"
+	OdigosInstrumentationLabel   = "codekarma-instrumentation"
 	InstrumentationEnabled       = "enabled"
 	InstrumentationDisabled      = "disabled"
 	OdigosReportedNameAnnotation = "odigos.io/reported-name"

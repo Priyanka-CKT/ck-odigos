@@ -44,12 +44,12 @@ export const MainHeader: React.FC<MainHeaderProps> = () => {
         {!connecting && <ConnectionStatus title={title} subtitle={message} isActive={active} />}
       </AlignLeft>
 
-      {/* <AlignRight>
+      <AlignRight>
         <NotificationManager />
-        <IconButton onClick={handleClickDescribe} tooltip='Describe CodeKarma'>
+        {/* <IconButton onClick={handleClickDescribe} tooltip='Describe CodeKarma'>
           <OdigosLogo />
-        </IconButton>
-      </AlignRight> */}
+        </IconButton> */}
+      </AlignRight>
     </HeaderContainer>
   );
 };

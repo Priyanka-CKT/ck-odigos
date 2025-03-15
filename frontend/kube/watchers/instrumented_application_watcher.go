@@ -3,6 +3,7 @@ package watchers
 import (
 	"context"
 	"fmt"
+	"time"
 
 	"github.com/odigos-io/odigos/api/odigos/v1alpha1"
 	"github.com/odigos-io/odigos/frontend/endpoints/sse"
@@ -18,8 +19,10 @@ var deletedEventBatcher *EventBatcher
 func StartInstrumentedApplicationWatcher(ctx context.Context, namespace string) error {
 	addedEventBatcher = NewEventBatcher(
 		EventBatcherConfig{
-			Event:   sse.MessageEventAdded,
-			CRDType: "InstrumentedApplication",
+			Event:        sse.MessageEventAdded,
+			CRDType:      "InstrumentedApplication",
+			MinBatchSize: 4,
+			Duration:     5000 * time.Millisecond,
 			SuccessBatchMessageFunc: func(count int, crdType string) string {
 				return fmt.Sprintf("successfully added %d sources", count)
 			},
@@ -31,8 +34,10 @@ func StartInstrumentedApplicationWatcher(ctx context.Context, namespace string) 
 
 	deletedEventBatcher = NewEventBatcher(
 		EventBatcherConfig{
-			Event:   sse.MessageEventDeleted,
-			CRDType: "InstrumentedApplication",
+			Event:        sse.MessageEventDeleted,
+			CRDType:      "InstrumentedApplication",
+			MinBatchSize: 4,
+			Duration:     5000 * time.Millisecond,
 			SuccessBatchMessageFunc: func(count int, crdType string) string {
 				return fmt.Sprintf("successfully deleted %d sources", count)
 			},
@@ -83,6 +88,7 @@ func handleAddedEvent(app *v1alpha1.InstrumentedApplication) {
 	namespace := app.Namespace
 	target := fmt.Sprintf("name=%s&kind=%s&namespace=%s", name, kind, namespace)
 	data := fmt.Sprintf("InstrumentedApplication %s created", name)
+	fmt.Printf("Sending added event for source %s\n", name)
 	addedEventBatcher.AddEvent(sse.MessageTypeSuccess, data, target)
 }
 
@@ -93,5 +99,6 @@ func handleDeletedEvent(app *v1alpha1.InstrumentedApplication) {
 		return
 	}
 	data := fmt.Sprintf("Source %s deleted successfully", name)
+	fmt.Printf("Sending deleted event for source %s\n", name)
 	deletedEventBatcher.AddEvent(sse.MessageTypeSuccess, data, "")
 }

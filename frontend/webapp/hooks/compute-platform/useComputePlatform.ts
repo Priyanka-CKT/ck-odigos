@@ -15,7 +15,9 @@ type UseComputePlatformHook = {
 };
 
 export const useComputePlatform = (): UseComputePlatformHook => {
-  const { data, loading, error, refetch } = useQuery<ComputePlatform>(GET_COMPUTE_PLATFORM);
+  const { data, loading, error, refetch } = useQuery<ComputePlatform>(GET_COMPUTE_PLATFORM, {
+    pollInterval: 5000,
+  });
   const { addNotification } = useNotificationStore();
   const filters = useFilterStore();
 

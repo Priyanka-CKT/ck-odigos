@@ -64,9 +64,12 @@ func (g *GoInstrumentationFactory) CreateInstrumentation(ctx context.Context, pi
 	log.Logger.Info("Initial configuration",
 		"config", string(configJSON))
 
-	// Log resource attributes
-	for k, v := range settings.ResourceAttributes {
-		log.Logger.Info(fmt.Sprintf("resourceAttribute[%s]", k), v)
+	// Log resource attributes properly
+	for i, attr := range settings.ResourceAttributes {
+		log.Logger.Info("Resource attribute",
+			"index", i,
+			"key", attr.Key,
+			"value", attr.Value)
 	}
 
 	log.Logger.Info("creating new instrumentation with settings")

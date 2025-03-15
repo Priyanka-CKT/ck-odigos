@@ -47,9 +47,9 @@ func instrumentedApplicationToActualSource(instrumentedApp v1alpha1.Instrumented
 	for _, container := range instrumentedApp.Spec.RuntimeDetails {
 		println("Container Language:", string(container.Language))
 		// Filter to include only containers with Language "Java" or "Go"
-		if container.Language != "Java" && container.Language != "Go" {
-			continue
-		}
+		// if container.Language != "java" && container.Language != "go" {
+		// 	continue
+		// }
 		var otherAgentName *string
 		if container.OtherAgent != nil {
 			otherAgentName = &container.OtherAgent.Name

@@ -3,6 +3,7 @@ package instrumentationdevice
 import (
 	"context"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/odigos-io/odigos/common"
@@ -21,6 +22,13 @@ import (
 
 const otelServiceNameEnvVarName = "OTEL_SERVICE_NAME"
 const otelResourceAttributesEnvVarName = "OTEL_RESOURCE_ATTRIBUTES"
+const ckClusterNameEnvVarName = "CK_CLUSTER_NAME"
+const ckNexusEndpointEnvVarName = "CK_NEXUS_ENDPOINT"
+const ckPgEndpointEnvVarName = "CK_PG_ENDPOINT"
+
+// Default values if environment variables are not set
+const defaultNexusEndpoint = "https://api.codekarma.tech/nexus/test"
+const defaultPgEndpoint = "https://api.codekarma.tech/prometheus"
 
 type resourceAttribute struct {
 	Key   attribute.Key
@@ -92,13 +100,38 @@ func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, ser
 			},
 		},
 		{
-			Name:  "CK_NEXUS_ENDPOINT",
-			Value: "https://api.codekarma.tech/nexus/swiggy/",
+			Name: "CK_NAMESPACE",
+			ValueFrom: &corev1.EnvVarSource{
+				FieldRef: &corev1.ObjectFieldSelector{
+					FieldPath: "metadata.namespace",
+				},
+			},
 		},
 		{
-			Name:  "CK_PG_ENDPOINT",
-			Value: "https://api.codekarma.tech/prometheus/",
+			Name: "CK_POD_NAME",
+			ValueFrom: &corev1.EnvVarSource{
+				FieldRef: &corev1.ObjectFieldSelector{
+					FieldPath: "metadata.name",
+				},
+			},
 		},
+		{
+			Name:  ckNexusEndpointEnvVarName,
+			Value: getEnvWithDefault(ckNexusEndpointEnvVarName, defaultNexusEndpoint),
+		},
+		{
+			Name:  ckPgEndpointEnvVarName,
+			Value: getEnvWithDefault(ckPgEndpointEnvVarName, defaultPgEndpoint),
+		},
+	}
+
+	// Add CK_CLUSTER_NAME if it's available
+	clusterName := os.Getenv(ckClusterNameEnvVarName)
+	if clusterName != "" {
+		commonEnvVars = append(commonEnvVars, corev1.EnvVar{
+			Name:  ckClusterNameEnvVarName,
+			Value: clusterName,
+		})
 	}
 
 	var serviceNameEnv *corev1.EnvVar
@@ -221,4 +254,13 @@ func shouldInjectServiceName(pl common.ProgrammingLanguage, otelsdk common.OtelS
 		return true
 	}
 	return false
+}
+
+// getEnvWithDefault returns the value of the environment variable or the default value if not set
+func getEnvWithDefault(envVarName, defaultValue string) string {
+	value := os.Getenv(envVarName)
+	if value == "" {
+		return defaultValue
+	}
+	return value
 }

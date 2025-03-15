@@ -2,7 +2,6 @@ package instrumentation
 
 import (
 	"context"
-	"errors"
 
 	"github.com/odigos-io/odigos/procdiscovery/pkg/libc"
 
@@ -95,11 +94,19 @@ func (p *plugin) Allocate(ctx context.Context, request *v1beta1.AllocateRequest)
 	nodeCollectorGroup, err := p.odigosKubeClient.OdigosV1alpha1().CollectorsGroups(odigosNs).Get(ctx, k8sconsts.OdigosNodeCollectorCollectorGroupName, metav1.GetOptions{})
 	if err != nil {
 		// we should have collectors group created for odigos device to trigger.
-		// however if we don't, just log and do not populate the enabled signals.
+		// however if we don't, just log and enable all signals by default.
 		if apierrors.IsNotFound(err) {
-			log.Logger.Error(errors.New("pod with odigos device started, but collectors group not created. disabling all signals for this pod"), "collectorGroupName", k8sconsts.OdigosNodeCollectorCollectorGroupName)
+			log.Logger.Info("Collector group not found. Enabling all signals by default.")
+			// Enable all signals by default
+			enabledSignals[common.TracesObservabilitySignal] = struct{}{}
+			enabledSignals[common.MetricsObservabilitySignal] = struct{}{}
+			enabledSignals[common.LogsObservabilitySignal] = struct{}{}
 		} else {
-			log.Logger.Error(err, "error getting node collectors group, no enabled signals are set")
+			log.Logger.Error(err, "error getting node collectors group, enabling all signals by default")
+			// Enable all signals by default in case of any error
+			enabledSignals[common.TracesObservabilitySignal] = struct{}{}
+			enabledSignals[common.MetricsObservabilitySignal] = struct{}{}
+			enabledSignals[common.LogsObservabilitySignal] = struct{}{}
 		}
 	} else {
 		for _, signal := range nodeCollectorGroup.Status.ReceiverSignals {

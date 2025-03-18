@@ -25,6 +25,8 @@ const otelResourceAttributesEnvVarName = "OTEL_RESOURCE_ATTRIBUTES"
 const ckClusterNameEnvVarName = "CK_CLUSTER_NAME"
 const ckNexusEndpointEnvVarName = "CK_NEXUS_ENDPOINT"
 const ckPgEndpointEnvVarName = "CK_PG_ENDPOINT"
+const ckAppNameEnvVarName = "CK_APP_NAME"
+const appNameEnvVarName = "APP_NAME"
 
 // Default values if environment variables are not set
 const defaultNexusEndpoint = "https://api.codekarma.tech/nexus/test"
@@ -160,6 +162,19 @@ func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, ser
 			Value: container.Name,
 		}
 
+		// Set CK_APP_NAME based on APP_NAME or deployment name
+		appNameEnv := getAppNameEnv(container.Env, podWorkload)
+		if appNameEnv != nil {
+			container.Env = append(container.Env, *appNameEnv)
+		}
+		// Log APP_NAME environment variable details
+		log.FromContext(context.Background()).Info(
+			"APP_NAME environment variable details",
+			"container", container.Name,
+			"appNameEnv", appNameEnv,
+			"existingEnv", container.Env,
+		)
+
 		resourceAttributes := getResourceAttributes(podWorkload, container.Name)
 		resourceAttributesEnvValue := getResourceAttributesEnvVarValue(resourceAttributes)
 
@@ -263,4 +278,27 @@ func getEnvWithDefault(envVarName, defaultValue string) string {
 		return defaultValue
 	}
 	return value
+}
+
+// getAppNameEnv returns a CK_APP_NAME environment variable based on APP_NAME or deployment name
+func getAppNameEnv(containerEnv []corev1.EnvVar, podWorkload *workload.PodWorkload) *corev1.EnvVar {
+	// First check if APP_NAME is already set in the container
+	for _, envVar := range containerEnv {
+		if envVar.Name == appNameEnvVarName {
+			return &corev1.EnvVar{
+				Name:  ckAppNameEnvVarName,
+				Value: envVar.Value,
+			}
+		}
+	}
+
+	// If APP_NAME is not set and we have a deployment, use the deployment name
+	if podWorkload != nil && podWorkload.Kind == workload.WorkloadKindDeployment {
+		return &corev1.EnvVar{
+			Name:  ckAppNameEnvVarName,
+			Value: podWorkload.Name,
+		}
+	}
+
+	return nil
 }

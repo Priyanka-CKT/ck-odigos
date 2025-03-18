@@ -21,21 +21,21 @@ verify-nodejs-agent:
 build-karmaset-with-agents:
 	docker build -t $(ORG)/karmaset:$(TAG) . -f odiglet/Dockerfile --build-arg ODIGOS_VERSION=$(TAG) --build-context nodejs-agent-src=../opentelemetry-node
 
-.PHONY: build-autoscaler
-build-autoscaler:
-	docker build -t $(ORG)/odigos-autoscaler:$(TAG) . --build-arg SERVICE_NAME=autoscaler
+# .PHONY: build-autoscaler
+# build-autoscaler:
+# 	docker build -t $(ORG)/odigos-autoscaler:$(TAG) . --build-arg SERVICE_NAME=autoscaler
 
 .PHONY: build-karmatap
 build-karmatap:
 	docker build -t $(ORG)/karmatap:$(TAG) . --build-arg SERVICE_NAME=instrumentor
 
-.PHONY: build-scheduler
-build-scheduler:
-	docker build -t $(ORG)/odigos-scheduler:$(TAG) . --build-arg SERVICE_NAME=scheduler
+# .PHONY: build-scheduler
+# build-scheduler:
+# 	docker build -t $(ORG)/odigos-scheduler:$(TAG) . --build-arg SERVICE_NAME=scheduler
 
-.PHONY: build-collector
-build-collector:
-	docker build -t $(ORG)/odigos-collector:$(TAG) collector -f collector/Dockerfile
+# .PHONY: build-collector
+# build-collector:
+# 	docker build -t $(ORG)/odigos-collector:$(TAG) collector -f collector/Dockerfile
 
 .PHONY: build-karmadash
 build-karmadash:
@@ -44,7 +44,7 @@ build-karmadash:
 .PHONY: build-images
 build-images:
 	# prefer to build timeconsuimg images first to make better use of parallelism
-	make -j 3 build-karmadash build-collector build-karmaset build-autoscaler build-scheduler build-karmatap TAG=$(TAG)
+	make -j 3 build-karmadash build-karmaset build-karmatap TAG=$(TAG)
 
 .PHONY: push-karmaset
 push-karmaset:
@@ -58,13 +58,13 @@ push-autoscaler:
 push-karmatap:
 	docker buildx build --platform linux/amd64,linux/arm64/v8 --push -t $(ORG)/karmatap:$(TAG) . --build-arg SERVICE_NAME=instrumentor
 
-.PHONY: push-scheduler
-push-scheduler:
-	docker buildx build --platform linux/amd64,linux/arm64/v8 --push -t $(ORG)/odigos-scheduler:$(TAG) . --build-arg SERVICE_NAME=scheduler
+# .PHONY: push-scheduler
+# push-scheduler:
+# 	docker buildx build --platform linux/amd64,linux/arm64/v8 --push -t $(ORG)/odigos-scheduler:$(TAG) . --build-arg SERVICE_NAME=scheduler
 
-.PHONY: push-collector
-push-collector:
-	docker buildx build --platform linux/amd64,linux/arm64/v8 --push -t $(ORG)/odigos-collector:$(TAG) collector -f collector/Dockerfile
+# .PHONY: push-collector
+# push-collector:
+# 	docker buildx build --platform linux/amd64,linux/arm64/v8 --push -t $(ORG)/odigos-collector:$(TAG) collector -f collector/Dockerfile
 
 .PHONY: push-karmadash
 push-karmadash:
@@ -72,68 +72,65 @@ push-karmadash:
 
 .PHONY: push-images
 push-images:
-	make push-autoscaler TAG=$(TAG)
-	make push-scheduler TAG=$(TAG)
 	make push-karmaset TAG=$(TAG)
 	make push-karmatap TAG=$(TAG)
-	make push-collector TAG=$(TAG)
 	make push-karmadash TAG=$(TAG)
 
 .PHONY: load-to-kind-karmaset
 load-to-kind-karmaset:
 	kind load docker-image $(ORG)/karmaset:$(TAG)
 
-.PHONY: load-to-kind-autoscaler
-load-to-kind-autoscaler:
-	kind load docker-image $(ORG)/odigos-autoscaler:$(TAG)
+# .PHONY: load-to-kind-autoscaler
+# load-to-kind-autoscaler:
+# 	kind load docker-image $(ORG)/odigos-autoscaler:$(TAG)
 
-.PHONY: load-to-kind-collector
-load-to-kind-collector:
-	kind load docker-image $(ORG)/odigos-collector:$(TAG)
+# .PHONY: load-to-kind-collector
+# load-to-kind-collector:
+# 	kind load docker-image $(ORG)/odigos-collector:$(TAG)
 
 .PHONY: load-to-kind-karmatap
 load-to-kind-karmatap:
 	kind load docker-image $(ORG)/karmatap:$(TAG)
 
-.PHONY: load-to-kind-ui
-load-to-kind-ui:
+.PHONY: load-to-kind-karmadash
+load-to-kind-karmadash:
 	kind load docker-image $(ORG)/karmadash:$(TAG)
 
-.PHONY: load-to-kind-scheduler
-load-to-kind-scheduler:
-	kind load docker-image $(ORG)/odigos-scheduler:$(TAG)
+# .PHONY: load-to-kind-scheduler
+# load-to-kind-scheduler:
+# 	kind load docker-image $(ORG)/odigos-scheduler:$(TAG)
 
 .PHONY: load-to-kind
 load-to-kind:
-	make -j 6 load-to-kind-karmatap load-to-kind-autoscaler load-to-kind-scheduler load-to-kind-karmaset load-to-kind-collector load-to-kind-ui TAG=$(TAG)
+	make -j 6 load-to-kind-karmatap  load-to-kind-karmaset load-to-kind-karmadash TAG=$(TAG)
 
 
-.PHONY: restart-ui
-restart-ui:
+.PHONY: restart-karmadash
+restart-karmadash:
 	kubectl rollout restart deployment karmadash -n codekarma
 
 .PHONY: restart-karmaset
 restart-karmaset:
 	kubectl rollout restart daemonset karmaset -n codekarma
 
-.PHONY: restart-autoscaler
-restart-autoscaler:
-	kubectl rollout restart deployment odigos-autoscaler -n codekarma
+# .PHONY: restart-autoscaler
+# restart-autoscaler:
+# 	kubectl rollout restart deployment odigos-autoscaler -n codekarma
 
 .PHONY: restart-karmatap
 restart-karmatap:
 	kubectl rollout restart deployment karmatap -n codekarma
 
-.PHONY: restart-scheduler
-restart-scheduler:
-	kubectl rollout restart deployment odigos-scheduler -n codekarma
+# .PHONY: restart-scheduler
+# restart-scheduler:
+# 	kubectl rollout restart deployment odigos-scheduler -n codekarma
 
 
-.PHONY: restart-collector
-restart-collector:
-	kubectl rollout restart deployment odigos-gateway -n codekarma
-	# DaemonSets don't directly support the rollout restart command in the same way Deployments do. However, you can achieve the same result by updating an environment variable or any other field in the DaemonSet's pod template, triggering a rolling update of the pods managed by the DaemonSet
-	kubectl -n codekarma patch daemonset odigos-data-collection -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$(date +%Y-%m-%dT%H:%M:%S%z)\"}}}}}"
+# .PHONY: restart-collector
+# restart-collector:
+# 	kubectl rollout restart deployment odigos-gateway -n codekarma
+# 	# DaemonSets don't directly support the rollout restart command in the same way Deployments do. However, you can achieve the same result by updating an environment variable or any other field in the DaemonSet's pod template, triggering a rolling update of the pods managed by the DaemonSet
+# 	kubectl -n codekarma patch daemonset odigos-data-collection -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$(date +%Y-%m-%dT%H:%M:%S%z)\"}}}}}"
 
 .PHONY: deploy-karmaset
 deploy-karmaset:
@@ -145,13 +142,13 @@ deploy-karmaset:
 .PHONY: deploy-karmaset-with-agents
 deploy-karmaset-with-agents: verify-nodejs-agent build-karmaset-with-agents load-to-kind-karmaset restart-karmaset
 
-.PHONY: deploy-autoscaler
-deploy-autoscaler:
-	make build-autoscaler TAG=$(TAG) && make load-to-kind-autoscaler TAG=$(TAG) && make restart-autoscaler
+# .PHONY: deploy-autoscaler
+# deploy-autoscaler:
+# 	make build-autoscaler TAG=$(TAG) && make load-to-kind-autoscaler TAG=$(TAG) && make restart-autoscaler
 
-.PHONY: deploy-collector
-deploy-collector:
-	make build-collector TAG=$(TAG) && make load-to-kind-collector TAG=$(TAG) && make restart-collector
+# .PHONY: deploy-collector
+# deploy-collector:
+# 	make build-collector TAG=$(TAG) && make load-to-kind-collector TAG=$(TAG) && make restart-collector
 
 .PHONY: deploy-karmatap
 deploy-karmatap:
@@ -159,11 +156,11 @@ deploy-karmatap:
 
 .PHONY: deploy-karmadash
 deploy-karmadash:
-	make build-karmadash TAG=$(TAG) && make load-to-kind-ui TAG=$(TAG) && make restart-ui
+	make build-karmadash TAG=$(TAG) && make load-to-kind-karmadash TAG=$(TAG) && make restart-karmadash
 
-.PHONY: deploy-scheduler
-deploy-scheduler:
-	make build-scheduler TAG=$(TAG) && make load-to-kind-scheduler TAG=$(TAG) && make restart-scheduler
+# .PHONY: deploy-scheduler
+# deploy-scheduler:
+# 	make build-scheduler TAG=$(TAG) && make load-to-kind-scheduler TAG=$(TAG) && make restart-scheduler
 
 
 .PHONY: debug-karmaset

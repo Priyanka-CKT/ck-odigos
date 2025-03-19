@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	odigosv1 "github.com/odigos-io/odigos/api/odigos/v1alpha1"
+	"github.com/odigos-io/odigos/common"
 	"github.com/odigos-io/odigos/instrumentor/controllers/utils"
 	"github.com/odigos-io/odigos/instrumentor/controllers/utils/versionsupport"
 	"github.com/odigos-io/odigos/instrumentor/instrumentation"
@@ -27,9 +28,10 @@ type ApplyInstrumentationDeviceReason string
 const (
 	ApplyInstrumentationDeviceReasonDataCollectionNotReady     ApplyInstrumentationDeviceReason = "DataCollectionNotReady"
 	ApplyInstrumentationDeviceReasonNoRuntimeDetails           ApplyInstrumentationDeviceReason = "NoRuntimeDetails"
-	ApplyInstrumentationDeviceReasonErrApplying                ApplyInstrumentationDeviceReason = "ErrApplyingInstrumentationDevice"
-	ApplyInstrumentationDeviceReasonErrRemoving                ApplyInstrumentationDeviceReason = "ErrRemovingInstrumentationDevice"
+	ApplyInstrumentationDeviceReasonErrApplying                ApplyInstrumentationDeviceReason = "ErrorApplying"
+	ApplyInstrumentationDeviceReasonErrRemoving                ApplyInstrumentationDeviceReason = "ErrorRemoving"
 	ApplyInstrumentationDeviceReasonRuntimeVersionNotSupported ApplyInstrumentationDeviceReason = "RuntimeVersionNotSupported"
+	ApplyInstrumentationDeviceReasonUnsupportedLanguage        ApplyInstrumentationDeviceReason = "UnsupportedLanguage"
 )
 
 const (
@@ -245,6 +247,16 @@ func getPodSpecFromObject(obj client.Object) (*corev1.PodTemplateSpec, error) {
 	}
 }
 
+// Add a new function to check if a language is supported
+func isSupportedLanguage(language common.ProgrammingLanguage) bool {
+	switch language {
+	case common.JavaProgrammingLanguage, common.GoProgrammingLanguage:
+		return true
+	default:
+		return false
+	}
+}
+
 // reconciles a single workload, which might be triggered by a change in multiple resources.
 // each time a relevant resource changes, this function is called to reconcile the workload
 // and always writes the status into the InstrumentedApplication CR
@@ -275,6 +287,22 @@ func reconcileSingleWorkload(ctx context.Context, kubeClient client.Client, inst
 		}
 		return err
 	}
+
+	// Check if there are any unsupported languages
+	for _, containerDetails := range instrumentedApplication.Spec.RuntimeDetails {
+		if !isSupportedLanguage(containerDetails.Language) {
+			// Unsupported language detected
+			errRemove := removeInstrumentationDeviceFromWorkload(ctx, kubeClient, instrumentedApplication.Namespace, workloadKind, workloadName, ApplyInstrumentationDeviceReasonUnsupportedLanguage)
+			if errRemove == nil {
+				conditions.UpdateStatusConditions(ctx, kubeClient, instrumentedApplication, &instrumentedApplication.Status.Conditions, metav1.ConditionFalse, appliedInstrumentationDeviceType, string(ApplyInstrumentationDeviceReasonUnsupportedLanguage),
+					"Unsupported language detected. Only Java and Go are currently supported for instrumentation.")
+			} else {
+				conditions.UpdateStatusConditions(ctx, kubeClient, instrumentedApplication, &instrumentedApplication.Status.Conditions, metav1.ConditionFalse, appliedInstrumentationDeviceType, string(ApplyInstrumentationDeviceReasonErrRemoving), errRemove.Error())
+			}
+			return nil
+		}
+	}
+
 	runtimeVersionSupport, err := versionsupport.IsRuntimeVersionSupported(ctx, instrumentedApplication.Spec.RuntimeDetails)
 	if !runtimeVersionSupport {
 		errRemove := removeInstrumentationDeviceFromWorkload(ctx, kubeClient, instrumentedApplication.Namespace, workloadKind, workloadName, ApplyInstrumentationDeviceReasonRuntimeVersionNotSupported)

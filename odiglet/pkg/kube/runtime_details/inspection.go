@@ -147,7 +147,7 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 					if err == nil {
 						libcType = typeFound
 					} else {
-							log.Logger.Error(err, "error inspecting libc type", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
+						log.Logger.Error(err, "error inspecting libc type", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
 					}
 				}
 			}
@@ -202,6 +202,25 @@ func persistRuntimeResults(ctx context.Context, results []odigosv1.RuntimeDetail
 		},
 	}
 
+	// Check if all languages are supported before creating the InstrumentedApplication
+	containsUnsupportedLanguage := false
+	for _, result := range results {
+		if !isSupportedLanguage(result.Language) {
+			containsUnsupportedLanguage = true
+			log.Logger.Info("Detected unsupported language, skipping instrumentation",
+				"language", result.Language,
+				"name", owner.GetName(),
+				"namespace", owner.GetNamespace())
+		}
+	}
+
+	// If only unsupported languages were detected, don't create the InstrumentedApplication
+	if len(results) > 0 && containsUnsupportedLanguage {
+		// We still want to create the InstrumentedApplication to track the detection,
+		// but the UI will show that this application cannot be instrumented because
+		// only Java and Go languages are supported
+	}
+
 	err := controllerutil.SetControllerReference(owner, updatedIa, scheme)
 	if err != nil {
 		log.Logger.Error(err, "Failed to set controller reference")
@@ -223,6 +242,16 @@ func persistRuntimeResults(ctx context.Context, results []odigosv1.RuntimeDetail
 			owner.GetObjectKind().GroupVersionKind().Kind, "namespace", owner.GetNamespace())
 	}
 	return nil
+}
+
+// isSupportedLanguage returns true if the language is supported for instrumentation
+func isSupportedLanguage(language common.ProgrammingLanguage) bool {
+	switch language {
+	case common.JavaProgrammingLanguage, common.GoProgrammingLanguage:
+		return true
+	default:
+		return false
+	}
 }
 
 func GetRuntimeDetails(ctx context.Context, kubeClient client.Client, podWorkload *workload.PodWorkload) (*odigosv1.InstrumentedApplication, error) {

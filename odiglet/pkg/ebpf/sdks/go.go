@@ -67,7 +67,7 @@ func (g *GoInstrumentationFactory) CreateInstrumentation(ctx context.Context, pi
 		// Add APP_NAME as a resource attribute
 		settings.ResourceAttributes = append(settings.ResourceAttributes,
 			attribute.String("app.name", appName))
-	} else if serviceName == "" || serviceName == "unknown_service" {
+	} else if appName == "" {
 		// Only use workload name as fallback if service name is empty or default
 		// If APP_NAME is not found, use the workload name as a fallback
 		log.Logger.Info("APP_NAME not found in process environment, using workload name as fallback", "pid", pid)
@@ -82,22 +82,8 @@ func (g *GoInstrumentationFactory) CreateInstrumentation(ctx context.Context, pi
 			settings.ResourceAttributes = append(settings.ResourceAttributes,
 				attribute.String("app.name", workloadName))
 		} else {
-			// Final fallback: use a combination of namespace and pod name if available
-			log.Logger.Info("Attempting to extract pod name and namespace as final fallback")
-			podName := extractPodName(settings.ResourceAttributes)
-			log.Logger.Info("Extracted pod name", "podName", podName)
-			namespace := extractNamespace(settings.ResourceAttributes)
-			log.Logger.Info("Extracted namespace", "namespace", namespace)
-
-			if podName != "" && namespace != "" {
-				fallbackName := fmt.Sprintf("%s-%s", namespace, podName)
-				log.Logger.Info("Using namespace-podname as service name", "fallbackName", fallbackName)
-				serviceName = fallbackName
-
-				// Add fallback name as app.name attribute
-				settings.ResourceAttributes = append(settings.ResourceAttributes,
-					attribute.String("app.name", fallbackName))
-			}
+			log.Logger.Info("No workload name found in resource attributes", "resourceAttributes", settings.ResourceAttributes)
+			log.Logger.Info("falling back to using existing service name", "serviceName", serviceName)
 		}
 	} else {
 		log.Logger.Info("Using existing service name", "serviceName", serviceName)
@@ -153,7 +139,7 @@ func readAppNameFromProcess(pid int) (string, error) {
 
 	// Environment variables are null-separated
 	environ := strings.Split(string(environBytes), "\x00")
-	log.Logger.Info("readAppNameFromProcess environ", "environ", environ)
+	// log.Logger.Info("readAppNameFromProcess environ", "environ", environ)
 	for _, env := range environ {
 		if strings.HasPrefix(env, "APP_NAME=") {
 			return strings.TrimPrefix(env, "APP_NAME="), nil
@@ -220,20 +206,6 @@ func extractWorkloadName(attrs []attribute.KeyValue) string {
 	// Check for deployment name first
 	for _, attr := range attrs {
 		if attr.Key == attribute.Key("k8s.deployment.name") {
-			return attr.Value.AsString()
-		}
-	}
-
-	// Check for statefulset name
-	for _, attr := range attrs {
-		if attr.Key == attribute.Key("k8s.statefulset.name") {
-			return attr.Value.AsString()
-		}
-	}
-
-	// Check for daemonset name
-	for _, attr := range attrs {
-		if attr.Key == attribute.Key("k8s.daemonset.name") {
 			return attr.Value.AsString()
 		}
 	}

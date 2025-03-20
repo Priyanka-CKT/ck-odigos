@@ -30,7 +30,7 @@ const (
 	sharedStore           = "/var/odigos/dotnet/store"
 )
 
-func DotNet(deviceId string, uniqueDestinationSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse {
+func DotNet(deviceId string, enabledSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse {
 	return &v1beta1.ContainerAllocateResponse{
 		Envs: map[string]string{
 			enableProfilingEnvVar: "1",

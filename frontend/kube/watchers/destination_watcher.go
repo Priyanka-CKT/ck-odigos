@@ -7,18 +7,12 @@ import (
 
 	"github.com/odigos-io/odigos/api/odigos/v1alpha1"
 	"github.com/odigos-io/odigos/frontend/endpoints/sse"
-	"github.com/odigos-io/odigos/frontend/kube"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/watch"
 )
 
 func StartDestinationWatcher(ctx context.Context, namespace string) error {
-	watcher, err := kube.DefaultClient.OdigosClient.Destinations(namespace).Watch(context.Background(), metav1.ListOptions{})
-	if err != nil {
-		return fmt.Errorf("error creating watcher: %v", err)
-	}
-
-	go handleDestinationWatchEvents(ctx, watcher)
+	// Return early since destinations are being deprecated
+	log.Printf("Destination watcher is disabled as destinations are deprecated")
 	return nil
 }
 

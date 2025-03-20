@@ -28,23 +28,17 @@ func GetConfig(c *gin.Context) {
 	var response GetConfigResponse
 	if !isSomethingLabeled(c.Request.Context()) {
 		response.Installation = NewInstallation
-	} else if !isDestinationChosen(c.Request.Context()) {
-		response.Installation = AppsSelected
 	} else {
+		// Skip destination check since destinations are being deprecated
 		response.Installation = Finished
 	}
 
 	c.JSON(http.StatusOK, response)
 }
 
+// isDestinationChosen is simplified to always return true since destinations are being deprecated
 func isDestinationChosen(ctx context.Context) bool {
-	dests, err := kube.DefaultClient.OdigosClient.Destinations("").List(ctx, metav1.ListOptions{})
-	if err != nil {
-		log.Printf("Error listing destinations: %v\n", err)
-		return false
-	}
-
-	return len(dests.Items) > 0
+	return true
 }
 
 func isSomethingLabeled(ctx context.Context) bool {

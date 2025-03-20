@@ -22,7 +22,7 @@ const (
 	javaOtelTracesSamplerEnvVar   = "OTEL_TRACES_SAMPLER"
 )
 
-func Java(deviceId string, uniqueDestinationSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse {
+func Java(deviceId string, enabledSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse {
 	otlpEndpoint := fmt.Sprintf("http://%s:%d", env.Current.NodeIP, consts.OTLPPort)
 
 	// Use the correct agent jar file name
@@ -35,13 +35,13 @@ func Java(deviceId string, uniqueDestinationSignals map[common.ObservabilitySign
 	tracesExporter := "none"
 
 	// Set the values based on the signals exists in the map
-	if _, ok := uniqueDestinationSignals[common.LogsObservabilitySignal]; ok {
+	if _, ok := enabledSignals[common.LogsObservabilitySignal]; ok {
 		logsExporter = "otlp"
 	}
-	if _, ok := uniqueDestinationSignals[common.MetricsObservabilitySignal]; ok {
+	if _, ok := enabledSignals[common.MetricsObservabilitySignal]; ok {
 		metricsExporter = "otlp"
 	}
-	if _, ok := uniqueDestinationSignals[common.TracesObservabilitySignal]; ok {
+	if _, ok := enabledSignals[common.TracesObservabilitySignal]; ok {
 		tracesExporter = "otlp"
 	}
 

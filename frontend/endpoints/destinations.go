@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"net/http"
 
 	"github.com/odigos-io/odigos/frontend/endpoints/destination_recognition"
 	"github.com/odigos-io/odigos/k8sutils/pkg/env"
@@ -14,7 +13,6 @@ import (
 	"github.com/odigos-io/odigos/common"
 	"github.com/odigos-io/odigos/common/config"
 	"github.com/odigos-io/odigos/destinations"
-	testconnection "github.com/odigos-io/odigos/frontend/endpoints/test_connection"
 	"github.com/odigos-io/odigos/frontend/kube"
 	k8s "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -138,272 +136,43 @@ func GetDestinationTypeDetails(c *gin.Context) {
 }
 
 func GetDestinations(c *gin.Context, odigosns string) {
-	dests, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).List(c, metav1.ListOptions{})
-	if err != nil {
-		returnError(c, err)
-		return
-	}
-
-	resp := []Destination{}
-	for _, dest := range dests.Items {
-		secretFields, err := getDestinationSecretFields(c, odigosns, &dest)
-		if err != nil {
-			returnError(c, err)
-			return
-		}
-		endpointDest := k8sDestinationToEndpointFormat(dest, secretFields)
-		resp = append(resp, endpointDest)
-	}
-
-	c.JSON(200, resp)
+	// Return empty array as destinations are being deprecated
+	c.JSON(200, []Destination{})
 }
 
 func GetDestinationById(c *gin.Context, odigosns string) {
-	destId := c.Param("id")
-	destination, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).Get(c, destId, metav1.GetOptions{})
-	if err != nil {
-		returnError(c, err)
-		return
-	}
-
-	secretFields, err := getDestinationSecretFields(c, odigosns, destination)
-	if err != nil {
-		returnError(c, err)
-		return
-	}
-	resp := k8sDestinationToEndpointFormat(*destination, secretFields)
-	c.JSON(200, resp)
+	// Return error as destinations are being deprecated
+	c.JSON(404, gin.H{
+		"error": "Destinations are deprecated and no longer supported",
+	})
 }
 
 func CreateNewDestination(c *gin.Context, odigosns string) {
-	request := Destination{}
-	if err := c.ShouldBindJSON(&request); err != nil {
-		returnError(c, err)
-		return
-	}
-
-	destType := request.Type
-	destName := request.Name
-
-	destTypeConfig, err := getDestinationTypeConfig(destType)
-	if err != nil {
-		returnError(c, err)
-		return
-	}
-
-	errors := verifyDestinationDataScheme(destType, destTypeConfig, request.Fields)
-	if len(errors) > 0 {
-		returnErrors(c, errors)
-		return
-	}
-
-	dataField, secretFields := transformFieldsToDataAndSecrets(destTypeConfig, request.Fields)
-	generateNamePrefix := "odigos.io.dest." + string(destType) + "-"
-
-	k8sDestination := v1alpha1.Destination{
-		ObjectMeta: metav1.ObjectMeta{
-			GenerateName: generateNamePrefix,
-		},
-		Spec: v1alpha1.DestinationSpec{
-			Type:            destType,
-			DestinationName: destName,
-			Data:            dataField,
-			Signals:         exportedSignalsObjectToSlice(request.ExportedSignals),
-		},
-	}
-
-	createSecret := len(secretFields) > 0
-	if createSecret {
-		secretRef, err := createDestinationSecret(c, destType, secretFields, odigosns)
-		if err != nil {
-			returnError(c, err)
-			return
-		}
-		k8sDestination.Spec.SecretRef = secretRef
-	}
-
-	dest, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).Create(c, &k8sDestination, metav1.CreateOptions{})
-	if err != nil {
-		// if we failed to create the destination, we need to rollback the secret creation
-		if createSecret {
-			kube.DefaultClient.CoreV1().Secrets(odigosns).Delete(c, destName, metav1.DeleteOptions{})
-		}
-		returnError(c, err)
-		return
-	}
-
-	if dest.Spec.SecretRef != nil {
-		err = addDestinationOwnerReferenceToSecret(c, odigosns, dest)
-		if err != nil {
-			returnError(c, err)
-			return
-		}
-	}
-
-	resp := k8sDestinationToEndpointFormat(*dest, secretFields)
-	c.JSON(201, resp)
+	// Return error as destinations are being deprecated
+	c.JSON(400, gin.H{
+		"error": "Destinations are deprecated and no longer supported",
+	})
 }
 
 func TestConnectionForDestination(c *gin.Context, odigosns string) {
-	request := Destination{}
-	if err := c.ShouldBindJSON(&request); err != nil {
-		returnError(c, err)
-		return
-	}
-
-	destType := request.Type
-
-	destConfig, err := getDestinationTypeConfig(destType)
-	if err != nil {
-		returnError(c, err)
-		return
-	}
-
-	if !destConfig.Spec.TestConnectionSupported {
-		returnError(c, fmt.Errorf("destination type %s does not support test connection", request.Type))
-		return
-	}
-
-	res := testconnection.TestConnection(c, request)
-	if !res.Succeeded {
-		c.JSON(res.StatusCode, gin.H{
-			"type":    res.DestinationType,
-			"message": res.Message,
-			"reason":  res.Reason,
-		})
-		return
-	}
-
-	c.Status(200)
-}
-
-func UpdateExistingDestination(c *gin.Context, odigosns string) {
-	destId := c.Param("id")
-	request := Destination{}
-	if err := c.ShouldBindJSON(&request); err != nil {
-		returnError(c, err)
-		return
-	}
-
-	destType := request.Type
-	destName := request.Name
-
-	destTypeConfig, err := getDestinationTypeConfig(destType)
-	if err != nil {
-		returnError(c, err)
-		return
-	}
-
-	errors := verifyDestinationDataScheme(destType, destTypeConfig, request.Fields)
-	if len(errors) > 0 {
-		returnErrors(c, errors)
-		return
-	}
-
-	dataFields, secretFields := transformFieldsToDataAndSecrets(destTypeConfig, request.Fields)
-
-	// update destination
-	dest, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).Get(c, destId, metav1.GetOptions{})
-	if err != nil {
-		returnError(c, err)
-		return
-	}
-
-	// handle the secret, based on the updated (which might add or remove optional secret fields),
-	// we might need to create, delete or update the existing secret
-	destUpdateHasSecrets := len(secretFields) > 0
-	destCurrentlyHasSecrets := dest.Spec.SecretRef != nil
-
-	if !destUpdateHasSecrets && destCurrentlyHasSecrets {
-		// delete the secret if it's not needed anymore
-		err := kube.DefaultClient.CoreV1().Secrets(odigosns).Delete(c, dest.Spec.SecretRef.Name, metav1.DeleteOptions{})
-		if err != nil {
-			returnError(c, err)
-			return
-		}
-		dest.Spec.SecretRef = nil
-	} else if destUpdateHasSecrets && !destCurrentlyHasSecrets {
-		// create the secret if it was added in this update
-		secretRef, err := createDestinationSecret(c, destType, secretFields, odigosns)
-		if err != nil {
-			returnError(c, err)
-			return
-		}
-		dest.Spec.SecretRef = secretRef
-		// add owner reference to the secret
-		err = addDestinationOwnerReferenceToSecret(c, odigosns, dest)
-		if err != nil {
-			returnError(c, err)
-			return
-		}
-	} else if destUpdateHasSecrets && destCurrentlyHasSecrets {
-		// update the secret in case it is modified
-		secret, err := kube.DefaultClient.CoreV1().Secrets(odigosns).Get(c, dest.Spec.SecretRef.Name, metav1.GetOptions{})
-		if err != nil {
-			returnError(c, err)
-			return
-		}
-		secret.StringData = secretFields
-		_, err = kube.DefaultClient.CoreV1().Secrets(odigosns).Update(c, secret, metav1.UpdateOptions{})
-		if err != nil {
-			returnError(c, err)
-			return
-		}
-	}
-
-	secretRef := dest.Spec.SecretRef
-	var origSecret *k8s.Secret
-	if secretRef != nil {
-		secret, err := kube.DefaultClient.CoreV1().Secrets(odigosns).Get(c, secretRef.Name, metav1.GetOptions{})
-		if err != nil {
-			returnError(c, err)
-			return
-		}
-
-		// keep a copy of the object so we can rollback if needed
-		origSecret = secret.DeepCopy()
-
-		// use existing object to update the secret in k8s
-		secret.StringData = secretFields
-		_, err = kube.DefaultClient.CoreV1().Secrets(odigosns).Update(c, secret, metav1.UpdateOptions{})
-		if err != nil {
-			returnError(c, err)
-			return
-		}
-	}
-
-	dest.Spec.Type = request.Type
-	dest.Spec.DestinationName = destName
-	dest.Spec.Data = dataFields
-	dest.Spec.Signals = exportedSignalsObjectToSlice(request.ExportedSignals)
-
-	updatedDest, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).Update(c, dest, metav1.UpdateOptions{})
-	if err != nil {
-		if origSecret != nil {
-			// rollback secret, it might fail but we have nothing to do with it
-			kube.DefaultClient.CoreV1().Secrets(odigosns).Update(c, origSecret, metav1.UpdateOptions{})
-		}
-		returnError(c, err)
-		return
-	}
-
-	resp := k8sDestinationToEndpointFormat(*updatedDest, secretFields)
-	c.JSON(201, resp)
+	// Return error as destinations are being deprecated
+	c.JSON(400, gin.H{
+		"error": "Destinations are deprecated and no longer supported",
+	})
 }
 
 func DeleteDestination(c *gin.Context, odigosns string) {
-	destId := c.Param("id")
+	// Return error as destinations are being deprecated
+	c.JSON(400, gin.H{
+		"error": "Destinations are deprecated and no longer supported",
+	})
+}
 
-	// delete the destination
-	errDest := kube.DefaultClient.OdigosClient.Destinations(odigosns).Delete(c, destId, metav1.DeleteOptions{})
-	// the secret (if exits) will be deleted by the owner reference
-
-	if errDest != nil {
-		returnError(c, errDest)
-		return
-	}
-
-	c.Status(http.StatusNoContent)
+func UpdateExistingDestination(c *gin.Context, odigosns string) {
+	// Return error as destinations are being deprecated
+	c.JSON(400, gin.H{
+		"error": "Destinations are deprecated and no longer supported",
+	})
 }
 
 func k8sDestinationToEndpointFormat(k8sDest v1alpha1.Destination, secretFields map[string]string) Destination {

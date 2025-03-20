@@ -56,31 +56,15 @@ type event struct {
 
 func report(c client.Client, installationId string) error {
 	ctx := context.Background()
-	var dests odigosv1.DestinationList
-	err := c.List(ctx, &dests)
-	if err != nil {
-		return err
-	}
 
+	// Remove destination references and use default values
 	traces := false
 	metrics := false
 	logs := false
-	var backends []string
-	for _, dest := range dests.Items {
-		backends = append(backends, string(dest.Spec.Type))
-		for _, s := range dest.Spec.Signals {
-			if s == common.TracesObservabilitySignal {
-				traces = true
-			} else if s == common.MetricsObservabilitySignal {
-				metrics = true
-			} else if s == common.LogsObservabilitySignal {
-				logs = true
-			}
-		}
-	}
+	backends := []string{}
 
 	var nodes corev1.NodeList
-	err = c.List(ctx, &nodes)
+	err := c.List(ctx, &nodes)
 	if err != nil {
 		return err
 	}

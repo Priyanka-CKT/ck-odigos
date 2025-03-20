@@ -17,7 +17,7 @@ import (
 	"k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 )
 
-type LangSpecificFunc func(deviceId string, uniqueDestinationSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse
+type LangSpecificFunc func(deviceId string, enabledSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse
 
 type plugin struct {
 	idsManager       devices.DeviceManager
@@ -38,8 +38,8 @@ func NewPlugin(maxPods int64, lsf LangSpecificFunc, odigosKubeClient *odigosclie
 }
 
 func NewMuslPlugin(lang common.ProgrammingLanguage, maxPods int64, lsf LangSpecificFunc, odigosKubeClient *odigosclientset.Clientset) dpm.PluginInterface {
-	wrappedLsf := func(deviceId string, uniqueDestinationSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse {
-		res := lsf(deviceId, uniqueDestinationSignals)
+	wrappedLsf := func(deviceId string, enabledSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse {
+		res := lsf(deviceId, enabledSignals)
 		libc.ModifyEnvVarsForMusl(lang, res.Envs)
 		return res
 	}

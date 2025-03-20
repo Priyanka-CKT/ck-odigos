@@ -27,22 +27,22 @@ const (
 )
 
 var (
-	errNoSenderPod    = errors.New("no sender pod found in the resource attributes")
+	errNoSenderPod   = errors.New("no sender pod found in the resource attributes")
 	errUnKnownSender = errors.New("unknown OTLP sender")
 )
 
 type trafficMetrics struct {
 	// trace data sent in bytes, cumulative
-	tracesDataSent  int64
+	tracesDataSent int64
 	// log data sent in bytes, cumulative
-	logsDataSent    int64
+	logsDataSent int64
 	// metric data sent in bytes, cumulative
 	metricsDataSent int64
 
 	// trace throughput in bytes/sec
-	tracesThroughput  int64
+	tracesThroughput int64
 	// log throughput in bytes/sec
-	logsThroughput    int64
+	logsThroughput int64
 	// metric throughput in bytes/sec
 	metricsThroughput int64
 
@@ -111,8 +111,6 @@ func (c *OdigosMetricsConsumer) runNotificationsLoop(ctx context.Context) {
 				c.sources.removeNodeCollector(n.object)
 			case clusterCollector:
 				c.destinations.removeClusterCollector(n.object)
-			case destination:
-				c.destinations.removeDestination(n.object)
 			case source:
 				c.sources.removeSource(n.sourceID)
 			}
@@ -136,7 +134,7 @@ func (c *OdigosMetricsConsumer) ConsumeMetrics(ctx context.Context, md pmetric.M
 	if err != nil {
 		return err
 	}
-	
+
 	if strings.HasPrefix(senderPod, k8sconsts.OdigosNodeCollectorDaemonSetName) {
 		c.sources.handleNodeCollectorMetrics(senderPod, md)
 		return nil

@@ -37,7 +37,7 @@ const (
 )
 
 type watchers struct {
-	nodeCollectors, clusterCollectors, destinations, sources watch.Interface
+	nodeCollectors, clusterCollectors, sources watch.Interface
 }
 
 func runDeleteWatcher(ctx context.Context, cw *deleteWatcher) error {
@@ -46,10 +46,6 @@ func runDeleteWatcher(ctx context.Context, cw *deleteWatcher) error {
 		return err
 	}
 	clusterWatcher, err := newCollectorWatcher(ctx, cw.odigosNS, k8sconsts.CollectorsRoleClusterGateway)
-	if err != nil {
-		return err
-	}
-	destsWatcher, err := kube.DefaultClient.OdigosClient.Destinations(cw.odigosNS).Watch(ctx, metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -62,7 +58,6 @@ func runDeleteWatcher(ctx context.Context, cw *deleteWatcher) error {
 		watchers{
 			nodeCollectors:    nodeWatcher,
 			clusterCollectors: clusterWatcher,
-			destinations:      destsWatcher,
 			sources:           sourcesWatcher,
 		}, cw.deleteNotifications)
 }
@@ -80,14 +75,12 @@ func newCollectorWatcher(ctx context.Context, odigosNS string, collectorRole k8s
 func runWatcherLoop(ctx context.Context, w watchers, notifyChan chan<- deleteNotification) error {
 	nch := w.nodeCollectors.ResultChan()
 	cch := w.clusterCollectors.ResultChan()
-	dch := w.destinations.ResultChan()
 	sch := w.sources.ResultChan()
 	for {
 		select {
 		case <-ctx.Done():
 			w.nodeCollectors.Stop()
 			w.clusterCollectors.Stop()
-			w.destinations.Stop()
 			w.sources.Stop()
 			close(notifyChan)
 			return nil
@@ -108,15 +101,6 @@ func runWatcherLoop(ctx context.Context, w watchers, notifyChan chan<- deleteNot
 			case watch.Deleted:
 				pod := event.Object.(*corev1.Pod)
 				notifyChan <- deleteNotification{notificationType: clusterCollector, object: pod.Name}
-			}
-		case event, ok := <-dch:
-			if !ok {
-				return errors.New("destination watcher closed")
-			}
-			switch event.Type {
-			case watch.Deleted:
-				d := event.Object.(*v1alpha1.Destination)
-				notifyChan <- deleteNotification{notificationType: destination, object: d.Name}
 			}
 		case event, ok := <-sch:
 			if !ok {

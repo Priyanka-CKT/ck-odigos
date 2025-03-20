@@ -23,7 +23,7 @@ const (
 	pythonOdigosDeviceId               = "ODIGOS_INSTRUMENTATION_DEVICE_ID"
 )
 
-func Python(deviceId string, uniqueDestinationSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse {
+func Python(deviceId string, enabledSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse {
 	otlpEndpoint := fmt.Sprintf("http://%s:%d", env.Current.NodeIP, consts.OTLPHttpPort)
 	pythonpathVal, _ := envOverwrite.ValToAppend(envPythonPath, common.OtelSdkNativeCommunity)
 	opampServerHost := fmt.Sprintf("%s:%d", env.Current.NodeIP, consts.OpAMPPort)
@@ -32,10 +32,10 @@ func Python(deviceId string, uniqueDestinationSignals map[common.ObservabilitySi
 	metricsExporter := "none"
 	tracesExporter := "none"
 
-	if _, ok := uniqueDestinationSignals[common.MetricsObservabilitySignal]; ok {
+	if _, ok := enabledSignals[common.MetricsObservabilitySignal]; ok {
 		metricsExporter = "otlp"
 	}
-	if _, ok := uniqueDestinationSignals[common.TracesObservabilitySignal]; ok {
+	if _, ok := enabledSignals[common.TracesObservabilitySignal]; ok {
 		tracesExporter = "otlp"
 	}
 

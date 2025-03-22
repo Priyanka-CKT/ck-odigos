@@ -20,11 +20,10 @@ import (
 	"flag"
 	"os"
 
-	"github.com/odigos-io/odigos/k8sutils/pkg/env"
-
 	"github.com/odigos-io/odigos/instrumentor/controllers/instrumentationconfig"
 	"github.com/odigos-io/odigos/instrumentor/controllers/startlangdetection"
 	"github.com/odigos-io/odigos/instrumentor/sdks"
+	"github.com/odigos-io/odigos/k8sutils/pkg/env"
 
 	corev1 "k8s.io/api/core/v1"
 
@@ -69,6 +68,7 @@ var (
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
 
+	// We still need to add types to scheme for serialization/deserialization
 	utilruntime.Must(v1.AddToScheme(scheme))
 	//+kubebuilder:scaffold:scheme
 }
@@ -166,6 +166,9 @@ func main() {
 		setupLog.Error(err, "unable to create controller for instrumentation rules")
 		os.Exit(1)
 	}
+
+	// No need to explicitly start the InstrumentationRule controller
+	// just let startup proceed without it
 
 	//+kubebuilder:scaffold:builder
 

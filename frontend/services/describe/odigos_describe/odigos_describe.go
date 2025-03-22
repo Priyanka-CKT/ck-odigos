@@ -42,7 +42,6 @@ func convertOdigosToGQL(odigos *odigos.OdigosAnalyze) *model.OdigosAnalyze {
 func convertClusterCollectorToGQL(collector *odigos.ClusterCollectorAnalyze) *model.ClusterCollectorAnalyze {
 	return &model.ClusterCollectorAnalyze{
 		Enabled:              describe_utils.ConvertEntityPropertyToGQL(&collector.Enabled),
-		CollectorGroup:       describe_utils.ConvertEntityPropertyToGQL(&collector.CollectorGroup),
 		Deployed:             describe_utils.ConvertEntityPropertyToGQL(collector.Deployed),
 		DeployedError:        describe_utils.ConvertEntityPropertyToGQL(collector.DeployedError),
 		CollectorReady:       describe_utils.ConvertEntityPropertyToGQL(collector.CollectorReady),
@@ -57,7 +56,6 @@ func convertClusterCollectorToGQL(collector *odigos.ClusterCollectorAnalyze) *mo
 func convertNodeCollectorToGQL(collector *odigos.NodeCollectorAnalyze) *model.NodeCollectorAnalyze {
 	return &model.NodeCollectorAnalyze{
 		Enabled:        describe_utils.ConvertEntityPropertyToGQL(&collector.Enabled),
-		CollectorGroup: describe_utils.ConvertEntityPropertyToGQL(&collector.CollectorGroup),
 		Deployed:       describe_utils.ConvertEntityPropertyToGQL(collector.Deployed),
 		DeployedError:  describe_utils.ConvertEntityPropertyToGQL(collector.DeployedError),
 		CollectorReady: describe_utils.ConvertEntityPropertyToGQL(collector.CollectorReady),

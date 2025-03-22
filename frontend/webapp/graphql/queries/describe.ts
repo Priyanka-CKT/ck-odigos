@@ -18,12 +18,6 @@ export const DESCRIBE_CK = gql`
           status
           explain
         }
-        collectorGroup {
-          name
-          value
-          status
-          explain
-        }
         deployed {
           name
           value
@@ -75,12 +69,6 @@ export const DESCRIBE_CK = gql`
       }
       nodeCollector {
         enabled {
-          name
-          value
-          status
-          explain
-        }
-        collectorGroup {
           name
           value
           status

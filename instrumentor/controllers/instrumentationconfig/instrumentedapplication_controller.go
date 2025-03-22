@@ -66,13 +66,11 @@ func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req c
 		return ctrl.Result{}, err
 	}
 
-	instrumentationRules := &odigosv1.InstrumentationRuleList{}
-	err = r.Client.List(ctx, instrumentationRules)
-	if client.IgnoreNotFound(err) != nil {
-		return ctrl.Result{}, err
-	}
+	// Since InstrumentationRule CRD is removed, we pass an empty list
+	// All signals are enabled by default
+	emptyRules := &odigosv1.InstrumentationRuleList{}
 
-	err = updateInstrumentationConfigForWorkload(&ic, &ia, instrumentationRules, serviceName)
+	err = updateInstrumentationConfigForWorkload(&ic, &ia, emptyRules, serviceName)
 	if err != nil {
 		return ctrl.Result{}, err
 	}

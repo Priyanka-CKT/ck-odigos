@@ -127,7 +127,8 @@ func (r *computePlatformResolver) Actions(ctx context.Context, obj *model.Comput
 
 // InstrumentationRules is the resolver for the instrumentationRules field.
 func (r *computePlatformResolver) InstrumentationRules(ctx context.Context, obj *model.ComputePlatform) ([]*model.InstrumentationRule, error) {
-	return services.ListInstrumentationRules(ctx)
+	// Since InstrumentationRules CRD has been removed, we return an empty list
+	return []*model.InstrumentationRule{}, nil
 }
 
 // Type is the resolver for the type field.
@@ -369,22 +370,20 @@ func (r *mutationResolver) DeleteAction(ctx context.Context, id string, actionTy
 
 // CreateInstrumentationRule is the resolver for the createInstrumentationRule field.
 func (r *mutationResolver) CreateInstrumentationRule(ctx context.Context, instrumentationRule model.InstrumentationRuleInput) (*model.InstrumentationRule, error) {
-	return services.CreateInstrumentationRule(ctx, instrumentationRule)
+	// InstrumentationRules feature has been removed
+	return nil, fmt.Errorf("InstrumentationRules feature has been removed from the system")
 }
 
 // UpdateInstrumentationRule is the resolver for the updateInstrumentationRule field.
 func (r *mutationResolver) UpdateInstrumentationRule(ctx context.Context, ruleID string, instrumentationRule model.InstrumentationRuleInput) (*model.InstrumentationRule, error) {
-	return services.UpdateInstrumentationRule(ctx, ruleID, instrumentationRule)
+	// InstrumentationRules feature has been removed
+	return nil, fmt.Errorf("InstrumentationRules feature has been removed from the system")
 }
 
 // DeleteInstrumentationRule is the resolver for the deleteInstrumentationRule field.
 func (r *mutationResolver) DeleteInstrumentationRule(ctx context.Context, ruleID string) (bool, error) {
-	_, err := services.DeleteInstrumentationRule(ctx, ruleID)
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+	// InstrumentationRules feature has been removed
+	return false, fmt.Errorf("InstrumentationRules feature has been removed from the system")
 }
 
 // ComputePlatform is the resolver for the computePlatform field.

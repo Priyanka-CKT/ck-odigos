@@ -3,7 +3,7 @@ package resources
 import (
 	"context"
 
-	"github.com/odigos-io/odigos/api"
+	odigosapi "github.com/odigos-io/odigos/api"
 	"github.com/odigos-io/odigos/cli/cmd/resources/resourcemanager"
 	"github.com/odigos-io/odigos/cli/pkg/kube"
 	"github.com/odigos-io/odigos/common"
@@ -108,8 +108,12 @@ func (a *odigosDeploymentResourceManager) InstallFromScratch(ctx context.Context
 		NewLeaderElectionRole(a.ns),
 	}
 
-	excludedCRDs := []string{}
-	availableCrds, err := api.GetCRDs(excludedCRDs)
+	// Exclude both CollectorsGroup and InstrumentationRule CRDs
+	excludedCRDs := []string{
+		"odigos.io_collectorsgroups.yaml",
+		"odigos.io_instrumentationrules.yaml",
+	}
+	availableCrds, err := odigosapi.GetCRDs(excludedCRDs)
 	if err != nil {
 		return err
 	}

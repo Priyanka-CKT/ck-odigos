@@ -3,8 +3,6 @@ package instrumentationdevice
 import (
 	odigosv1 "github.com/odigos-io/odigos/api/odigos/v1alpha1"
 	"github.com/odigos-io/odigos/common"
-	"github.com/odigos-io/odigos/instrumentor/controllers/utils"
-	odigospredicate "github.com/odigos-io/odigos/k8sutils/pkg/predicate"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -89,19 +87,6 @@ func (w workloadPodTemplatePredicate) Generic(e event.GenericEvent) bool {
 func SetupWithManager(mgr ctrl.Manager) error {
 	err := builder.
 		ControllerManagedBy(mgr).
-		Named("instrumentationdevice-collectorsgroup").
-		For(&odigosv1.CollectorsGroup{}).
-		WithEventFilter(predicate.And(&odigospredicate.OdigosCollectorsGroupNodePredicate, &odigospredicate.CgBecomesReadyPredicate{})).
-		Complete(&CollectorsGroupReconciler{
-			Client: mgr.GetClient(),
-			Scheme: mgr.GetScheme(),
-		})
-	if err != nil {
-		return err
-	}
-
-	err = builder.
-		ControllerManagedBy(mgr).
 		Named("instrumentationdevice-instrumentedapplication").
 		For(&odigosv1.InstrumentedApplication{}).
 		WithEventFilter(&predicate.GenerationChangedPredicate{}).
@@ -142,18 +127,6 @@ func SetupWithManager(mgr ctrl.Manager) error {
 		For(&appsv1.StatefulSet{}).
 		WithEventFilter(workloadPodTemplatePredicate{}).
 		Complete(&StatefulSetReconciler{
-			Client: mgr.GetClient(),
-		})
-	if err != nil {
-		return err
-	}
-
-	err = builder.
-		ControllerManagedBy(mgr).
-		Named("instrumentationdevice-instrumentationrules").
-		For(&odigosv1.InstrumentationRule{}).
-		WithEventFilter(&utils.OtelSdkInstrumentationRulePredicate{}).
-		Complete(&InstrumentationRuleReconciler{
 			Client: mgr.GetClient(),
 		})
 	if err != nil {

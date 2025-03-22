@@ -5,8 +5,6 @@ import (
 
 	odigosv1 "github.com/odigos-io/odigos/api/odigos/v1alpha1"
 	"github.com/odigos-io/odigos/k8sutils/pkg/consts"
-	"github.com/odigos-io/odigos/k8sutils/pkg/env"
-	"github.com/odigos-io/odigos/k8sutils/pkg/utils"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -30,30 +28,6 @@ func newClusterCollectorGroup(namespace string, resourcesSettings *odigosv1.Coll
 }
 
 func sync(ctx context.Context, c client.Client) error {
-
-	namespace := env.GetCurrentNamespace()
-
-	var dests odigosv1.DestinationList
-	err := c.List(ctx, &dests, client.InNamespace(namespace))
-	if err != nil {
-		return err
-	}
-
-	odigosConfig, err := utils.GetCurrentOdigosConfig(ctx, c)
-	if err != nil {
-		return err
-	}
-
-	resourceSettings := getGatewayResourceSettings(&odigosConfig)
-
-	if len(dests.Items) > 0 {
-		err := utils.ApplyCollectorGroup(ctx, c, newClusterCollectorGroup(namespace, resourceSettings))
-		if err != nil {
-			return err
-		}
-	}
-	// once the gateway is created, it is not deleted, even if there are no destinations.
-	// we might want to re-consider this behavior.
-
+	// CollectorGroup CRD is no longer used, all signals are enabled by default
 	return nil
 }

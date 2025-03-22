@@ -8,21 +8,11 @@ import (
 )
 
 func SetupWithManager(mgr ctrl.Manager) error {
-	// Watch InstrumentationRule
-	err := builder.
-		ControllerManagedBy(mgr).
-		Named("instrumentor-instrumentationconfig-instrumentationrule").
-		For(&odigosv1alpha1.InstrumentationRule{}).
-		Complete(&InstrumentationRuleReconciler{
-			Client: mgr.GetClient(),
-			Scheme: mgr.GetScheme(),
-		})
-	if err != nil {
-		return err
-	}
+	// InstrumentationRule controller is intentionally disabled
+	// as we're removing this CRD from the system
 
 	// Watch InstrumentedApplication
-	err = builder.
+	err := builder.
 		ControllerManagedBy(mgr).
 		Named("instrumentor-instrumentationconfig-instrumentedapplication").
 		For(&odigosv1alpha1.InstrumentedApplication{}).

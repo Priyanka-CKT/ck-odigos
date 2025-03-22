@@ -10,7 +10,6 @@ import (
 
 type ClusterCollectorAnalyze struct {
 	Enabled              properties.EntityProperty  `json:"enabled"`
-	CollectorGroup       properties.EntityProperty  `json:"collectorGroup"`
 	Deployed             *properties.EntityProperty `json:"deployed,omitempty"`
 	DeployedError        *properties.EntityProperty `json:"deployedError,omitempty"`
 	CollectorReady       *properties.EntityProperty `json:"collectorReady,omitempty"`
@@ -23,7 +22,6 @@ type ClusterCollectorAnalyze struct {
 
 type NodeCollectorAnalyze struct {
 	Enabled        properties.EntityProperty  `json:"enabled"`
-	CollectorGroup properties.EntityProperty  `json:"collectorGroup"`
 	Deployed       *properties.EntityProperty `json:"deployed,omitempty"`
 	DeployedError  *properties.EntityProperty `json:"deployedError,omitempty"`
 	CollectorReady *properties.EntityProperty `json:"collectorReady,omitempty"`
@@ -254,24 +252,28 @@ func analyzeClusterCollector(resources *OdigosResources) ClusterCollectorAnalyze
 		Explain: "should odigos create a cluster collector in the cluster",
 	}
 
-	hasCg := resources.ClusterCollector.CollectorsGroup != nil
-	cg := properties.EntityProperty{
-		Name:    "Collector Group",
-		Value:   properties.GetTextCreated(hasCg),
-		Status:  properties.GetSuccessOrTransitioning(hasCg == isEnabled),
-		Explain: "is the k8s collectors group object for cluster collector exists in the cluster",
+	// Since CollectorGroup CRD is removed, assume these are always ready
+	deployed := &properties.EntityProperty{
+		Name:    "Deployed",
+		Value:   true,
+		Status:  properties.PropertyStatusSuccess,
+		Explain: "deployed means the relevant k8s objects (deployment, configmap, secret, daemonset, etc) were created successfully and are expected to start. It does not mean the relevant pods were actually created, started, or are healthy.",
 	}
 
-	deployed, deployedError := analyzeDeployed(resources.ClusterCollector.CollectorsGroup)
-	ready := analyzeCollectorReady(resources.ClusterCollector.CollectorsGroup)
+	ready := &properties.EntityProperty{
+		Name:    "Ready",
+		Value:   true,
+		Status:  properties.PropertyStatusSuccess,
+		Explain: "ready means that odigos has detected the collectors group as ready to start collecting/receiving data",
+	}
+
 	dep, depExpected, expectedReplicas := analyzeDeployment(resources.ClusterCollector.Deployment, isEnabled)
 	healthyPodsCount, failedPodsCount, failedPodsReason := analyzePodsHealth(resources.ClusterCollector.LatestRevisionPods, expectedReplicas)
 
 	return ClusterCollectorAnalyze{
 		Enabled:              enabled,
-		CollectorGroup:       cg,
 		Deployed:             deployed,
-		DeployedError:        deployedError,
+		DeployedError:        nil,
 		CollectorReady:       ready,
 		DeploymentCreated:    dep,
 		ExpectedReplicas:     depExpected,
@@ -283,10 +285,8 @@ func analyzeClusterCollector(resources *OdigosResources) ClusterCollectorAnalyze
 
 func analyzeNodeCollector(resources *OdigosResources) NodeCollectorAnalyze {
 
-	hasClusterCollector := resources.ClusterCollector.CollectorsGroup != nil
-	isClusterCollectorReady := hasClusterCollector && resources.ClusterCollector.CollectorsGroup.Status.Ready
-	hasInstrumentedSources := len(resources.InstrumentationConfigs.Items) > 0
-	isEnabled := hasClusterCollector && isClusterCollectorReady && hasInstrumentedSources
+	// In the new architecture without CollectorGroup, all sources are always enabled
+	isEnabled := len(resources.InstrumentationConfigs.Items) > 0
 
 	enabled := properties.EntityProperty{
 		Name:    "Enabled",
@@ -294,25 +294,29 @@ func analyzeNodeCollector(resources *OdigosResources) NodeCollectorAnalyze {
 		Explain: "should odigos deploy node collector daemonset in the cluster",
 	}
 
-	hasCg := resources.ClusterCollector.CollectorsGroup != nil
-	cg := properties.EntityProperty{
-		Name:    "Collector Group",
-		Value:   properties.GetTextCreated(hasCg),
-		Status:  properties.GetSuccessOrTransitioning(hasCg == isEnabled),
-		Explain: "is the k8s collectors group object for node collector exists in the cluster",
+	// Since CollectorGroup CRD is removed, assume these are always ready
+	deployed := &properties.EntityProperty{
+		Name:    "Deployed",
+		Value:   true,
+		Status:  properties.PropertyStatusSuccess,
+		Explain: "deployed means the relevant k8s objects (deployment, configmap, secret, daemonset, etc) were created successfully and are expected to start. It does not mean the relevant pods were actually created, started, or are healthy.",
 	}
 
-	deployed, deployedError := analyzeDeployed(resources.ClusterCollector.CollectorsGroup)
-	ready := analyzeCollectorReady(resources.ClusterCollector.CollectorsGroup)
+	ready := &properties.EntityProperty{
+		Name:    "Ready",
+		Value:   true,
+		Status:  properties.PropertyStatusSuccess,
+		Explain: "ready means that odigos has detected the collectors group as ready to start collecting/receiving data",
+	}
+
 	ds := analyzeDaemonSet(resources.NodeCollector.DaemonSet, isEnabled)
 	// TODO: implement our oun pod lister to figure out how many are updated and ready which isn't available in the daemonset status
 	desiredNodes, currentNodes, updatedNodes, availableNodes := analyzeDsReplicas(resources.NodeCollector.DaemonSet)
 
 	return NodeCollectorAnalyze{
 		Enabled:        enabled,
-		CollectorGroup: cg,
 		Deployed:       deployed,
-		DeployedError:  deployedError,
+		DeployedError:  nil,
 		CollectorReady: ready,
 		DaemonSet:      ds,
 		DesiredNodes:   desiredNodes,
@@ -328,7 +332,6 @@ func summarizeStatus(clusterCollector ClusterCollectorAnalyze, nodeCollector Nod
 
 	var allProperties = []*properties.EntityProperty{
 		&clusterCollector.Enabled,
-		&clusterCollector.CollectorGroup,
 		clusterCollector.Deployed,
 		clusterCollector.DeployedError,
 		clusterCollector.CollectorReady,
@@ -338,7 +341,6 @@ func summarizeStatus(clusterCollector ClusterCollectorAnalyze, nodeCollector Nod
 		clusterCollector.FailedReplicas,
 		clusterCollector.FailedReplicasReason,
 		&nodeCollector.Enabled,
-		&nodeCollector.CollectorGroup,
 		nodeCollector.Deployed,
 		nodeCollector.DeployedError,
 		nodeCollector.CollectorReady,

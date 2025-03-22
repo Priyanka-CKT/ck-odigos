@@ -14,8 +14,10 @@ import (
 
 	odigosv1 "github.com/odigos-io/odigos/api/odigos/v1alpha1"
 	corev1 "k8s.io/api/core/v1"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/fields"
 	"k8s.io/apimachinery/pkg/runtime"
+	"k8s.io/apimachinery/pkg/runtime/schema"
 	utilruntime "k8s.io/apimachinery/pkg/util/runtime"
 	"k8s.io/client-go/kubernetes"
 	clientgoscheme "k8s.io/client-go/kubernetes/scheme"
@@ -32,7 +34,29 @@ var (
 
 func init() {
 	utilruntime.Must(clientgoscheme.AddToScheme(scheme))
-	utilruntime.Must(odigosv1.AddToScheme(scheme))
+
+	// Instead of adding all the Odigos API types, we'll only register the specific ones we need
+	// We're intentionally NOT registering the CollectorsGroup CRD to avoid watching for it
+	// since it's being removed from the system.
+	schemeBuilder := runtime.NewSchemeBuilder(
+		func(scheme *runtime.Scheme) error {
+			// Create the GroupVersion for odigos.io/v1alpha1
+			groupVersion := schema.GroupVersion{Group: "odigos.io", Version: "v1alpha1"}
+			scheme.AddKnownTypes(groupVersion,
+				&odigosv1.InstrumentedApplication{},
+				&odigosv1.InstrumentedApplicationList{},
+				&odigosv1.InstrumentationConfig{},
+				&odigosv1.InstrumentationConfigList{},
+				&odigosv1.InstrumentationInstance{},
+				&odigosv1.InstrumentationInstanceList{},
+				&odigosv1.OdigosConfiguration{},
+				&odigosv1.OdigosConfigurationList{},
+			)
+			metav1.AddToGroupVersion(scheme, groupVersion)
+			return nil
+		},
+	)
+	utilruntime.Must(schemeBuilder.AddToScheme(scheme))
 }
 
 func CreateManager() (ctrl.Manager, error) {

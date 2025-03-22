@@ -7,21 +7,18 @@ import (
 	odigosv1alpha1 "github.com/odigos-io/odigos/api/odigos/v1alpha1"
 	"github.com/odigos-io/odigos/api/odigos/v1alpha1/instrumentationrules"
 	"github.com/odigos-io/odigos/common"
-	"github.com/odigos-io/odigos/instrumentor/controllers/utils"
 	"github.com/odigos-io/odigos/k8sutils/pkg/workload"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func updateInstrumentationConfigForWorkload(ic *odigosv1alpha1.InstrumentationConfig, ia *odigosv1alpha1.InstrumentedApplication, rules *odigosv1alpha1.InstrumentationRuleList, serviceName string) error {
-
-	workloadName, workloadKind, err := workload.ExtractWorkloadInfoFromRuntimeObjectName(ia.Name)
+// updateInstrumentationConfigForWorkload updates the instrumentation config for a workload.
+// Since we've removed InstrumentationRule resources, we just set up default config values.
+func updateInstrumentationConfigForWorkload(ic *odigosv1alpha1.InstrumentationConfig, ia *odigosv1alpha1.InstrumentedApplication,
+	rules *odigosv1alpha1.InstrumentationRuleList, serviceName string) error {
+	// We parse the workload info but don't use it for filtering rules since there are no rules now
+	_, _, err := workload.ExtractWorkloadInfoFromRuntimeObjectName(ia.Name)
 	if err != nil {
 		return err
-	}
-	workload := workload.PodWorkload{
-		Name:      workloadName,
-		Namespace: ia.Namespace,
-		Kind:      workloadKind,
 	}
 
 	ic.Spec.ServiceName = serviceName
@@ -37,43 +34,8 @@ func updateInstrumentationConfigForWorkload(ic *odigosv1alpha1.InstrumentationCo
 		sdkConfigs = createDefaultSdkConfig(sdkConfigs, containerLanguage)
 	}
 
-	// iterate over all the payload collection rules, and update the instrumentation config accordingly
-	for i := range rules.Items {
-		rule := &rules.Items[i]
-		if rule.Spec.Disabled {
-			continue
-		}
-		// filter out rules where the workload does not match
-		participating := utils.IsWorkloadParticipatingInRule(workload, rule)
-		if !participating {
-			continue
-		}
-
-		for i := range sdkConfigs {
-			if rule.Spec.InstrumentationLibraries == nil { // nil means a rule in SDK level, that applies unless overridden by library level rule
-				if rule.Spec.PayloadCollection != nil {
-					sdkConfigs[i].DefaultPayloadCollection.HttpRequest = mergeHttpPayloadCollectionRules(sdkConfigs[i].DefaultPayloadCollection.HttpRequest, rule.Spec.PayloadCollection.HttpRequest)
-					sdkConfigs[i].DefaultPayloadCollection.HttpResponse = mergeHttpPayloadCollectionRules(sdkConfigs[i].DefaultPayloadCollection.HttpResponse, rule.Spec.PayloadCollection.HttpResponse)
-					sdkConfigs[i].DefaultPayloadCollection.DbQuery = mergeDbPayloadCollectionRules(sdkConfigs[i].DefaultPayloadCollection.DbQuery, rule.Spec.PayloadCollection.DbQuery)
-					sdkConfigs[i].DefaultPayloadCollection.Messaging = mergeMessagingPayloadCollectionRules(sdkConfigs[i].DefaultPayloadCollection.Messaging, rule.Spec.PayloadCollection.Messaging)
-				}
-			} else {
-				for _, library := range *rule.Spec.InstrumentationLibraries {
-					libraryConfig := findOrCreateSdkLibraryConfig(&sdkConfigs[i], library)
-					if libraryConfig == nil {
-						// library is not relevant to this SDK
-						continue
-					}
-					if rule.Spec.PayloadCollection != nil {
-						libraryConfig.PayloadCollection.HttpRequest = mergeHttpPayloadCollectionRules(libraryConfig.PayloadCollection.HttpRequest, rule.Spec.PayloadCollection.HttpRequest)
-						libraryConfig.PayloadCollection.HttpResponse = mergeHttpPayloadCollectionRules(libraryConfig.PayloadCollection.HttpResponse, rule.Spec.PayloadCollection.HttpResponse)
-						libraryConfig.PayloadCollection.DbQuery = mergeDbPayloadCollectionRules(libraryConfig.PayloadCollection.DbQuery, rule.Spec.PayloadCollection.DbQuery)
-						libraryConfig.PayloadCollection.Messaging = mergeMessagingPayloadCollectionRules(libraryConfig.PayloadCollection.Messaging, rule.Spec.PayloadCollection.Messaging)
-					}
-				}
-			}
-		}
-	}
+	// Since InstrumentationRule CRD is removed, we don't process any rules
+	// All signals are enabled by default with reasonable defaults
 
 	ic.Spec.SdkConfigs = sdkConfigs
 

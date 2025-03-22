@@ -83,7 +83,6 @@ interface SourceAnalyze {
 
 interface ClusterCollectorAnalyze {
   enabled: EntityProperty;
-  collectorGroup: EntityProperty;
   deployed?: EntityProperty;
   deployedError?: EntityProperty;
   collectorReady?: EntityProperty;
@@ -96,7 +95,6 @@ interface ClusterCollectorAnalyze {
 
 interface NodeCollectorAnalyze {
   enabled: EntityProperty;
-  collectorGroup: EntityProperty;
   deployed?: EntityProperty;
   deployedError?: EntityProperty;
   collectorReady?: EntityProperty;

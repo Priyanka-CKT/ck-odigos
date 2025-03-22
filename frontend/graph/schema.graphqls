@@ -445,7 +445,6 @@ type SourceAnalyze {
 
 type ClusterCollectorAnalyze {
   enabled: EntityProperty!
-  collectorGroup: EntityProperty!
   deployed: EntityProperty
   deployedError: EntityProperty
   collectorReady: EntityProperty
@@ -458,7 +457,6 @@ type ClusterCollectorAnalyze {
 
 type NodeCollectorAnalyze {
   enabled: EntityProperty!
-  collectorGroup: EntityProperty!
   deployed: EntityProperty
   deployedError: EntityProperty
   collectorReady: EntityProperty

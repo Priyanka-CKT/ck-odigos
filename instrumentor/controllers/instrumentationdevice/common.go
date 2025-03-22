@@ -7,7 +7,6 @@ import (
 
 	odigosv1 "github.com/odigos-io/odigos/api/odigos/v1alpha1"
 	"github.com/odigos-io/odigos/common"
-	"github.com/odigos-io/odigos/instrumentor/controllers/utils"
 	"github.com/odigos-io/odigos/instrumentor/controllers/utils/versionsupport"
 	"github.com/odigos-io/odigos/instrumentor/instrumentation"
 	"github.com/odigos-io/odigos/instrumentor/sdks"
@@ -43,25 +42,9 @@ var (
 	GetDefaultSDKs = sdks.GetDefaultSDKs
 )
 
+// This function used to check if the node collector was ready by checking the CollectorGroup.
+// Since we're removing the CollectorGroup CRD, we'll just assume data collection is always ready.
 func isDataCollectionReady(ctx context.Context, c client.Client) bool {
-	// logger := log.FromContext(ctx)
-
-	// nodeCollectorsGroup := odigosv1.CollectorsGroup{}
-	// err := c.Get(ctx, client.ObjectKey{
-	// 	Namespace: env.GetCurrentNamespace(),
-	// 	Name:      odigosk8sconsts.OdigosNodeCollectorCollectorGroupName,
-	// }, &nodeCollectorsGroup)
-
-	// if err != nil {
-	// 	if apierrors.IsNotFound(err) {
-	// 		// if node collector is not yet created, then it is not ready
-	// 		return false
-	// 	} else {
-	// 		logger.Error(err, "error getting node collector group, skipping instrumentation")
-	// 		return false
-	// 	}
-	// }
-
 	return true
 }
 
@@ -76,42 +59,8 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 		return err, false
 	}
 
-	workload := workload.PodWorkload{
-		Name:      obj.GetName(),
-		Namespace: obj.GetNamespace(),
-		Kind:      workload.WorkloadKind(obj.GetObjectKind().GroupVersionKind().Kind),
-	}
-
-	// build an otel sdk map from instrumentation rules first, and merge it with the default otel sdk map
-	// this way, we can override the default otel sdk with the instrumentation rules
-	instrumentationRules := odigosv1.InstrumentationRuleList{}
-	err = kubeClient.List(ctx, &instrumentationRules)
-	if err != nil {
-		return err, false
-	}
-
-	// default otel sdk map according to Odigos tier
+	// Skip InstrumentationRules and just use default SDKs
 	otelSdkToUse := GetDefaultSDKs()
-
-	for i := range instrumentationRules.Items {
-		instrumentationRule := &instrumentationRules.Items[i]
-		if instrumentationRule.Spec.Disabled || instrumentationRule.Spec.OtelSdks == nil {
-			// we only care about rules that have otel sdks configuration
-			continue
-		}
-
-		participating := utils.IsWorkloadParticipatingInRule(workload, instrumentationRule)
-		if !participating {
-			// filter rules that do not apply to the workload
-			continue
-		}
-
-		for lang, otelSdk := range instrumentationRule.Spec.OtelSdks.OtelSdkByLanguage {
-			// languages can override the default otel sdk or another rule.
-			// there is not check or warning if a language is defined in multiple rules at the moment.
-			otelSdkToUse[lang] = otelSdk
-		}
-	}
 
 	result, err := controllerutil.CreateOrPatch(ctx, kubeClient, obj, func() error {
 		podSpec, err := getPodSpecFromObject(obj)

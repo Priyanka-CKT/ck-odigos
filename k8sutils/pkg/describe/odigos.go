@@ -12,7 +12,6 @@ import (
 func printClusterCollectorStatus(analyze *odigos.OdigosAnalyze, sb *strings.Builder) {
 	describeText(sb, 1, "Cluster Collector:")
 	printProperty(sb, 2, &analyze.ClusterCollector.Enabled)
-	printProperty(sb, 2, &analyze.ClusterCollector.CollectorGroup)
 	printProperty(sb, 2, analyze.ClusterCollector.Deployed)
 	printProperty(sb, 2, analyze.ClusterCollector.DeployedError)
 	printProperty(sb, 2, analyze.ClusterCollector.CollectorReady)
@@ -26,7 +25,6 @@ func printClusterCollectorStatus(analyze *odigos.OdigosAnalyze, sb *strings.Buil
 func printNodeCollectorStatus(analyze *odigos.OdigosAnalyze, sb *strings.Builder) {
 	describeText(sb, 1, "Node Collector:")
 	printProperty(sb, 2, &analyze.NodeCollector.Enabled)
-	printProperty(sb, 2, &analyze.NodeCollector.CollectorGroup)
 	printProperty(sb, 2, analyze.NodeCollector.Deployed)
 	printProperty(sb, 2, analyze.NodeCollector.DeployedError)
 	printProperty(sb, 2, analyze.NodeCollector.CollectorReady)

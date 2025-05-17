@@ -1,0 +1,556 @@
+// Copyright The OpenTelemetry Authors
+// SPDX-License-Identifier: Apache-2.0
+
+// Package probe provides instrumentation probe types and definitions.
+package probe
+
+import (
+	"bytes"
+	"encoding/binary"
+	"errors"
+	"fmt"
+	"io"
+	"log/slog"
+	"os"
+
+	"github.com/cilium/ebpf"
+	"github.com/cilium/ebpf/link"
+	"github.com/cilium/ebpf/perf"
+	"github.com/hashicorp/go-version"
+
+	"go.opentelemetry.io/collector/pdata/ptrace"
+
+	"go.opentelemetry.io/auto/internal/pkg/inject"
+	"go.opentelemetry.io/auto/internal/pkg/instrumentation/bpffs"
+	"go.opentelemetry.io/auto/internal/pkg/instrumentation/probe/sampling"
+	"go.opentelemetry.io/auto/internal/pkg/instrumentation/utils"
+	"go.opentelemetry.io/auto/internal/pkg/process"
+	"go.opentelemetry.io/auto/internal/pkg/structfield"
+	"go.opentelemetry.io/auto/internal/pkg/telemetry"
+)
+
+// Probe is the instrument used by instrumentation for a Go package to measure
+// and report on the state of that packages operation.
+type Probe interface {
+	// Manifest returns the Probe's instrumentation Manifest. This includes all
+	// the information about the package the Probe instruments.
+	Manifest() Manifest
+
+	// Load loads all the eBPF programs and maps required by the Probe.
+	// It also attaches the eBPF programs to the target process.
+	// TODO: currently passing Sampler as an initial configuration - this will be
+	// updated to a more generic configuration in the future.
+	Load(*link.Executable, *process.TargetDetails, *sampling.Config, string) error
+
+	// Run runs the events processing loop.
+	Run(traceHandle func(ptrace.ScopeSpans), exportHandle func(*telemetry.PathKey) (bool, error))
+
+	// Close stops the Probe.
+	Close() error
+}
+
+// Base is  a base implementation of [Probe].
+//
+// This type can be returned by instrumentation directly. Instrumentation can
+// also wrap this implementation with their own type if they need to override
+// default behavior.
+type Base[BPFObj any, BPFEvent any] struct {
+	// ID is a unique identifier for the probe.
+	ID ID
+	// Logger is used to log operations and errors.
+	Logger *slog.Logger
+
+	// Consts are the constants that need to be injected into the eBPF program
+	// that is run by this Probe.
+	Consts []Const
+	// Uprobes is a the collection of eBPF programs that need to be attached to
+	// the target process.
+	Uprobes []Uprobe
+
+	// SpecFn is a creation function for an eBPF CollectionSpec related to the
+	// probe.
+	SpecFn func() (*ebpf.CollectionSpec, error)
+	// ProcessRecord is an optional processing function for the probe. If nil,
+	// all records will be read directly into a new BPFEvent using the
+	// encoding/binary package.
+	ProcessRecord func(perf.Record) (BPFEvent, error)
+
+	reader          *perf.Reader
+	collection      *ebpf.Collection
+	closers         []io.Closer
+	samplingManager *sampling.Manager
+}
+
+const (
+	// The default size of the perf buffer in pages.
+	// We will need to make this configurable in the future.
+	PerfBufferDefaultSizeInPages = 128
+	// The default name of the eBPF map used to pass events from the eBPF program
+	// to userspace.
+	DefaultBufferMapName = "events"
+)
+
+// Manifest returns the Probe's instrumentation Manifest.
+func (i *Base[BPFObj, BPFEvent]) Manifest() Manifest {
+	var structFieldIDs []structfield.ID
+	for _, cnst := range i.Consts {
+		if sfc, ok := cnst.(StructFieldConst); ok {
+			structFieldIDs = append(structFieldIDs, sfc.Val)
+		}
+	}
+
+	symbols := make([]FunctionSymbol, 0, len(i.Uprobes))
+	for _, up := range i.Uprobes {
+		symbols = append(symbols, FunctionSymbol{Symbol: up.Sym, DependsOn: up.DependsOn})
+	}
+
+	return NewManifest(i.ID, structFieldIDs, symbols)
+}
+
+func (i *Base[BPFObj, BPFEvent]) Spec() (*ebpf.CollectionSpec, error) {
+	return i.SpecFn()
+}
+
+// Load loads all instrumentation offsets.
+func (i *Base[BPFObj, BPFEvent]) Load(exec *link.Executable, td *process.TargetDetails, sampler *sampling.Config, serviceName string) error {
+	spec, err := i.SpecFn()
+	if err != nil {
+		return err
+	}
+
+	err = i.InjectConsts(td, spec)
+	if err != nil {
+		return err
+	}
+
+	i.collection, err = i.buildEBPFCollection(td, spec)
+	if err != nil {
+		return err
+	}
+
+	err = i.loadUprobes(exec, td)
+	if err != nil {
+		return err
+	}
+
+	err = i.initReader()
+	if err != nil {
+		return err
+	}
+
+	i.samplingManager, err = sampling.NewSamplingManager(i.collection, sampler, serviceName)
+	if err != nil {
+		return err
+	}
+
+	i.closers = append(i.closers, i.reader)
+
+	return nil
+}
+
+func (i *Base[BPFObj, BPFEvent]) InjectConsts(td *process.TargetDetails, spec *ebpf.CollectionSpec) error {
+	var err error
+	var opts []inject.Option
+	for _, cnst := range i.Consts {
+		o, e := cnst.InjectOption(td)
+		err = errors.Join(err, e)
+		if e == nil && o != nil {
+			opts = append(opts, o)
+		}
+	}
+	if err != nil {
+		return err
+	}
+
+	return inject.Constants(spec, opts...)
+}
+
+func (i *Base[BPFObj, BPFEvent]) loadUprobes(exec *link.Executable, td *process.TargetDetails) error {
+	for _, up := range i.Uprobes {
+		var skip bool
+		for _, pc := range up.PackageConstrainsts {
+			if pc.Constraints.Check(td.Libraries[pc.Package]) {
+				continue
+			}
+
+			var logFn func(string, ...any)
+			switch pc.FailureMode {
+			case FailureModeIgnore:
+				logFn = i.Logger.Debug
+			case FailureModeWarn:
+				logFn = i.Logger.Warn
+			default:
+				// Unknown and FailureModeError.
+				return fmt.Errorf("uprobe %s package constraint (%s) not meet", up.Sym, pc.Constraints.String())
+			}
+
+			logFn(
+				"package constraint not meet, skipping uprobe",
+				"probe", i.ID,
+				"symbol", up.Sym,
+				"package", pc.Package,
+				"constraint", pc.Constraints.String(),
+			)
+
+			skip = true
+			break
+		}
+		if skip {
+			continue
+		}
+
+		links, err := up.load(exec, td, i.collection)
+		if err != nil {
+			var logFn func(string, ...any)
+			switch up.FailureMode {
+			case FailureModeIgnore:
+				logFn = i.Logger.Debug
+			case FailureModeWarn:
+				logFn = i.Logger.Warn
+			default:
+				// Unknown and FailureModeError.
+				return err
+			}
+			logFn("failed to load uprobe", "probe", i.ID, "symbol", up.Sym, "error", err)
+			continue
+		}
+		for _, l := range links {
+			i.closers = append(i.closers, l)
+		}
+	}
+	return nil
+}
+
+func (i *Base[BPFObj, BPFEvent]) initReader() error {
+	buf, ok := i.collection.Maps[DefaultBufferMapName]
+	if !ok {
+		return fmt.Errorf("%s map not found", DefaultBufferMapName)
+	}
+	var err error
+	i.reader, err = perf.NewReader(buf, PerfBufferDefaultSizeInPages*os.Getpagesize())
+	if err != nil {
+		return err
+	}
+	i.closers = append(i.closers, i.reader)
+	return nil
+}
+
+func (i *Base[BPFObj, BPFEvent]) buildEBPFCollection(td *process.TargetDetails, spec *ebpf.CollectionSpec) (*ebpf.Collection, error) {
+	obj := new(BPFObj)
+	if c, ok := ((interface{})(obj)).(io.Closer); ok {
+		i.closers = append(i.closers, c)
+	}
+
+	sOpts := &ebpf.CollectionOptions{
+		Maps: ebpf.MapOptions{
+			PinPath: bpffs.PathForTargetApplication(td),
+		},
+	}
+	c, err := utils.InitializeEBPFCollection(spec, sOpts)
+	if err != nil {
+		return nil, err
+	}
+
+	return c, nil
+}
+
+// read reads a new BPFEvent from the perf Reader.
+func (i *Base[BPFObj, BPFEvent]) read() (*BPFEvent, error) {
+	record, err := i.reader.Read()
+	if err != nil {
+		if !errors.Is(err, perf.ErrClosed) {
+			i.Logger.Error("error reading from perf reader", "error", err)
+		}
+		return nil, err
+	}
+
+	if record.LostSamples != 0 {
+		i.Logger.Debug("perf event ring buffer full", "dropped", record.LostSamples)
+		return nil, err
+	}
+
+	var event BPFEvent
+	if i.ProcessRecord != nil {
+		event, err = i.ProcessRecord(record)
+	} else {
+		buf := bytes.NewReader(record.RawSample)
+		err = binary.Read(buf, binary.LittleEndian, &event)
+	}
+
+	if err != nil {
+		return nil, err
+	}
+	return &event, nil
+}
+
+// Close stops the Probe.
+func (i *Base[BPFObj, BPFEvent]) Close() error {
+	if i.collection != nil {
+		i.collection.Close()
+	}
+	var err error
+	for _, c := range i.closers {
+		err = errors.Join(err, c.Close())
+	}
+	if err == nil {
+		i.Logger.Debug("Closed", "Probe", i.ID)
+	}
+	return err
+}
+
+//end of Base Functions
+
+type SpanProducer[BPFObj any, BPFEvent any] struct {
+	Base[BPFObj, BPFEvent]
+
+	Version    string
+	SchemaURL  string
+	ProcessFn  func(*BPFEvent) ptrace.SpanSlice
+	ProcessFnC func(*BPFEvent, *slog.Logger, string) telemetry.PathKey
+	// exporterConfigs []telemetry.ExporterConfig // Field to hold exporter configurations
+	// factory         *telemetry.Factory
+	ServiceName string
+}
+
+// Run runs the events processing loop.
+func (i *SpanProducer[BPFObj, BPFEvent]) Run(handle func(ptrace.ScopeSpans), export func(*telemetry.PathKey) (bool, error)) {
+	for {
+		event, err := i.read()
+		if err != nil {
+			if errors.Is(err, perf.ErrClosed) {
+				return
+			}
+			continue
+		}
+
+		if event == nil {
+			i.Logger.Error("received nil event from reader")
+			continue
+		}
+
+		// Use defer/recover to protect against potential panics from ProcessFnC
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					i.Logger.Error("panic in ProcessFnC", "recovered", r)
+				}
+			}()
+
+			if i.ProcessFnC == nil {
+				i.Logger.Error("ProcessFnC is nil")
+				return
+			}
+
+			customSpan := i.ProcessFnC(event, i.Logger, i.ServiceName)
+			if (customSpan != telemetry.PathKey{}) {
+				statusFromNexus, err := export(&customSpan)
+				if err != nil {
+					i.Logger.Error("failed to export span", "error", err, "status", statusFromNexus)
+				}
+				currentStatus, err := i.samplingManager.GetInstrumentationConfig()
+				if err != nil {
+					i.Logger.Error("failed to get instrumentation config", "error", err)
+				}
+				if currentStatus != statusFromNexus {
+					i.Logger.Warn("instrumentation status changed ", "current", currentStatus, "nexus", statusFromNexus)
+					err := i.samplingManager.SetInstrumentationConfigStatus(statusFromNexus)
+					if err != nil {
+						i.Logger.Error("failed to set instrumentation config", "error", err)
+					}
+				}
+			}
+		}()
+	}
+}
+
+type TraceProducer[BPFObj any, BPFEvent any] struct {
+	Base[BPFObj, BPFEvent]
+
+	ProcessFn func(*BPFEvent) ptrace.ScopeSpans
+}
+
+// Run runs the events processing loop.
+func (i *TraceProducer[BPFObj, BPFEvent]) Run(handle func(ptrace.ScopeSpans), export func(*telemetry.PathKey) (bool, error)) {
+	for {
+		event, err := i.read()
+		if err != nil {
+			if errors.Is(err, perf.ErrClosed) {
+				return
+			}
+			continue
+		}
+
+		if event == nil {
+			i.Logger.Error("received nil event from reader")
+			continue
+		}
+
+		// Use defer/recover to protect against potential panics
+		func() {
+			defer func() {
+				if r := recover(); r != nil {
+					i.Logger.Error("panic in ProcessFn", "recovered", r)
+				}
+			}()
+
+			if i.ProcessFn == nil {
+				i.Logger.Error("ProcessFn is nil")
+				return
+			}
+
+			handle(i.ProcessFn(event))
+		}()
+	}
+}
+
+// Uprobe is an eBPF program that is attached in the entry point and/or the return of a function.
+type Uprobe struct {
+	// Sym is the symbol name of the function to attach the eBPF program to.
+	Sym string
+	// PackageConstrainsts are the evaluated when the Uprobe is loaded.
+	PackageConstrainsts []PackageConstrainst
+	// FailureMode defines the behavior that is performed when the Uprobe fails
+	// to attach.
+	FailureMode FailureMode
+	// EntryProbe is the name of the eBPF program to attach to the entry of the
+	// function specified by Sym. If EntryProbe is empty, no eBPF program will be attached to the entry of the function.
+	EntryProbe string
+	// ReturnProbe is the name of the eBPF program to attach to the return of the
+	// function specified by Sym. If ReturnProbe is empty, no eBPF program will be attached to the return of the function.
+	ReturnProbe string
+	DependsOn   []string
+}
+
+func (u *Uprobe) load(exec *link.Executable, target *process.TargetDetails, c *ebpf.Collection) ([]link.Link, error) {
+	offset, err := target.GetFunctionOffset(u.Sym)
+	if err != nil {
+		return nil, err
+	}
+
+	var links []link.Link
+
+	if u.EntryProbe != "" {
+		entryProg, ok := c.Programs[u.EntryProbe]
+		if !ok {
+			return nil, fmt.Errorf("entry probe %s not found", u.EntryProbe)
+		}
+		opts := &link.UprobeOptions{Address: offset, PID: target.PID}
+		l, err := exec.Uprobe("", entryProg, opts)
+		if err != nil {
+			return nil, err
+		}
+		links = append(links, l)
+	}
+
+	if u.ReturnProbe != "" {
+		retProg, ok := c.Programs[u.ReturnProbe]
+		if !ok {
+			return nil, fmt.Errorf("return probe %s not found", u.ReturnProbe)
+		}
+		retOffsets, err := target.GetFunctionReturns(u.Sym)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, ret := range retOffsets {
+			opts := &link.UprobeOptions{Address: ret, PID: target.PID}
+			l, err := exec.Uprobe("", retProg, opts)
+			if err != nil {
+				return nil, err
+			}
+			links = append(links, l)
+		}
+	}
+
+	return links, nil
+}
+
+// Const is an constant that needs to be injected into an eBPF program.
+type Const interface {
+	// InjectOption returns the inject.Option to run for the Const when running
+	// inject.Constants.
+	InjectOption(td *process.TargetDetails) (inject.Option, error)
+}
+
+// StructFieldConst is a [Const] for a struct field offset. These struct field
+// ID needs to be known offsets in the [inject] package.
+type StructFieldConst struct {
+	Key string
+	Val structfield.ID
+}
+
+// InjectOption returns the appropriately configured [inject.WithOffset] if the
+// version of the struct field module is known. If it is not, an error is
+// returned.
+func (c StructFieldConst) InjectOption(td *process.TargetDetails) (inject.Option, error) {
+	ver, ok := td.Libraries[c.Val.ModPath]
+	if !ok {
+		return nil, fmt.Errorf("unknown module version: %s", c.Val.ModPath)
+	}
+	return inject.WithOffset(c.Key, c.Val, ver), nil
+}
+
+// StructFieldConstMinVersion is a [Const] for a struct field offset. These struct field
+// ID needs to be known offsets in the [inject] package. The offset is only
+// injected if the module version is greater than or equal to the MinVersion.
+type StructFieldConstMinVersion struct {
+	StructField StructFieldConst
+	MinVersion  *version.Version
+}
+
+// InjectOption returns the appropriately configured [inject.WithOffset] if the
+// version of the struct field module is known and is greater than or equal to
+// the MinVersion. If the module version is not known, an error is returned.
+// If the module version is known but is less than the MinVersion, no offset is
+// injected.
+func (c StructFieldConstMinVersion) InjectOption(td *process.TargetDetails) (inject.Option, error) {
+	sf := c.StructField
+	ver, ok := td.Libraries[sf.Val.ModPath]
+	if !ok {
+		return nil, fmt.Errorf("unknown module version: %s", sf.Val.ModPath)
+	}
+
+	if !ver.GreaterThanOrEqual(c.MinVersion) {
+		return nil, nil
+	}
+
+	return inject.WithOffset(sf.Key, sf.Val, ver), nil
+}
+
+// AllocationConst is a [Const] for all the allocation details that need to be
+// injected into an eBPF program.
+type AllocationConst struct{}
+
+// InjectOption returns the appropriately configured
+// [inject.WithAllocationDetails] if the [process.AllocationDetails] within td
+// are not nil. An error is returned if [process.AllocationDetails] is nil.
+func (c AllocationConst) InjectOption(td *process.TargetDetails) (inject.Option, error) {
+	if td.AllocationDetails == nil {
+		return nil, errors.New("no allocation details")
+	}
+	return inject.WithAllocationDetails(*td.AllocationDetails), nil
+}
+
+// RegistersABIConst is a [Const] for the boolean flag informing an eBPF
+// program if the Go space has registered ABI.
+type RegistersABIConst struct{}
+
+// InjectOption returns the appropriately configured [inject.WithRegistersABI].
+func (c RegistersABIConst) InjectOption(td *process.TargetDetails) (inject.Option, error) {
+	return inject.WithRegistersABI(td.IsRegistersABI()), nil
+}
+
+// KeyValConst is a [Const] for a generic key-value pair.
+//
+// This should not be used as a replacement for any of the other provided
+// [Const] implementations. Those implementations may have added significance
+// and should be used instead where applicable.
+type KeyValConst struct {
+	Key string
+	Val interface{}
+}
+
+// InjectOption returns the appropriately configured [inject.WithKeyValue].
+func (c KeyValConst) InjectOption(*process.TargetDetails) (inject.Option, error) {
+	return inject.WithKeyValue(c.Key, c.Val), nil
+}

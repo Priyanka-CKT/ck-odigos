@@ -1,0 +1,263 @@
+// Copyright The OpenTelemetry Authors
+// SPDX-License-Identifier: Apache-2.0
+
+package grpc
+
+import (
+	"fmt"
+	"log/slog"
+	"net"
+	"strconv"
+	"strings"
+
+	"github.com/cilium/ebpf"
+	"github.com/hashicorp/go-version"
+	"go.opentelemetry.io/collector/pdata/pcommon"
+	"go.opentelemetry.io/collector/pdata/ptrace"
+	"go.opentelemetry.io/otel/attribute"
+	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
+	"go.opentelemetry.io/otel/trace"
+	"golang.org/x/sys/unix"
+
+	"go.opentelemetry.io/auto/internal/pkg/inject"
+	"go.opentelemetry.io/auto/internal/pkg/instrumentation/context"
+	"go.opentelemetry.io/auto/internal/pkg/instrumentation/probe"
+	"go.opentelemetry.io/auto/internal/pkg/instrumentation/utils"
+	"go.opentelemetry.io/auto/internal/pkg/process"
+	"go.opentelemetry.io/auto/internal/pkg/structfield"
+	"go.opentelemetry.io/auto/internal/pkg/telemetry"
+)
+
+//go:generate go run github.com/cilium/ebpf/cmd/bpf2go -target amd64,arm64 bpf ./bpf/probe.bpf.c
+
+const (
+	// pkg is the package being instrumented.
+	pkg = "google.golang.org/grpc"
+)
+
+var (
+	writeStatus           = false
+	writeStatusMinVersion = version.Must(version.NewVersion("1.40.0"))
+)
+
+type writeStatusConst struct{}
+
+func (w writeStatusConst) InjectOption(td *process.TargetDetails) (inject.Option, error) {
+	ver, ok := td.Libraries[pkg]
+	if !ok {
+		return nil, fmt.Errorf("unknown module version: %s", pkg)
+	}
+	if ver.GreaterThanOrEqual(writeStatusMinVersion) {
+		writeStatus = true
+	}
+	return inject.WithKeyValue("write_status_supported", writeStatus), nil
+}
+
+// New returns a new [probe.Probe].
+func New(logger *slog.Logger, version string, serviceName string) probe.Probe {
+	id := probe.ID{
+		SpanKind:        trace.SpanKindClient,
+		InstrumentedPkg: pkg,
+	}
+	return &probe.SpanProducer[bpfObjects, event]{
+		Base: probe.Base[bpfObjects, event]{
+			ID:     id,
+			Logger: logger,
+			Consts: []probe.Const{
+				probe.RegistersABIConst{},
+				probe.AllocationConst{},
+				writeStatusConst{},
+				probe.StructFieldConst{
+					Key: "clientconn_target_ptr_pos",
+					Val: structfield.NewID("google.golang.org/grpc", "google.golang.org/grpc", "ClientConn", "target"),
+				},
+				probe.StructFieldConst{
+					Key: "httpclient_nextid_pos",
+					Val: structfield.NewID("google.golang.org/grpc", "google.golang.org/grpc/internal/transport", "http2Client", "nextID"),
+				},
+				probe.StructFieldConst{
+					Key: "httpclient_conn_pos",
+					Val: structfield.NewID("google.golang.org/grpc", "google.golang.org/grpc/internal/transport", "http2Client", "conn"),
+				},
+				probe.StructFieldConst{
+					Key: "loopywriter_conn_pos",
+					Val: structfield.NewID("google.golang.org/grpc", "google.golang.org/grpc/internal/transport", "loopyWriter", "conn"),
+				},
+				probe.StructFieldConst{
+					Key: "headerFrame_hf_pos",
+					Val: structfield.NewID("google.golang.org/grpc", "google.golang.org/grpc/internal/transport", "headerFrame", "hf"),
+				},
+				probe.StructFieldConst{
+					Key: "headerFrame_streamid_pos",
+					Val: structfield.NewID("google.golang.org/grpc", "google.golang.org/grpc/internal/transport", "headerFrame", "streamID"),
+				},
+				probe.StructFieldConstMinVersion{
+					StructField: probe.StructFieldConst{
+						Key: "error_status_pos",
+						Val: structfield.NewID("google.golang.org/grpc", "google.golang.org/grpc/internal/status", "Error", "s"),
+					},
+					MinVersion: writeStatusMinVersion,
+				},
+				probe.StructFieldConstMinVersion{
+					StructField: probe.StructFieldConst{
+						Key: "status_s_pos",
+						Val: structfield.NewID("google.golang.org/grpc", "google.golang.org/grpc/internal/status", "Status", "s"),
+					},
+					MinVersion: writeStatusMinVersion,
+				},
+				probe.StructFieldConstMinVersion{
+					StructField: probe.StructFieldConst{
+						Key: "status_code_pos",
+						Val: structfield.NewID("google.golang.org/grpc", "google.golang.org/genproto/googleapis/rpc/status", "Status", "Code"),
+					},
+					MinVersion: writeStatusMinVersion,
+				},
+			},
+			Uprobes: []probe.Uprobe{
+				{
+					Sym:         "google.golang.org/grpc.(*ClientConn).Invoke",
+					EntryProbe:  "uprobe_ClientConn_Invoke",
+					ReturnProbe: "uprobe_ClientConn_Invoke_Returns",
+				},
+				{
+					Sym:         "google.golang.org/grpc.(*ClientConn).NewStream",
+					EntryProbe:  "uprobe_ClientConn_NewStream",
+					ReturnProbe: "uprobe_ClientConn_NewStream_Returns",
+				},
+				{
+					Sym:         "google.golang.org/grpc.(*clientStream).RecvMsg",
+					ReturnProbe: "uprobe_clientStream_RecvMsg_Returns",
+				},
+				{
+					Sym:        "google.golang.org/grpc.(*ClientConn).Close",
+					EntryProbe: "uprobe_ClientConn_Close",
+				},
+				// {
+				// 	Sym:        "google.golang.org/grpc/internal/transport.(*http2Client).NewStream",
+				// 	EntryProbe: "uprobe_http2Client_NewStream",
+				// },
+				{
+					Sym:        "google.golang.org/grpc/internal/transport.(*loopyWriter).headerHandler",
+					EntryProbe: "uprobe_LoopyWriter_HeaderHandler",
+				},
+				{
+					Sym:        "google.golang.org/grpc/internal/transport.(*controlBuffer).executeAndPut",
+					EntryProbe: "uprobe_controlBuffer_executeAndPut",
+				},
+			},
+			SpecFn: verifyAndLoadBpf,
+		},
+		Version:     version,
+		SchemaURL:   semconv.SchemaURL,
+		ProcessFn:   processFn,
+		ProcessFnC:  processFnC,
+		ServiceName: serviceName,
+	}
+}
+
+func verifyAndLoadBpf() (*ebpf.CollectionSpec, error) {
+	if !utils.SupportsContextPropagation() {
+		return nil, fmt.Errorf("the Linux Kernel doesn't support context propagation, please check if the kernel is in lockdown mode (/sys/kernel/security/lockdown)")
+	}
+
+	return loadBpf()
+}
+
+// event represents an event in the gRPC client during a gRPC request.
+type event struct {
+	context.BaseSpanProperties
+	Method     [128]byte
+	Target     [50]byte
+	StatusCode int32
+	IsStream   bool
+}
+
+func processFnC(e *event, logger *slog.Logger, serviceName string) telemetry.PathKey {
+
+	if e == nil {
+		logger.Info("=== GRPC client event is nil")
+		return telemetry.PathKey{}
+	}
+
+	logger.Info("=== Processing GRPC client event", "event", e)
+	typeName := "GrpcClientBridge"
+	parentTraceId := e.ParentSpanContext.TraceID.String()
+
+	grpcFullMethodName := unix.ByteSliceToString(e.Method[:])
+	if grpcFullMethodName == "" {
+		logger.Info("=== GRPC client event has empty method")
+		return telemetry.PathKey{}
+	}
+
+	if strings.HasPrefix(grpcFullMethodName, "/") {
+		grpcFullMethodName = grpcFullMethodName[1:]
+	}
+
+	pathKeyStr := telemetry.GeneratePathKey(serviceName, typeName, parentTraceId, grpcFullMethodName)
+	logger.Info("=== Created GRPC Client Bridge PathKey String", "pathKeyStr", pathKeyStr)
+
+	pathKey := telemetry.PathKey{
+		PathKey: pathKeyStr,
+		GraphPathNode: telemetry.GraphPathNode{
+			IncomingPath: &parentTraceId,
+			Runtime:      "go",
+			GraphPathElement: telemetry.GrpcClientBridgeElement{
+				Type:               typeName,
+				GrpcFullMethodName: grpcFullMethodName,
+			},
+			StartTime: e.StartTime,
+			EndTime:   e.EndTime,
+			IsError:   e.StatusCode > 0,
+			ErrorCode: strconv.Itoa(int(e.StatusCode)),
+		},
+	}
+	logger.Info("=== Created GRPC Client PathKey", "pathKey", pathKey)
+	return pathKey
+}
+
+func processFn(e *event) ptrace.SpanSlice {
+	method := unix.ByteSliceToString(e.Method[:])
+	address := unix.ByteSliceToString(e.Target[:])
+
+	var port int
+	host, portStr, err := net.SplitHostPort(address)
+	if err == nil {
+		port, _ = strconv.Atoi(portStr)
+	} else {
+		host = address
+	}
+
+	attrs := []attribute.KeyValue{
+		semconv.RPCSystemKey.String("grpc"),
+		semconv.RPCServiceKey.String(method),
+		semconv.ServerAddress(host),
+		semconv.RPCGRPCStatusCodeKey.Int(int(e.StatusCode)),
+	}
+
+	if port > 0 {
+		attrs = append(attrs, semconv.NetworkPeerPort(port))
+		attrs = append(attrs, semconv.ServerPort(port))
+	}
+
+	spans := ptrace.NewSpanSlice()
+	span := spans.AppendEmpty()
+	span.SetName(method)
+	span.SetKind(ptrace.SpanKindClient)
+	span.SetStartTimestamp(utils.BootOffsetToTimestamp(e.StartTime))
+	span.SetEndTimestamp(utils.BootOffsetToTimestamp(e.EndTime))
+	span.SetTraceID(pcommon.TraceID(e.SpanContext.TraceID))
+	span.SetSpanID(pcommon.SpanID(e.SpanContext.SpanID))
+	span.SetFlags(uint32(trace.FlagsSampled))
+
+	if e.ParentSpanContext.SpanID.IsValid() {
+		span.SetParentSpanID(pcommon.SpanID(e.ParentSpanContext.SpanID))
+	}
+
+	utils.Attributes(span.Attributes(), attrs...)
+
+	if writeStatus && e.StatusCode > 0 {
+		span.Status().SetCode(ptrace.StatusCodeError)
+	}
+
+	return spans
+}

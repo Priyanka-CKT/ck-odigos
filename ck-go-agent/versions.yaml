@@ -1,0 +1,28 @@
+# Copyright The OpenTelemetry Authors
+# SPDX-License-Identifier: Apache-2.0
+
+module-sets:
+  auto:
+    version: v1.2.2-alpha-bridge
+    modules:
+      - go.opentelemetry.io/auto
+  sdk:
+    version: v1.1.0
+    modules:
+      - go.opentelemetry.io/auto/sdk
+excluded-modules:
+  - github.com/hashicorp/go-version
+  - go.opentelemetry.io/auto/examples
+  - go.opentelemetry.io/auto/examples/httpPlusdb
+  - go.opentelemetry.io/auto/examples/kafka-go/producer
+  - go.opentelemetry.io/auto/examples/kafka-go/consumer
+  - go.opentelemetry.io/auto/examples/rolldice
+  - go.opentelemetry.io/auto/internal/test/e2e/autosdk
+  - go.opentelemetry.io/auto/internal/test/e2e/databasesql
+  - go.opentelemetry.io/auto/internal/test/e2e/gin
+  - go.opentelemetry.io/auto/internal/test/e2e/grpc
+  - go.opentelemetry.io/auto/internal/test/e2e/kafka-go
+  - go.opentelemetry.io/auto/internal/test/e2e/nethttp
+  - go.opentelemetry.io/auto/internal/test/e2e/otelglobal
+  - go.opentelemetry.io/auto/internal/tools
+  - go.opentelemetry.io/auto/sdk/internal/telemetry/test

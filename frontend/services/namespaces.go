@@ -32,7 +32,7 @@ type GetNamespaceItem struct {
 }
 
 const (
-	OdigosSystemNamespace = "codekarma"
+	OdigosSystemNamespace = "ckqa"
 )
 
 func GetK8SNamespaces(ctx context.Context) GetNamespacesResponse {

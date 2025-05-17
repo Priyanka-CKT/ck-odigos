@@ -1,0 +1,24 @@
+package main
+
+import (
+    "context"
+    "time"
+    redis "github.com/go-redis/redis/v8"
+)
+
+func main() {
+    client := redis.NewClient(&redis.Options{})
+    ctx := context.Background()
+    conn := client.Conn(ctx)
+    
+    // Example usage
+    key := "example-key"
+    value := "example-value"
+    err := client.Set(ctx, key, value, 24*time.Hour)
+    if err != nil {
+        // Handle error
+    }
+    
+    // Use the connection if needed
+    _ = conn
+}

@@ -1,0 +1,18 @@
+package main
+
+import (
+	"net/http"
+	mux "github.com/gorilla/mux"
+)
+
+func main() {
+	r := mux.NewRouter()
+	var match mux.RouteMatch
+	r.HandleFunc("/test/{id}", func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	}).Methods(http.MethodGet)
+
+	request, _ := http.NewRequest(http.MethodGet, "/test/123", nil)
+	r.Match(request, &match)
+
+}

@@ -1,0 +1,8 @@
+{
+    "IncomingPathKey": "test_incoming",
+    "PathKey": "/test/path",
+    "Type": "GRPC_SERVER",
+    "Protocol": "grpc",
+    "Method": "/test.Service/TestMethod",
+    "Status": 0
+}

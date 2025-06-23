@@ -42,7 +42,9 @@ func ApplyInstrumentationDevicesToPodTemplate(original *corev1.PodTemplateSpec, 
 		containerLanguage := getLanguageOfContainer(runtimeDetails, container.Name)
 		containerHaveOtherAgent := getContainerOtherAgents(runtimeDetails, container.Name)
 		libcType := getLibCTypeOfContainer(runtimeDetails, container.Name)
-
+		if containerHaveOtherAgent != nil {
+			logger.Info("Container has other agent", "agent", containerHaveOtherAgent.Name, "container", container.Name)
+		}
 		// By default, Odigos does not run alongside other agents.
 		// However, if configured in the odigos-config, it can be allowed to run in parallel.
 		if containerHaveOtherAgent != nil && !agentsCanRunConcurrently {
@@ -77,7 +79,7 @@ func ApplyInstrumentationDevicesToPodTemplate(original *corev1.PodTemplateSpec, 
 		}
 		container.Resources.Limits[corev1.ResourceName(instrumentationDeviceName)] = resource.MustParse("1")
 		deviceApplied = true
-
+		logger.Info("patchEnvVarsForContainer", "container", container)
 		err = patchEnvVarsForContainer(runtimeDetails, &container, &otelSdk, containerLanguage, manifestEnvOriginal)
 		if err != nil {
 			return fmt.Errorf("%w: %v", ErrPatchEnvVars, err), deviceApplied, deviceSkippedDueToOtherAgent
@@ -88,6 +90,7 @@ func ApplyInstrumentationDevicesToPodTemplate(original *corev1.PodTemplateSpec, 
 
 	if modifiedContainers != nil {
 		original.Spec.Containers = modifiedContainers
+		logger.Info("modifiedContainers append with original", "original", original.Spec.Containers, "modifiedContainers", modifiedContainers)
 	}
 
 	// persist the original values if changed

@@ -17,6 +17,7 @@ const OdigosResourceNamespace = "instrumentation.odigos.io"
 // Odigos convention for plugin name is as follows:
 // <runtime-name>-<sdk-type>-<sdk-tier>
 //
+
 // for example:
 // the native Java SDK will be named "java-native-community".
 // the ebpf Java enterprise sdk will be named "java-ebpf-enterprise".

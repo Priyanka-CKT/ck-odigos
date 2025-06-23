@@ -6,6 +6,7 @@ import (
 	"github.com/odigos-io/odigos/common"
 	"github.com/odigos-io/odigos/odiglet/pkg/env"
 	"github.com/odigos-io/odigos/odiglet/pkg/instrumentation/consts"
+	"github.com/odigos-io/odigos/odiglet/pkg/log"
 	"k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
 )
 
@@ -25,10 +26,17 @@ const (
 func Java(deviceId string, uniqueDestinationSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse {
 	otlpEndpoint := fmt.Sprintf("http://%s:%d", env.Current.NodeIP, consts.OTLPPort)
 
+	log.Logger.Info("Mounting Java agent to pod",
+		"deviceId", deviceId,
+		"otlpEndpoint", otlpEndpoint)
+
 	// Use the correct agent jar file name
 	javaAgentPath := "/var/odigos/java/ck-agent-universal.jar"
 	javaOptsVal := fmt.Sprintf("-javaagent:%s", javaAgentPath)
 	javaToolOptionsVal := fmt.Sprintf("-javaagent:%s", javaAgentPath)
+
+	log.Logger.Info("Java agent path",
+		"javaAgentPath", javaAgentPath)
 
 	logsExporter := "none"
 	metricsExporter := "none"

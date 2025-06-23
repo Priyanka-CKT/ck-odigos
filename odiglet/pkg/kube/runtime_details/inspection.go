@@ -41,6 +41,11 @@ func ignoreNoPodsFoundError(err error) error {
 
 func inspectRuntimesOfRunningPods(ctx context.Context, logger *logr.Logger, labels map[string]string,
 	kubeClient client.Client, scheme *runtime.Scheme, object client.Object) error {
+	logger.Info("Inspecting runtimes of running pods",
+		"namespace", object.GetNamespace(),
+		"labels", labels,
+		"workloadKind", object.GetObjectKind().GroupVersionKind().Kind,
+		"workloadName", object.GetName())
 	pods, err := kubeutils.GetRunningPods(ctx, labels, object.GetNamespace(), kubeClient)
 	if err != nil {
 		logger.Error(err, "error fetching running pods")
@@ -62,6 +67,11 @@ func inspectRuntimesOfRunningPods(ctx context.Context, logger *logr.Logger, labe
 		logger.Error(err, "error inspecting pods")
 		return err
 	}
+	logger.Info("Persisting runtime results",
+		"workloadKind", object.GetObjectKind().GroupVersionKind().Kind,
+		"workloadName", object.GetName(),
+		"namespace", object.GetNamespace(),
+		"runtimeResults", runtimeResults)
 
 	err = persistRuntimeResults(ctx, runtimeResults, object, kubeClient, scheme)
 	if err != nil {
@@ -87,6 +97,7 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 			}
 
 			processes, err := process.FindAllInContainer(string(pod.UID), container.Name)
+			log.Logger.Info("runtimeInspection processes", "processes", processes, "pod", string(pod.UID), "container", container.Name, "namespace", pod.Namespace)
 			if err != nil {
 				log.Logger.Error(err, "failed to find processes in pod container", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
 				return nil, err
@@ -101,8 +112,10 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 			var detectErr error
 
 			for _, proc := range processes {
+				log.Logger.Info("runtimeInspection process", "process", proc)
 				containerURL := kubeutils.GetPodExternalURL(pod.Status.PodIP, container.Ports)
 				programLanguageDetails, detectErr = inspectors.DetectLanguage(proc, containerURL)
+				log.Logger.Info("runtimeInspection programLanguageDetails", "programLanguageDetails", programLanguageDetails)
 				if detectErr == nil && programLanguageDetails.Language != common.UnknownProgrammingLanguage {
 					inspectProc = &proc
 					break
@@ -177,7 +190,9 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 }
 
 func persistRuntimeDetailsToInstrumentationConfig(ctx context.Context, kubeclient client.Client, instrumentationConfig *odigosv1.InstrumentationConfig, newStatus odigosv1.InstrumentationConfigStatus) error {
-
+	log.Logger.Info("Persisting runtime details to instrumentation config",
+		"namespace", instrumentationConfig.GetNamespace(),
+		"name", instrumentationConfig.GetName())
 	// persist the runtime results into the status of the instrumentation config
 	patchStatus := odigosv1.InstrumentationConfig{
 		Status: newStatus,
@@ -195,6 +210,10 @@ func persistRuntimeDetailsToInstrumentationConfig(ctx context.Context, kubeclien
 }
 
 func persistRuntimeResults(ctx context.Context, results []odigosv1.RuntimeDetailsByContainer, owner client.Object, kubeClient client.Client, scheme *runtime.Scheme) error {
+	log.Logger.Info("Creating InstrumentedApplication",
+		"name", owner.GetName(),
+		"kind", owner.GetObjectKind().GroupVersionKind().Kind,
+		"namespace", owner.GetNamespace())
 	updatedIa := &odigosv1.InstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      workload.CalculateWorkloadRuntimeObjectName(owner.GetName(), owner.GetObjectKind().GroupVersionKind().Kind),

@@ -5,6 +5,7 @@ import (
 
 	"k8s.io/apimachinery/pkg/api/meta"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
@@ -20,10 +21,26 @@ func UpdateStatusConditions(ctx context.Context, c client.Client, obj client.Obj
 		Message:            msg,
 		ObservedGeneration: obj.GetGeneration(),
 	}
+	logger := log.FromContext(ctx)
+	logger.V(0).Info("Updating status conditions",
+		"object", obj.GetName(),
+		"namespace", obj.GetNamespace(),
+		"conditionType", conditionType,
+		"status", status,
+		"reason", reason,
+		"message", msg,
+		"generation", obj.GetGeneration())
 
 	changed := meta.SetStatusCondition(conditions, cond)
 
 	if changed {
+		logger.Info("Condition status changed",
+			"object", obj.GetName(),
+			"namespace", obj.GetNamespace(),
+			"conditionType", conditionType,
+			"oldStatus", meta.FindStatusCondition(*conditions, conditionType).Status,
+			"newStatus", status)
+
 		err := c.Status().Update(ctx, obj)
 		if err != nil {
 			return err

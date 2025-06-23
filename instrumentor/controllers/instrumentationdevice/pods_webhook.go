@@ -25,12 +25,14 @@ const otelResourceAttributesEnvVarName = "OTEL_RESOURCE_ATTRIBUTES"
 const ckClusterNameEnvVarName = "CK_CLUSTER_NAME"
 const ckNexusEndpointEnvVarName = "CK_NEXUS_ENDPOINT"
 const ckPgEndpointEnvVarName = "CK_PG_ENDPOINT"
+const ckMetricsEndpointEnvVarName = "CK_METRICS_ENDPOINT"
 const ckAppNameEnvVarName = "CK_APP_NAME"
 const appNameEnvVarName = "APP_NAME"
 
 // Default values if environment variables are not set
 const defaultNexusEndpoint = "https://api.codekarma.tech/nexus/test"
 const defaultPgEndpoint = "https://api.codekarma.tech/prometheus"
+const defaultMetricsEndpoint = "https://api.codekarma.tech/metrics"
 
 type resourceAttribute struct {
 	Key   attribute.Key
@@ -44,6 +46,9 @@ type PodsWebhook struct {
 var _ webhook.CustomDefaulter = &PodsWebhook{}
 
 func (p *PodsWebhook) Default(ctx context.Context, obj runtime.Object) error {
+	log.FromContext(ctx).Info("Defaulting pod")
+	log.FromContext(ctx).Info("Injecting environment variables for pod",
+		"pod", obj.GetObjectKind().GroupVersionKind().Kind)
 	pod, ok := obj.(*corev1.Pod)
 	if !ok {
 		return fmt.Errorf("expected a Pod but got a %T", obj)
@@ -83,6 +88,12 @@ func (p *PodsWebhook) getServiceNameForEnv(ctx context.Context, pod *corev1.Pod)
 
 func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, serviceName *string) {
 
+	logger := log.FromContext(context.Background())
+	logger.Info("Injecting environment variables for pod",
+		"pod", pod.Name,
+		"namespace", pod.Namespace,
+		"serviceName", serviceName,
+		"workload", podWorkload)
 	// Common environment variables that do not change across containers
 	commonEnvVars := []corev1.EnvVar{
 		{
@@ -124,6 +135,10 @@ func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, ser
 		{
 			Name:  ckPgEndpointEnvVarName,
 			Value: getEnvWithDefault(ckPgEndpointEnvVarName, defaultPgEndpoint),
+		},
+		{
+			Name:  ckMetricsEndpointEnvVarName,
+			Value: getEnvWithDefault(ckMetricsEndpointEnvVarName, defaultMetricsEndpoint),
 		},
 	}
 

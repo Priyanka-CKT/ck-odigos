@@ -144,6 +144,7 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 		devicePartiallyApplied = deviceSkippedDueToOtherAgent && deviceApplied
 		// If instrumentation device is applied successfully, add odigos.io/inject-instrumentation label to enable the webhook
 		if deviceApplied {
+			logger.Info("deviceApplied", "podSpec", podSpec)
 			instrumentation.SetInjectInstrumentationLabel(podSpec)
 		}
 
@@ -261,6 +262,8 @@ func isSupportedLanguage(language common.ProgrammingLanguage) bool {
 // each time a relevant resource changes, this function is called to reconcile the workload
 // and always writes the status into the InstrumentedApplication CR
 func reconcileSingleWorkload(ctx context.Context, kubeClient client.Client, instrumentedApplication *odigosv1.InstrumentedApplication, isNodeCollectorReady bool) error {
+	logger := log.FromContext(ctx)
+	logger.V(0).Info("reconcileSingleWorkload", "name", instrumentedApplication.Name, "namespace", instrumentedApplication.Namespace)
 
 	workloadName, workloadKind, err := workload.ExtractWorkloadInfoFromRuntimeObjectName(instrumentedApplication.Name)
 	if err != nil {

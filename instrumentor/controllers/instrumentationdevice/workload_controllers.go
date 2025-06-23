@@ -10,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/types"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
 type DeploymentReconciler struct {
@@ -43,6 +44,8 @@ func (r *StatefulSetReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 }
 
 func reconcileSingleInstrumentedApplicationByName(ctx context.Context, k8sClient client.Client, instrumentedAppName string, namespace string) error {
+	logger := log.FromContext(ctx)
+	logger.V(0).Info("Reconciling InstrumentedApplication in workload_controllers instrumentationdevice pkg", "name", instrumentedAppName, "namespace", namespace)
 	var instrumentedApplication odigosv1.InstrumentedApplication
 	err := k8sClient.Get(ctx, types.NamespacedName{Name: instrumentedAppName, Namespace: namespace}, &instrumentedApplication)
 	if err != nil {
@@ -52,6 +55,7 @@ func reconcileSingleInstrumentedApplicationByName(ctx context.Context, k8sClient
 			if err != nil {
 				return err
 			}
+			logger.V(0).Info("Removing instrumentation device from workload", "workloadName", workloadName, "workloadKind", workloadKind)
 			err = removeInstrumentationDeviceFromWorkload(ctx, k8sClient, namespace, workloadKind, workloadName, ApplyInstrumentationDeviceReasonNoRuntimeDetails)
 			return err
 		} else {

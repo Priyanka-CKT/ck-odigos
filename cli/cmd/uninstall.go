@@ -231,6 +231,18 @@ func getWorkloadRolloutJsonPatch(obj kube.Object, pts *v1.PodTemplateSpec) ([]by
 			}
 		}
 
+		// Also remove from resource requests
+		if c.Resources.Requests != nil {
+			for val := range c.Resources.Requests {
+				if strings.HasPrefix(val.String(), common.OdigosResourceNamespace) {
+					patchOperations = append(patchOperations, map[string]interface{}{
+						"op":   "remove",
+						"path": fmt.Sprintf("/spec/template/spec/containers/%d/resources/requests/%s", iContainer, jsonPatchEscapeKey(val.String())),
+					})
+				}
+			}
+		}
+
 		for envName, originalEnvValue := range manifestEnvOriginal.GetContainerStoredEnvs(c.Name) {
 			// find the index of the env var in the env array:
 			iEnv := -1

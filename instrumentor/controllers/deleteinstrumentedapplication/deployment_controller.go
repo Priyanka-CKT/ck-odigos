@@ -34,7 +34,7 @@ type DeploymentReconciler struct {
 
 func (r *DeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
-
+	logger.V(0).Info("Reconciling Deployment in deleteinstrumentedapplication pkg", "name", req.Name, "namespace", req.Namespace)
 	var dep appsv1.Deployment
 	err := r.Get(ctx, req.NamespacedName, &dep)
 	if err != nil {
@@ -47,5 +47,6 @@ func (r *DeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) 
 	}
 
 	err = reconcileWorkloadObject(ctx, r.Client, &dep)
+	logger.V(0).Info("Reconciled Deployment in deleteinstrumentedapplication pkg", "name", req.Name, "namespace", req.Namespace)
 	return ctrl.Result{}, err
 }

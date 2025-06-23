@@ -4,6 +4,7 @@ import (
 	"github.com/odigos-io/odigos/k8sutils/pkg/env"
 	"github.com/odigos-io/odigos/k8sutils/pkg/workload"
 	"sigs.k8s.io/controller-runtime/pkg/event"
+	"sigs.k8s.io/controller-runtime/pkg/log"
 	"sigs.k8s.io/controller-runtime/pkg/predicate"
 )
 
@@ -18,33 +19,59 @@ type WorkloadEnabledPredicate struct {
 }
 
 func (i *WorkloadEnabledPredicate) Create(e event.CreateEvent) bool {
+	logger := log.Log.WithName("WorkloadEnabledPredicate")
+
 	enabled := workload.IsObjectLabeledForInstrumentation(e.Object)
 	w, err := workload.ObjectToWorkload(e.Object)
 	if err != nil {
+		logger.V(0).Info("Failed to convert object to workload",
+			"object", e.Object.GetName(),
+			"namespace", e.Object.GetNamespace(),
+			"error", err)
 		return false
 	}
-	return enabled && w.AvailableReplicas() > 0
+
+	availableReplicas := w.AvailableReplicas()
+	logger.V(0).Info("Processing workload creation",
+		"object", e.Object.GetName(),
+		"namespace", e.Object.GetNamespace(),
+		"enabled", enabled,
+		"availableReplicas", availableReplicas)
+
+	return enabled && availableReplicas > 0
 }
 
 func (i *WorkloadEnabledPredicate) Update(e event.UpdateEvent) bool {
-	if e.ObjectOld == nil {
+	logger := log.Log.WithName("WorkloadEnabledPredicate")
+
+	if e.ObjectOld == nil || e.ObjectNew == nil {
+		logger.V(0).Info("Skipping update - missing old or new object")
 		return false
 	}
-	if e.ObjectNew == nil {
-		return false
-	}
+
 	// filter our own namespace
 	if e.ObjectNew.GetNamespace() == env.GetCurrentNamespace() {
+		logger.V(0).Info("Skipping update - object in odigos namespace",
+			"object", e.ObjectNew.GetName(),
+			"namespace", e.ObjectNew.GetNamespace())
 		return false
 	}
 
 	wOld, err := workload.ObjectToWorkload(e.ObjectOld)
 	if err != nil {
+		logger.V(0).Info("Failed to convert old object to workload",
+			"object", e.ObjectOld.GetName(),
+			"namespace", e.ObjectOld.GetNamespace(),
+			"error", err)
 		return false
 	}
 
 	wNew, err := workload.ObjectToWorkload(e.ObjectNew)
 	if err != nil {
+		logger.V(0).Info("Failed to convert new object to workload",
+			"object", e.ObjectNew.GetName(),
+			"namespace", e.ObjectNew.GetNamespace(),
+			"error", err)
 		return false
 	}
 
@@ -55,15 +82,28 @@ func (i *WorkloadEnabledPredicate) Update(e event.UpdateEvent) bool {
 	newReplicas := wNew.AvailableReplicas()
 	oldReplicas := wOld.AvailableReplicas()
 
+	logger.V(0).Info("Processing workload update",
+		"object", e.ObjectNew.GetName(),
+		"namespace", e.ObjectNew.GetNamespace(),
+		"oldEnabled", oldEnabled,
+		"newEnabled", newEnabled,
+		"oldReplicas", oldReplicas,
+		"newReplicas", newReplicas)
+
 	// 1. workload became enabled and has available (running) replicas
 	if becameEnabled && newReplicas > 0 {
+		logger.Info("Workload became enabled with available replicas",
+			"object", e.ObjectNew.GetName(),
+			"namespace", e.ObjectNew.GetNamespace())
 		return true
 	}
 
-	// 2. replicas became available - we don't check the label because it can be on the namespace-level and not on the workload
-	// Reonciler will check the label itself.
+	// 2. replicas became available
 	replicasBecameAvailable := (oldReplicas == 0) && (newReplicas > 0)
 	if replicasBecameAvailable {
+		logger.Info("Workload replicas became available",
+			"object", e.ObjectNew.GetName(),
+			"namespace", e.ObjectNew.GetNamespace())
 		return true
 	}
 

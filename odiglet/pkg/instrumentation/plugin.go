@@ -27,8 +27,9 @@ type plugin struct {
 }
 
 func NewPlugin(maxPods int64, lsf LangSpecificFunc, odigosKubeClient *odigosclientset.Clientset) dpm.PluginInterface {
+	log.Logger.Info("NewPlugin in plugin.go", "maxPods", maxPods, "lsf", lsf, "odigosKubeClient", odigosKubeClient)
 	idManager := devices.NewIDManager(maxPods)
-
+	log.Logger.Info("NewPlugin in plugin.go after idManager", "idManager", idManager)
 	return &plugin{
 		idsManager:       idManager,
 		stopCh:           make(chan struct{}),
@@ -38,6 +39,7 @@ func NewPlugin(maxPods int64, lsf LangSpecificFunc, odigosKubeClient *odigosclie
 }
 
 func NewMuslPlugin(lang common.ProgrammingLanguage, maxPods int64, lsf LangSpecificFunc, odigosKubeClient *odigosclientset.Clientset) dpm.PluginInterface {
+	log.Logger.Info("NewMuslPlugin in plugin.go", "lang", lang, "maxPods", maxPods, "lsf", lsf, "odigosKubeClient", odigosKubeClient)
 	wrappedLsf := func(deviceId string, uniqueDestinationSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse {
 		res := lsf(deviceId, uniqueDestinationSignals)
 		libc.ModifyEnvVarsForMusl(lang, res.Envs)
@@ -48,6 +50,7 @@ func NewMuslPlugin(lang common.ProgrammingLanguage, maxPods int64, lsf LangSpeci
 }
 
 func (p *plugin) GetDevicePluginOptions(ctx context.Context, empty *v1beta1.Empty) (*v1beta1.DevicePluginOptions, error) {
+	log.Logger.Info("GetDevicePluginOptions in plugin.go")
 	return &v1beta1.DevicePluginOptions{
 		PreStartRequired:                false,
 		GetPreferredAllocationAvailable: false,
@@ -55,7 +58,9 @@ func (p *plugin) GetDevicePluginOptions(ctx context.Context, empty *v1beta1.Empt
 }
 
 func (p *plugin) ListAndWatch(empty *v1beta1.Empty, server v1beta1.DevicePlugin_ListAndWatchServer) error {
+	log.Logger.Info("ListAndWatch in plugin.go")
 	devicesList := p.idsManager.GetDevices()
+	log.Logger.Info("ListAndWatch after devicesList", "devicesList", devicesList)
 	log.Logger.V(3).Info("ListAndWatch", "devices", devicesList)
 	err := server.Send(&v1beta1.ListAndWatchResponse{
 		Devices: devicesList,
@@ -84,6 +89,8 @@ func (p *plugin) GetPreferredAllocation(ctx context.Context, request *v1beta1.Pr
 
 func (p *plugin) Allocate(ctx context.Context, request *v1beta1.AllocateRequest) (*v1beta1.AllocateResponse, error) {
 	res := &v1beta1.AllocateResponse{}
+	log.Logger.Info("Allocate in plugin.go")
+	log.Logger.Info("Allocate request", "request", request)
 
 	// calculate the enabled signals from the collectors group status.
 	// in any error, just use empty enabled signals.
@@ -91,8 +98,10 @@ func (p *plugin) Allocate(ctx context.Context, request *v1beta1.AllocateRequest)
 	enabledSignals := make(map[common.ObservabilitySignal]struct{})
 
 	odigosNs := env.GetCurrentNamespace()
+	log.Logger.Info("Allocate in plugin.go after odigosNs", "odigosNs", odigosNs)
 	nodeCollectorGroup, err := p.odigosKubeClient.OdigosV1alpha1().CollectorsGroups(odigosNs).Get(ctx, k8sconsts.OdigosNodeCollectorCollectorGroupName, metav1.GetOptions{})
 	if err != nil {
+		log.Logger.Info("error Allocate in plugin.go after nodeCollectorGroup", "nodeCollectorGroup", nodeCollectorGroup)
 		// we should have collectors group created for odigos device to trigger.
 		// however if we don't, just log and enable all signals by default.
 		if apierrors.IsNotFound(err) {
@@ -114,7 +123,9 @@ func (p *plugin) Allocate(ctx context.Context, request *v1beta1.AllocateRequest)
 		}
 	}
 
+	log.Logger.Info("Allocate in plugin.go Container requests", "containerRequests", request.ContainerRequests)
 	for _, req := range request.ContainerRequests {
+		log.Logger.Info("Allocate in plugin.go after request.ContainerRequests", "req", req)
 		if len(req.DevicesIDs) != 1 {
 			log.Logger.V(0).Info("got  instrumentation device not equal to 1, skipping", "devices", req.DevicesIDs)
 			continue
@@ -122,6 +133,10 @@ func (p *plugin) Allocate(ctx context.Context, request *v1beta1.AllocateRequest)
 
 		deviceId := req.DevicesIDs[0]
 		res.ContainerResponses = append(res.ContainerResponses, p.LangSpecificFunc(deviceId, enabledSignals))
+		log.Logger.Info("Allocate in plugin.go after res.ContainerResponses", "res", res)
+		log.Logger.Info("Processing device allocation",
+			"deviceId", deviceId,
+			"containerResponse", res.ContainerResponses[len(res.ContainerResponses)-1])
 	}
 
 	return res, nil

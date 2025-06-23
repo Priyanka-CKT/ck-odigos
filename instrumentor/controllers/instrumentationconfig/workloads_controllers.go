@@ -23,6 +23,8 @@ type DeploymentReconciler struct {
 }
 
 func (r *DeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+	logger := log.FromContext(ctx)
+	logger.V(0).Info("Reconciling Deployment in workloads_controllers instrumentationconfigpkg", "name", req.Name, "namespace", req.Namespace)
 	return reconcileWorkload(ctx, r.Client, workload.WorkloadKindDeployment, req)
 }
 
@@ -46,6 +48,9 @@ func (r *StatefulSetReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 
 func reconcileWorkload(ctx context.Context, k8sClient client.Client, objKind workload.WorkloadKind, req ctrl.Request) (ctrl.Result, error) {
 	serviceName, err := resolveServiceName(ctx, k8sClient, req.Name, req.Namespace, objKind)
+	logger := log.FromContext(ctx)
+	logger.V(0).Info("Reconciling reconcileWorkload in workloads_controllers instrumentationconfigpkg", "name", req.Name, "namespace", req.Namespace)
+	logger.V(0).Info("Reconciling reconcileWorkload in workloads_controllers instrumentationconfigpkgResolved service name", "serviceName", serviceName)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
@@ -56,7 +61,7 @@ func reconcileWorkload(ctx context.Context, k8sClient client.Client, objKind wor
 
 func updateInstrumentationConfigServiceName(ctx context.Context, k8sClient client.Client, instConfigName, namespace string, serviceName string) (reconcile.Result, error) {
 	logger := log.FromContext(ctx)
-
+	logger.V(0).Info("Updating updateInstrumentationConfigServiceName in workloads_controllers instrumentationconfigpkg", "name", instConfigName, "namespace", namespace)
 	instConfig := &odigosv1alpha1.InstrumentationConfig{}
 	err := k8sClient.Get(ctx, types.NamespacedName{Name: instConfigName, Namespace: namespace}, instConfig)
 	if err != nil {

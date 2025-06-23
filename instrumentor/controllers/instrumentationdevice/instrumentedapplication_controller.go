@@ -36,7 +36,7 @@ type InstrumentedApplicationReconciler struct {
 
 func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
-
+	logger.Info("Reconciling InstrumentedApplication in instdevice pkg", "name", req.Name, "namespace", req.Namespace)
 	var runtimeDetails odigosv1.InstrumentedApplication
 	err := r.Client.Get(ctx, req.NamespacedName, &runtimeDetails)
 	if err != nil {
@@ -57,5 +57,6 @@ func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req c
 
 	isNodeCollectorReady := true
 	err = reconcileSingleWorkload(ctx, r.Client, &runtimeDetails, isNodeCollectorReady)
+	logger.Info("Reconciled InstrumentedApplication in instdevice pkg", "name", req.Name, "namespace", req.Namespace)
 	return utils.K8SUpdateErrorHandler(err)
 }

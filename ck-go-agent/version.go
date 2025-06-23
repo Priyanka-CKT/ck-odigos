@@ -5,5 +5,5 @@ package auto
 
 // Version is the current release version of OpenTelemetry Go auto-instrumentation in use.
 func Version() string {
-	return "v1.2.2-alpha-bridge"
+	return "v1.2.4"
 }

@@ -56,10 +56,12 @@ type InstrumentationConfigReconciler struct {
 func (r *InstrumentationConfigReconciler) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 
 	logger := log.FromContext(ctx)
+	logger.Info("Reconciling InstrumentationConfig runtime_details/instrumentationconfigs_controller.go", "namespace", request.Namespace, "name", request.Name)
 
 	var instrumentationConfig odigosv1.InstrumentationConfig
 	err := r.Get(ctx, request.NamespacedName, &instrumentationConfig)
 	if err != nil {
+		logger.Error(err, "Failed to get instrumentation config runtime_details/instrumentationconfigs_controller.go")
 		return reconcile.Result{}, client.IgnoreNotFound(err)
 	}
 
@@ -69,12 +71,13 @@ func (r *InstrumentationConfigReconciler) Reconcile(ctx context.Context, request
 
 	workload, labels, err := getWorkloadAndLabelsfromOwner(ctx, r.Client, instrumentationConfig.Namespace, instrumentationConfig.OwnerReferences[0])
 	if err != nil {
-		logger.Error(err, "Failed to get workload and labels from owner")
+		logger.Error(err, "Failed to get workload and labels from owner runtime_details/instrumentationconfigs_controller.go")
 		return reconcile.Result{}, err
 	}
 
 	pods, err := kubeutils.GetRunningPods(ctx, labels, workload.GetNamespace(), r.Client)
 	if err != nil {
+		logger.Error(err, "Failed to get running pods runtime_details/instrumentationconfigs_controller.go")
 		return reconcile.Result{}, err
 	}
 
@@ -84,6 +87,7 @@ func (r *InstrumentationConfigReconciler) Reconcile(ctx context.Context, request
 	for i := range pods {
 		podPtr := &pods[i]
 		podGeneration, err := GetPodGeneration(ctx, r.Clientset, podPtr)
+		logger.Info("insturmentconfig reconciler get pod generation", "podGeneration", podGeneration, "instrumentationConfig.Status.ObservedWorkloadGeneration", instrumentationConfig.Status.ObservedWorkloadGeneration, "selectedPodGeneration", selectedPodGeneration)
 		if err != nil {
 			logger.Error(err, "Failed to get pod generation")
 			return reconcile.Result{}, err
@@ -92,14 +96,16 @@ func (r *InstrumentationConfigReconciler) Reconcile(ctx context.Context, request
 			// 0 means the pod is not relevant for runtime detection
 			continue
 		}
-
+		logger.Info("insturmentconfig reconciler pod generation", "podGeneration", podGeneration, "instrumentationConfig.Status.ObservedWorkloadGeneration", instrumentationConfig.Status.ObservedWorkloadGeneration, "selectedPodGeneration", selectedPodGeneration)
 		if podGeneration > instrumentationConfig.Status.ObservedWorkloadGeneration && podGeneration > selectedPodGeneration {
 			selectedPodGeneration = podGeneration
 			selectedPodForInspection = podPtr
+			logger.Info("insturmentconfig reconciler selected pod for inspection", "selectedPodForInspection", selectedPodForInspection)
 		}
 	}
 
 	if selectedPodForInspection == nil {
+		logger.Info("insturmentconfig reconciler ic No pod found for runtime detection", "namespace", request.Namespace, "name", request.Name)
 		// when a instrumentation config is created, many nodes may not have any running pods for it
 		// or the runtime detection has already been completed for this generation in other odiglets
 		return reconcile.Result{}, nil
@@ -115,10 +121,20 @@ func (r *InstrumentationConfigReconciler) Reconcile(ctx context.Context, request
 		return reconcile.Result{}, err
 	}
 
+	logger.Info("Persisting runtime details to instrumentation config",
+		"namespace", request.Namespace,
+		"name", request.Name,
+		"runtimeResults", runtimeResults,
+		"podGeneration", selectedPodGeneration)
 	err = persistRuntimeDetailsToInstrumentationConfig(ctx, r.Client, &instrumentationConfig, odigosv1.InstrumentationConfigStatus{
 		RuntimeDetailsByContainer:  runtimeResults,
 		ObservedWorkloadGeneration: selectedPodGeneration,
 	})
+	logger.Info("insturmentconfig reconciler Successfully persisted runtime details",
+		"namespace", request.Namespace,
+		"name", request.Name,
+		"runtimeResults", runtimeResults,
+		"podGeneration", selectedPodGeneration)
 	if err != nil {
 		return reconcile.Result{}, err
 	}

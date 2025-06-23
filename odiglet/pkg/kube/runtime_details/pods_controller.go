@@ -30,7 +30,7 @@ type PodsReconciler struct {
 // 2. When a source is added, but there are no running pods yet. When the first pod starts running, this is chance to apply runtime details detection.
 func (p *PodsReconciler) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 	logger := log.FromContext(ctx)
-
+	logger.V(0).Info("Reconciling pod pod controller", "namespace", request.Namespace, "name", request.Name)
 	var pod corev1.Pod
 	err := p.Client.Get(ctx, request.NamespacedName, &pod)
 	if err != nil {
@@ -38,6 +38,7 @@ func (p *PodsReconciler) Reconcile(ctx context.Context, request reconcile.Reques
 	}
 
 	podWorkload, err := p.getPodWorkloadObject(ctx, &pod)
+	logger.V(0).Info("Pod workload in pod controller", "podWorkload", podWorkload)
 	if err != nil {
 		logger.Error(err, "error getting pod workload object")
 		return reconcile.Result{}, err
@@ -49,12 +50,15 @@ func (p *PodsReconciler) Reconcile(ctx context.Context, request reconcile.Reques
 
 	// get instrumentation config for the pod to check if it is instrumented or not
 	instrumentationConfigName := workload.CalculateWorkloadRuntimeObjectName(podWorkload.Name, podWorkload.Kind)
+	logger.Info("instrumentationConfigName in pod controller", "instrumentationConfigName", instrumentationConfigName)
 	instrumentationConfig := odigosv1.InstrumentationConfig{}
 	err = p.Client.Get(ctx, client.ObjectKey{Name: instrumentationConfigName, Namespace: podWorkload.Namespace}, &instrumentationConfig)
 	if err != nil {
+		logger.Error(err, "error getting instrumentation config")
 		return reconcile.Result{}, client.IgnoreNotFound(err)
 	}
 	podGeneration, err := GetPodGeneration(ctx, p.Clientset, &pod)
+	logger.V(0).Info("Pod generation in pod controller", "podGeneration", podGeneration)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
@@ -66,7 +70,10 @@ func (p *PodsReconciler) Reconcile(ctx context.Context, request reconcile.Reques
 	instrumentedConfigContainUnknown := InstrumentationConfigContainsUnknownLanguage(instrumentationConfig)
 
 	shouldSkipDetection := failedToGetPodGeneration || (!isNewPodGeneration && !instrumentedConfigContainUnknown)
-
+	logger.V(0).Info("Pod generation details",
+		"podGeneration", podGeneration,
+		"observedWorkloadGeneration", instrumentationConfig.Status.ObservedWorkloadGeneration,
+		"isNewPodGeneration", isNewPodGeneration)
 	if shouldSkipDetection {
 		logger.V(3).Info("skipping redundant runtime details detection since generation is not newer", "name", request.Name, "namespace", request.Namespace, "currentPodGeneration", podGeneration, "observedWorkloadGeneration", instrumentationConfig.Status.ObservedWorkloadGeneration)
 		return reconcile.Result{}, nil
@@ -79,14 +86,13 @@ func (p *PodsReconciler) Reconcile(ctx context.Context, request reconcile.Reques
 
 	// Perform runtime inspection once we know the pod is newer that the latest runtime inspection performed and saved.
 	runtimeResults, err := runtimeInspection([]corev1.Pod{pod}, odigosConfig.IgnoredContainers)
+	logger.V(0).Info("Runtime inspection results in pod	controller", "results", runtimeResults)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
-	err = persistRuntimeDetailsToInstrumentationConfig(ctx, p.Client, &instrumentationConfig, odigosv1.InstrumentationConfigStatus{
-		RuntimeDetailsByContainer:  runtimeResults,
-		ObservedWorkloadGeneration: podGeneration,
-	})
+	err = persistRuntimeDetailsToInstrumentationConfig(ctx, p.Client, &instrumentationConfig, odigosv1.InstrumentationConfigStatus{})
+	logger.V(0).Info("Persisted runtime details to instrumentation config", "results", runtimeResults)
 	if err != nil {
 		return reconcile.Result{}, err
 	}

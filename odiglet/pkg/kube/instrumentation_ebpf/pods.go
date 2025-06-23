@@ -42,6 +42,7 @@ func (p *PodsReconciler) isNamespaceIgnored(ctx context.Context, ns string) bool
 func (p *PodsReconciler) Reconcile(ctx context.Context, request ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
+	logger.Info("Reconciling pod instrumentation ebpf package", "namespace", request.Namespace, "name", request.Name)
 	if request.Namespace == env.GetCurrentNamespace() || p.isNamespaceIgnored(ctx, request.Namespace) {
 		return ctrl.Result{}, nil
 	}
@@ -123,4 +124,3 @@ func (p *PodsReconciler) getPodWorkloadObject(ctx context.Context, pod *corev1.P
 	// Pod does not necessarily have to be managed by a controller
 	return nil, nil
 }
-

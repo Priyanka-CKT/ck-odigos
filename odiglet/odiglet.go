@@ -36,6 +36,11 @@ const (
 // New creates a new Odiglet instance.
 func New(deviceInjectionCallbacks instrumentation.OtelSdksLsf, factories map[commonInstrumentation.OtelDistribution]commonInstrumentation.Factory) (*Odiglet, error) {
 	// Init Kubernetes API client
+	log.Logger.Info("Creating Kubernetes client")
+	log.Logger.Info("Initializing new Odiglet instance",
+		"deviceInjectionCallbacks", deviceInjectionCallbacks != nil,
+		"factories", len(factories))
+	log.Logger.Info("deviceInjectionCallbacks data", "deviceInjectionCallbacks", deviceInjectionCallbacks)
 	cfg, err := rest.InClusterConfig()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create in-cluster config for Kubernetes client %w", err)
@@ -45,18 +50,18 @@ func New(deviceInjectionCallbacks instrumentation.OtelSdksLsf, factories map[com
 	if err != nil {
 		return nil, fmt.Errorf("failed to create Kubernetes client %w", err)
 	}
-
+	log.Logger.Info("Creating controller-runtime manager")
 	mgr, err := kube.CreateManager()
 	if err != nil {
 		return nil, fmt.Errorf("failed to create controller-runtime manager %w", err)
 	}
-
+	log.Logger.Info("Creating eBPF manager")
 	configUpdates := make(chan commonInstrumentation.ConfigUpdate[ebpf.K8sConfigGroup], configUpdatesBufferSize)
 	ebpfManager, err := ebpf.NewManager(mgr.GetClient(), log.Logger, factories, configUpdates)
 	if err != nil {
 		return nil, fmt.Errorf("failed to create ebpf manager %w", err)
 	}
-
+	log.Logger.Info("Setting up controller-runtime manager")
 	err = kube.SetupWithManager(mgr, nil, clientset, configUpdates)
 	if err != nil {
 		return nil, fmt.Errorf("failed to setup controller-runtime manager %w", err)
@@ -74,7 +79,7 @@ func New(deviceInjectionCallbacks instrumentation.OtelSdksLsf, factories map[com
 // Run starts the Odiglet components and blocks until the context is cancelled, or a critical error occurs.
 func (o *Odiglet) Run(ctx context.Context) {
 	g, groupCtx := errgroup.WithContext(ctx)
-
+	log.Logger.Info("Running Odiglet components")
 	// Start pprof server
 	g.Go(func() error {
 		err := common.StartPprofServer(groupCtx, log.Logger)
@@ -88,6 +93,7 @@ func (o *Odiglet) Run(ctx context.Context) {
 		return nil
 	})
 
+	log.Logger.Info("Starting device manager")
 	// Start device manager
 	// the device manager library doesn't support passing a context,
 	// however, internally it uses a context to cancel the device manager once SIGTERM or SIGINT is received.
@@ -139,7 +145,7 @@ func (o *Odiglet) Run(ctx context.Context) {
 }
 
 func runDeviceManager(clientset *kubernetes.Clientset, otelSdkLsf instrumentation.OtelSdksLsf) error {
-	log.Logger.V(0).Info("Starting device manager")
+	log.Logger.V(0).Info("Starting device manager with arguments", "clientset", clientset, "otelSdkLsf", otelSdkLsf)
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 

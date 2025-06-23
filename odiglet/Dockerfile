@@ -95,7 +95,7 @@ COPY k8sutils/ k8sutils/
 COPY procdiscovery/ procdiscovery/
 COPY opampserver/ opampserver/
 COPY instrumentation/ instrumentation/
-COPY ck-go-agent/ ck-go-agent/
+# COPY ck-go-agent/ ck-go-agent/
 
 WORKDIR /go/src/github.com/odigos-io/odigos/odiglet
 COPY odiglet/ .

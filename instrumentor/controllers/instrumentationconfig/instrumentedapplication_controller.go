@@ -36,7 +36,7 @@ type InstrumentedApplicationReconciler struct {
 
 func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
-
+	logger.V(0).Info("Reconciling InstrumentedApplication in instconfig pkg", "name", req.Name, "namespace", req.Namespace)
 	var ia odigosv1.InstrumentedApplication
 	err := r.Client.Get(ctx, req.NamespacedName, &ia)
 	if err != nil {
@@ -76,6 +76,12 @@ func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req c
 	if err != nil {
 		return ctrl.Result{}, err
 	}
+
+	logger.V(0).Info("Updated instrumentation config for workload",
+		"workload", ia.Name,
+		"serviceName", serviceName,
+		"instrumentationRules", len(instrumentationRules.Items),
+		"runtimeDetails", len(ic.Status.RuntimeDetailsByContainer))
 
 	err = r.Client.Update(ctx, &ic)
 	if err == nil {

@@ -29,7 +29,9 @@ type DeprecatedInstrumentationConfigReconciler struct {
 
 func (i *DeprecatedInstrumentationConfigReconciler) Reconcile(ctx context.Context, request reconcile.Request) (reconcile.Result, error) {
 	logger := log.FromContext(ctx)
-
+	logger.Info("DeprecatedInstrumentationConfigReconciler reconciling",
+		"namespace", request.Namespace,
+		"name", request.Name)
 	var instConfig odigosv1.InstrumentationConfig
 	err := i.Get(ctx, request.NamespacedName, &instConfig)
 	if err != nil {
@@ -54,6 +56,11 @@ func (i *DeprecatedInstrumentationConfigReconciler) Reconcile(ctx context.Contex
 		logger.Error(err, "Failed to get workload and labels from owner")
 		return reconcile.Result{}, err
 	}
+	logger.Info("Inspecting runtimes of running pods",
+		"namespace", workload.GetNamespace(),
+		"labels", labels,
+		"workloadKind", workload.GetObjectKind().GroupVersionKind().Kind,
+		"workloadName", workload.GetName())
 	err = inspectRuntimesOfRunningPods(ctx, &logger, labels, i.Client, i.Scheme, workload)
 	if err != nil {
 		return reconcile.Result{}, ignoreNoPodsFoundError(err)

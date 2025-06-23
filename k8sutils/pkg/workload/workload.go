@@ -78,6 +78,7 @@ func IsObjectLabeledForInstrumentation(obj client.Object) bool {
 func IsWorkloadInstrumentationEffectiveEnabled(ctx context.Context, kubeClient client.Client, obj client.Object) (bool, error) {
 	// if the object itself is labeled, we will use that value
 	workloadLabels := obj.GetLabels()
+
 	if val, exists := workloadLabels[consts.OdigosInstrumentationLabel]; exists {
 		return val == consts.InstrumentationEnabled, nil
 	}
@@ -88,7 +89,9 @@ func IsWorkloadInstrumentationEffectiveEnabled(ctx context.Context, kubeClient c
 	err := kubeClient.Get(ctx, client.ObjectKey{Name: obj.GetNamespace()}, &ns)
 	if err != nil {
 		logger := log.FromContext(ctx)
+
 		if apierrors.IsNotFound(err) {
+			logger.Info("IsWorkloadInstrumentationEffectiveEnabled not found", "namespace", obj.GetNamespace())
 			return false, nil
 		}
 

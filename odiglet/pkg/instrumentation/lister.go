@@ -47,31 +47,39 @@ func (l *lister) NewPlugin(s string) dpm.PluginInterface {
 type OtelSdksLsf map[common.ProgrammingLanguage]map[common.OtelSdk]LangSpecificFunc
 
 func NewLister(ctx context.Context, clientset *kubernetes.Clientset, otelSdksLsf OtelSdksLsf) (dpm.ListerInterface, error) {
+	log.Logger.Info("Creating new lister with arguments", "clientset", clientset, "otelSdksLsf", otelSdksLsf)
 	maxPods, err := getInitialDeviceAmount(clientset)
 	if err != nil {
 		return nil, err
 	}
 
 	isEbpfSupported := env.Current.IsEBPFSupported()
-
+	log.Logger.Info("EBPF supported", "isEbpfSupported", isEbpfSupported)
 	cfg, err := rest.InClusterConfig()
 	if err != nil {
 		log.Logger.Error(err, "Failed to init Kubernetes API client")
 	}
 	odigosKubeClient, err := odigosclientset.NewForConfig(cfg)
+	log.Logger.Info("Odigos kube client", "odigosKubeClient", odigosKubeClient)
 	if err != nil {
 		log.Logger.Error(err, "Failed to init odigos client")
 	}
 
 	availablePlugins := map[string]dpm.PluginInterface{}
+
+	log.Logger.Info("Available plugins", "availablePlugins", availablePlugins)
 	for lang, otelSdkLsfMap := range otelSdksLsf {
+		log.Logger.Info("Language", "lang", lang)
+		log.Logger.Info("Otel SDK language specific functions", "otelSdkLsfMap", otelSdkLsfMap)
 		for otelSdk, lsf := range otelSdkLsfMap {
+			log.Logger.Info("Otel SDK", "otelSdk", otelSdk)
 			if otelSdk.SdkType == common.EbpfOtelSdkType && !isEbpfSupported {
 				continue
 			}
 			pluginName := common.InstrumentationPluginName(lang, otelSdk, nil)
+			log.Logger.Info("Plugin name in lister.go", "pluginName", pluginName)
 			availablePlugins[pluginName] = NewPlugin(maxPods, lsf, odigosKubeClient)
-
+			log.Logger.Info("NewPlugin", "pluginName", pluginName)
 			if libc.ShouldInspectForLanguage(lang) {
 				musl := common.Musl
 				pluginNameMusl := common.InstrumentationPluginName(lang, otelSdk, &musl)
@@ -79,7 +87,7 @@ func NewLister(ctx context.Context, clientset *kubernetes.Clientset, otelSdksLsf
 			}
 		}
 	}
-
+	log.Logger.Info("Available plugins after initialization", "plugins", availablePlugins)
 	return &lister{
 		plugins: availablePlugins,
 	}, nil
@@ -97,6 +105,6 @@ func getInitialDeviceAmount(clientset *kubernetes.Clientset) (int64, error) {
 		log.Logger.V(0).Info("Failed to get max pods from node status, using default value", "default", defaultMaxDevices)
 		maxPods = defaultMaxDevices
 	}
-
+	log.Logger.Info("Got max pods from node status", "maxPods", maxPods)
 	return maxPods, nil
 }

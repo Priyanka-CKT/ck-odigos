@@ -12,20 +12,20 @@ import (
 
 func K8sDetectorOptions(logger logr.Logger) []detector.DetectorOption {
 	sLogger := slog.New(logr.ToSlogHandler(logger))
-
+	logger.Info("K8sDetectorOptions in detector.go", "sLogger", sLogger)
 	opts := []detector.DetectorOption{
 		detector.WithLogger(sLogger),
 		detector.WithEnvironments(relevantEnvVars()...),
 		detector.WithEnvPrefixFilter(consts.OdigosEnvVarPodName),
 	}
-
+	logger.Info("K8sDetectorOptions in detector.go after opts", "opts", opts)
 	return opts
 }
 
 func relevantEnvVars() []string {
 	// env vars related to language versions
 	versionEnvs := process.LangsVersionEnvs
-
+	// logger.Info("relevantEnvVars in detector.go", "versionEnvs", versionEnvs)
 	envs := make([]string, 0, len(versionEnvs))
 	for env := range versionEnvs {
 		envs = append(envs, env)
@@ -36,6 +36,6 @@ func relevantEnvVars() []string {
 
 	// env vars that Odigos is injecting to the relevant containers
 	envs = append(envs, consts.OdigosInjectedEnvVars()...)
-
+	// logger.Info("relevantEnvVars in detector.go after envs", "envs", envs)
 	return envs
 }

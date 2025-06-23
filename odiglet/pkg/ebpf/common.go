@@ -17,7 +17,7 @@ func NewManager(client client.Client, logger logr.Logger, factories map[instrume
 		DetectorOptions: detector.K8sDetectorOptions(logger),
 		ConfigUpdates:   configUpdates,
 	}
-
+	logger.Info("NewManager in common.go ebpf NewManager creates a new instrumentation manager for eBPF", "managerOpts", managerOpts)
 	manager, err := instrumentation.NewManager(managerOpts)
 	if err != nil {
 		return nil, err

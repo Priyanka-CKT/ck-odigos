@@ -64,7 +64,7 @@ type InstrumentedApplicationReconciler struct {
 
 func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
-
+	logger.V(0).Info("Reconciling InstrumentedApplication in deleteinstrumentedapplication pkg", "name", req.Name, "namespace", req.Namespace)
 	var instrumentedApplication odigosv1.InstrumentedApplication
 	err := r.Client.Get(ctx, req.NamespacedName, &instrumentedApplication)
 	if err != nil {

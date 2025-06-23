@@ -72,6 +72,7 @@ func getWorkloadObject(ctx context.Context, k8sClient client.Client, req ctrl.Re
 
 func requestOdigletsToCalculateRuntimeDetails(ctx context.Context, k8sClient client.Client, instConfigName string, namespace string, obj client.Object, scheme *runtime.Scheme) error {
 	logger := log.FromContext(ctx)
+	logger.V(0).Info("Requesting odiglets to calculate runtime details workload controller in startlangdetection pkg", "name", instConfigName, "namespace", namespace)
 	instConfig := &odigosv1.InstrumentationConfig{
 		TypeMeta: metav1.TypeMeta{
 			APIVersion: "odigos.io/v1alpha1",

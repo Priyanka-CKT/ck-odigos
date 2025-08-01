@@ -1,5 +1,5 @@
 {{- $certManagerApiVersion := include "utils.certManagerApiVersion" . -}}
-{{- $altNames := list (printf "odigos-instrumentor.%s.svc" .Release.Namespace) (printf "odigos-instrumentor.%s.svc.cluster.local" .Release.Namespace) -}}
+{{- $altNames := list (printf "karmatap.%s.svc" .Release.Namespace) (printf "karmatap.%s.svc.cluster.local" .Release.Namespace) -}}
 {{- $ca := genCA "serving-cert" 365 -}}
 {{- $cert := genSignedCert "serving-cert" nil $altNames 365 $ca -}}
 apiVersion: admissionregistration.k8s.io/v1
@@ -11,19 +11,19 @@ metadata:
     app.kubernetes.io/instance: mutating-webhook-configuration
     app.kubernetes.io/component: webhook
     app.kubernetes.io/created-by: instrumentor
-    app.kubernetes.io/part-of: odigos
+    app.kubernetes.io/part-of: codekarma
 {{- if $certManagerApiVersion }}
   annotations:
     cert-manager.io/inject-ca-from: {{ .Release.Namespace }}/serving-cert
 {{- end }}
 webhooks:
-  - name: pod-mutating-webhook.odigos.io
+  - name: pod-mutating-webhook.codekarma.tech
     clientConfig:
 {{- if not $certManagerApiVersion }}
       caBundle: {{ $ca.Cert | b64enc }}
 {{- end }}
       service:
-        name: odigos-instrumentor
+        name: karmatap
         namespace: {{ .Release.Namespace }}
         path: /mutate--v1-pod
         port: 9443
@@ -40,7 +40,7 @@ webhooks:
     sideEffects: None
     objectSelector:
       matchLabels:
-        odigos.io/inject-instrumentation: "true"
+        codekarma.tech/inject-instrumentation: "true"
     timeoutSeconds: 10
     admissionReviewVersions: ["v1"]
 ---
@@ -56,7 +56,7 @@ metadata:
     app.kubernetes.io/instance: instrumentor-cert
     app.kubernetes.io/component: certificate
     app.kubernetes.io/created-by: instrumentor
-    app.kubernetes.io/part-of: odigos
+    app.kubernetes.io/part-of: codekarma
   annotations:
     "helm.sh/hook": "pre-install,pre-upgrade"
     "helm.sh/hook-delete-policy": "before-hook-creation"

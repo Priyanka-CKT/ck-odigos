@@ -103,9 +103,9 @@ func SetupWithManager(mgr ctrl.Manager) error {
 	err = builder.
 		ControllerManagedBy(mgr).
 		Named("instrumentationdevice-instrumentedapplication").
-		For(&odigosv1.InstrumentedApplication{}).
+		For(&odigosv1.KarmaInstrumentedApplication{}).
 		WithEventFilter(&predicate.GenerationChangedPredicate{}).
-		Complete(&InstrumentedApplicationReconciler{
+		Complete(&KarmaInstrumentedApplicationReconciler{
 			Client: mgr.GetClient(),
 			Scheme: mgr.GetScheme(),
 		})
@@ -151,9 +151,9 @@ func SetupWithManager(mgr ctrl.Manager) error {
 	err = builder.
 		ControllerManagedBy(mgr).
 		Named("instrumentationdevice-instrumentationrules").
-		For(&odigosv1.InstrumentationRule{}).
-		WithEventFilter(&utils.OtelSdkInstrumentationRulePredicate{}).
-		Complete(&InstrumentationRuleReconciler{
+		For(&odigosv1.KarmaInstrumentationRule{}).
+		WithEventFilter(&utils.OtelSdkKarmaInstrumentationRulePredicate{}).
+		Complete(&KarmaInstrumentationRuleReconciler{
 			Client: mgr.GetClient(),
 		})
 	if err != nil {

@@ -105,7 +105,7 @@ func NewSchedulerRole(ns string) *rbacv1.Role {
 					"watch",
 				},
 				APIGroups: []string{
-					"odigos.io",
+					"codekarma.tech",
 				},
 				Resources: []string{
 					"collectorsgroups",
@@ -118,7 +118,7 @@ func NewSchedulerRole(ns string) *rbacv1.Role {
 					"update",
 				},
 				APIGroups: []string{
-					"odigos.io",
+					"codekarma.tech",
 				},
 				Resources: []string{
 					"collectorsgroups/status",
@@ -131,7 +131,7 @@ func NewSchedulerRole(ns string) *rbacv1.Role {
 					"watch",
 				},
 				APIGroups: []string{
-					"odigos.io",
+					"codekarma.tech",
 				},
 				Resources: []string{
 					"destinations",
@@ -144,7 +144,7 @@ func NewSchedulerRole(ns string) *rbacv1.Role {
 					"update",
 				},
 				APIGroups: []string{
-					"odigos.io",
+					"codekarma.tech",
 				},
 				Resources: []string{
 					"destinations/status",
@@ -194,7 +194,7 @@ func NewSchedulerClusterRole() *rbacv1.ClusterRole {
 					"get",
 					"watch",
 				},
-				APIGroups: []string{"odigos.io"},
+				APIGroups: []string{"codekarma.tech"},
 				Resources: []string{"instrumentationconfigs"},
 			},
 		},

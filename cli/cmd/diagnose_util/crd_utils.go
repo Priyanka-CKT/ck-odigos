@@ -3,23 +3,24 @@ package diagnose_util
 import (
 	"context"
 	"fmt"
+	"os"
+	"path/filepath"
+	"sync"
+
 	"github.com/odigos-io/odigos/cli/cmd/resources"
 	"github.com/odigos-io/odigos/cli/pkg/kube"
 	"github.com/odigos-io/odigos/k8sutils/pkg/client"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/apis/meta/v1/unstructured"
 	"k8s.io/apimachinery/pkg/runtime/schema"
-	"os"
-	"path/filepath"
 	"sigs.k8s.io/yaml"
-	"sync"
 )
 
 const (
 	CRDName         = "crdName"
 	CRDGroup        = "crdGroup"
-	actionGroupName = "actions.odigos.io"
-	odigosGroupName = "odigos.io"
+	actionGroupName = "actions.codekarma.tech"
+	odigosGroupName = "codekarma.tech"
 )
 
 var CRDsList = []map[string]string{

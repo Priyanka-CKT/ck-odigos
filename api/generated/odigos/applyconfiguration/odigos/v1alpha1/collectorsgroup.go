@@ -39,7 +39,7 @@ func CollectorsGroup(name, namespace string) *CollectorsGroupApplyConfiguration 
 	b.WithName(name)
 	b.WithNamespace(namespace)
 	b.WithKind("CollectorsGroup")
-	b.WithAPIVersion("odigos.io/v1alpha1")
+	b.WithAPIVersion("codekarma.tech/v1alpha1")
 	return b
 }
 

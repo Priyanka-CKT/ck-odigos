@@ -15,18 +15,18 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// ListInstrumentationRules fetches all instrumentation rules
-func ListInstrumentationRules(ctx context.Context) ([]*model.InstrumentationRule, error) {
+// ListKarmaInstrumentationRules fetches all instrumentation rules
+func ListKarmaInstrumentationRules(ctx context.Context) ([]*model.KarmaInstrumentationRule, error) {
 	odigosns := consts.DefaultOdigosNamespace
-	instrumentationRules, err := kube.DefaultClient.OdigosClient.InstrumentationRules(odigosns).List(ctx, metav1.ListOptions{})
+	instrumentationRules, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationRules(odigosns).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error getting instrumentation rules: %w", err)
 	}
 
-	var gqlRules []*model.InstrumentationRule
+	var gqlRules []*model.KarmaInstrumentationRule
 	for _, rule := range instrumentationRules.Items {
 
-		gqlRules = append(gqlRules, &model.InstrumentationRule{
+		gqlRules = append(gqlRules, &model.KarmaInstrumentationRule{
 			RuleID:                   rule.Name,
 			RuleName:                 &rule.Spec.RuleName,
 			Notes:                    &rule.Spec.Notes,
@@ -39,15 +39,15 @@ func ListInstrumentationRules(ctx context.Context) ([]*model.InstrumentationRule
 	return gqlRules, nil
 }
 
-func GetInstrumentationRule(ctx context.Context, id string) (*model.InstrumentationRule, error) {
+func GetKarmaInstrumentationRule(ctx context.Context, id string) (*model.KarmaInstrumentationRule, error) {
 	odigosns := consts.DefaultOdigosNamespace
 
-	rule, err := kube.DefaultClient.OdigosClient.InstrumentationRules(odigosns).Get(ctx, id, metav1.GetOptions{})
+	rule, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationRules(odigosns).Get(ctx, id, metav1.GetOptions{})
 	if err != nil {
 		return nil, handleNotFoundError(err, id, "instrumentation rule")
 	}
 
-	return &model.InstrumentationRule{
+	return &model.KarmaInstrumentationRule{
 		RuleID:                   rule.Name,
 		RuleName:                 &rule.Spec.RuleName,
 		Notes:                    &rule.Spec.Notes,
@@ -58,11 +58,11 @@ func GetInstrumentationRule(ctx context.Context, id string) (*model.Instrumentat
 	}, nil
 }
 
-func UpdateInstrumentationRule(ctx context.Context, id string, input model.InstrumentationRuleInput) (*model.InstrumentationRule, error) {
+func UpdateKarmaInstrumentationRule(ctx context.Context, id string, input model.KarmaInstrumentationRuleInput) (*model.KarmaInstrumentationRule, error) {
 	odigosns := consts.DefaultOdigosNamespace
 
 	// Retrieve existing rule
-	existingRule, err := kube.DefaultClient.OdigosClient.InstrumentationRules(odigosns).Get(ctx, id, metav1.GetOptions{})
+	existingRule, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationRules(odigosns).Get(ctx, id, metav1.GetOptions{})
 	if err != nil {
 		return nil, handleNotFoundError(err, id, "instrumentation rule")
 	}
@@ -123,12 +123,12 @@ func UpdateInstrumentationRule(ctx context.Context, id string, input model.Instr
 	}
 
 	// Update rule in Kubernetes
-	updatedRule, err := kube.DefaultClient.OdigosClient.InstrumentationRules(odigosns).Update(ctx, existingRule, metav1.UpdateOptions{})
+	updatedRule, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationRules(odigosns).Update(ctx, existingRule, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error updating instrumentation rule: %w", err)
 	}
 
-	return &model.InstrumentationRule{
+	return &model.KarmaInstrumentationRule{
 		RuleID:                   updatedRule.Name,
 		RuleName:                 &updatedRule.Spec.RuleName,
 		Notes:                    &updatedRule.Spec.Notes,
@@ -139,10 +139,10 @@ func UpdateInstrumentationRule(ctx context.Context, id string, input model.Instr
 	}, nil
 }
 
-func DeleteInstrumentationRule(ctx context.Context, id string) (bool, error) {
+func DeleteKarmaInstrumentationRule(ctx context.Context, id string) (bool, error) {
 	odigosns := consts.DefaultOdigosNamespace
 
-	err := kube.DefaultClient.OdigosClient.InstrumentationRules(odigosns).Delete(ctx, id, metav1.DeleteOptions{})
+	err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationRules(odigosns).Delete(ctx, id, metav1.DeleteOptions{})
 	if err != nil {
 		return false, handleNotFoundError(err, id, "instrumentation rule")
 	}
@@ -150,7 +150,7 @@ func DeleteInstrumentationRule(ctx context.Context, id string) (bool, error) {
 	return true, nil
 }
 
-func CreateInstrumentationRule(ctx context.Context, input model.InstrumentationRuleInput) (*model.InstrumentationRule, error) {
+func CreateKarmaInstrumentationRule(ctx context.Context, input model.KarmaInstrumentationRuleInput) (*model.KarmaInstrumentationRule, error) {
 	odigosns := consts.DefaultOdigosNamespace
 
 	ruleName := *input.RuleName
@@ -204,11 +204,11 @@ func CreateInstrumentationRule(ctx context.Context, input model.InstrumentationR
 	}
 
 	// Define the new rule spec based on the input
-	newRule := &v1alpha1.InstrumentationRule{
+	newRule := &v1alpha1.KarmaInstrumentationRule{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: "ui-instrumentation-rule-",
 		},
-		Spec: v1alpha1.InstrumentationRuleSpec{
+		Spec: v1alpha1.KarmaInstrumentationRuleSpec{
 			RuleName:                 ruleName,
 			Notes:                    notes,
 			Disabled:                 disabled,
@@ -219,12 +219,12 @@ func CreateInstrumentationRule(ctx context.Context, input model.InstrumentationR
 	}
 
 	// Create the rule in Kubernetes
-	createdRule, err := kube.DefaultClient.OdigosClient.InstrumentationRules(odigosns).Create(ctx, newRule, metav1.CreateOptions{})
+	createdRule, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationRules(odigosns).Create(ctx, newRule, metav1.CreateOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("error creating instrumentation rule: %w", err)
 	}
 	// Convert to GraphQL model and return
-	return &model.InstrumentationRule{
+	return &model.KarmaInstrumentationRule{
 		RuleID: createdRule.Name,
 	}, nil
 }

@@ -80,7 +80,7 @@ type ComputePlatform struct {
 	K8sActualSources     []*K8sActualSource     `json:"k8sActualSources"`
 	Destinations         []*Destination         `json:"destinations"`
 	Actions              []*IcaInstanceResponse `json:"actions"`
-	InstrumentationRules []*InstrumentationRule `json:"instrumentationRules"`
+	KarmaInstrumentationRules []*KarmaInstrumentationRule `json:"instrumentationRules"`
 }
 
 type Condition struct {
@@ -249,7 +249,7 @@ type InstrumentationDeviceAnalyze struct {
 	Containers []*ContainerWorkloadManifestAnalyze `json:"containers"`
 }
 
-type InstrumentationInstanceAnalyze struct {
+type KarmaInstrumentationInstanceAnalyze struct {
 	Healthy               *EntityProperty   `json:"healthy"`
 	Message               *EntityProperty   `json:"message,omitempty"`
 	IdentifyingAttributes []*EntityProperty `json:"identifyingAttributes"`
@@ -284,7 +284,7 @@ type InstrumentationOption struct {
 	SpanKind  SpanKind `json:"spanKind"`
 }
 
-type InstrumentationRule struct {
+type KarmaInstrumentationRule struct {
 	RuleID                   string                            `json:"ruleId"`
 	RuleName                 *string                           `json:"ruleName,omitempty"`
 	Notes                    *string                           `json:"notes,omitempty"`
@@ -294,7 +294,7 @@ type InstrumentationRule struct {
 	PayloadCollection        *PayloadCollection                `json:"payloadCollection,omitempty"`
 }
 
-type InstrumentationRuleInput struct {
+type KarmaInstrumentationRuleInput struct {
 	RuleName                 *string                                `json:"ruleName,omitempty"`
 	Notes                    *string                                `json:"notes,omitempty"`
 	Disabled                 *bool                                  `json:"disabled,omitempty"`
@@ -303,13 +303,13 @@ type InstrumentationRuleInput struct {
 	PayloadCollection        *PayloadCollectionInput                `json:"payloadCollection,omitempty"`
 }
 
-type InstrumentedApplicationAnalyze struct {
+type KarmaInstrumentedApplicationAnalyze struct {
 	Created    *EntityProperty                `json:"created"`
 	CreateTime *EntityProperty                `json:"createTime,omitempty"`
 	Containers []*ContainerRuntimeInfoAnalyze `json:"containers"`
 }
 
-type InstrumentedApplicationDetails struct {
+type KarmaInstrumentedApplicationDetails struct {
 	Containers             []*SourceContainerRuntimeDetails `json:"containers,omitempty"`
 	Conditions             []*Condition                     `json:"conditions,omitempty"`
 	InstrumentationOptions []*InstrumentationLibrary        `json:"instrumentationOptions"`
@@ -330,7 +330,7 @@ type K8sActualSource struct {
 	ReportedName                   *string                         `json:"reportedName,omitempty"`
 	AutoInstrumented               bool                            `json:"autoInstrumented"`
 	AutoInstrumentedDecision       string                          `json:"autoInstrumentedDecision"`
-	InstrumentedApplicationDetails *InstrumentedApplicationDetails `json:"instrumentedApplicationDetails,omitempty"`
+	KarmaInstrumentedApplicationDetails *KarmaInstrumentedApplicationDetails `json:"instrumentedApplicationDetails,omitempty"`
 }
 
 type K8sDesiredNamespaceInput struct {
@@ -486,7 +486,7 @@ type PodAnalyze struct {
 type PodContainerAnalyze struct {
 	ContainerName            *EntityProperty                   `json:"containerName"`
 	ActualDevices            *EntityProperty                   `json:"actualDevices"`
-	InstrumentationInstances []*InstrumentationInstanceAnalyze `json:"instrumentationInstances"`
+	KarmaInstrumentationInstances []*KarmaInstrumentationInstanceAnalyze `json:"instrumentationInstances"`
 }
 
 type PodWorkload struct {
@@ -584,7 +584,7 @@ type SourceAnalyze struct {
 	Labels                  *InstrumentationLabelsAnalyze   `json:"labels"`
 	InstrumentationConfig   *InstrumentationConfigAnalyze   `json:"instrumentationConfig"`
 	RuntimeInfo             *RuntimeInfoAnalyze             `json:"runtimeInfo,omitempty"`
-	InstrumentedApplication *InstrumentedApplicationAnalyze `json:"instrumentedApplication"`
+	KarmaInstrumentedApplication *KarmaInstrumentedApplicationAnalyze `json:"instrumentedApplication"`
 	InstrumentationDevice   *InstrumentationDeviceAnalyze   `json:"instrumentationDevice"`
 	TotalPods               int                             `json:"totalPods"`
 	PodsPhasesCount         string                          `json:"podsPhasesCount"`

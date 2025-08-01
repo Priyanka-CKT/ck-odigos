@@ -17,18 +17,18 @@ limitations under the License.
 
 package v1alpha1
 
+type CodekarmaConfigurationExpansion interface{}
+
 type CollectorsGroupExpansion interface{}
 
 type DestinationExpansion interface{}
 
-type InstrumentationConfigExpansion interface{}
+type KarmaInstrumentationConfigExpansion interface{}
 
-type InstrumentationInstanceExpansion interface{}
+type KarmaInstrumentationInstanceExpansion interface{}
 
-type InstrumentationRuleExpansion interface{}
+type KarmaInstrumentationRuleExpansion interface{}
 
-type InstrumentedApplicationExpansion interface{}
-
-type OdigosConfigurationExpansion interface{}
+type KarmaInstrumentedApplicationExpansion interface{}
 
 type ProcessorExpansion interface{}

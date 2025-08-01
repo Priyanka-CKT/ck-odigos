@@ -12,7 +12,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-func updateInstrumentationConfigForWorkload(ic *odigosv1alpha1.InstrumentationConfig, ia *odigosv1alpha1.InstrumentedApplication, rules *odigosv1alpha1.InstrumentationRuleList, serviceName string) error {
+func updateKarmaInstrumentationConfigForWorkload(ic *odigosv1alpha1.KarmaInstrumentationConfig, ia *odigosv1alpha1.KarmaInstrumentedApplication, rules *odigosv1alpha1.KarmaInstrumentationRuleList, serviceName string) error {
 
 	workloadName, workloadKind, err := workload.ExtractWorkloadInfoFromRuntimeObjectName(ia.Name)
 	if err != nil {

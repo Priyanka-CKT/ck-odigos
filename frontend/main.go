@@ -187,11 +187,11 @@ func startHTTPDepServer(flags *Flags, odigosMetrics *collectormetrics.OdigosMetr
 		apis.DELETE("/destinations/:id", func(c *gin.Context) { endpoints.DeleteDestination(c, flags.Namespace) })
 
 		// Instrumentation Rules
-		apis.GET("/instrumentation-rules", func(c *gin.Context) { endpoints.GetInstrumentationRules(c, flags.Namespace) })
-		apis.GET("/instrumentation-rules/:id", func(c *gin.Context) { endpoints.GetInstrumentationRule(c, flags.Namespace, c.Param("id")) })
-		apis.POST("/instrumentation-rules", func(c *gin.Context) { endpoints.CreateInstrumentationRule(c, flags.Namespace) })
-		apis.DELETE("/instrumentation-rules/:id", func(c *gin.Context) { endpoints.DeleteInstrumentationRule(c, flags.Namespace, c.Param("id")) })
-		apis.PUT("/instrumentation-rules/:id", func(c *gin.Context) { endpoints.UpdateInstrumentationRule(c, flags.Namespace, c.Param("id")) })
+		apis.GET("/instrumentation-rules", func(c *gin.Context) { endpoints.GetKarmaInstrumentationRules(c, flags.Namespace) })
+		apis.GET("/instrumentation-rules/:id", func(c *gin.Context) { endpoints.GetKarmaInstrumentationRule(c, flags.Namespace, c.Param("id")) })
+		apis.POST("/instrumentation-rules", func(c *gin.Context) { endpoints.CreateKarmaInstrumentationRule(c, flags.Namespace) })
+		apis.DELETE("/instrumentation-rules/:id", func(c *gin.Context) { endpoints.DeleteKarmaInstrumentationRule(c, flags.Namespace, c.Param("id")) })
+		apis.PUT("/instrumentation-rules/:id", func(c *gin.Context) { endpoints.UpdateKarmaInstrumentationRule(c, flags.Namespace, c.Param("id")) })
 
 		// Describe
 		apis.GET("/describe/odigos", func(c *gin.Context) {
@@ -318,9 +318,9 @@ func main() {
 	}
 
 	// Start watchers
-	err = watchers.StartInstrumentedApplicationWatcher(ctx, "")
+	err = watchers.StartKarmaInstrumentedApplicationWatcher(ctx, "")
 	if err != nil {
-		log.Printf("Error starting InstrumentedApplication watcher: %v", err)
+		log.Printf("Error starting KarmaInstrumentedApplication watcher: %v", err)
 	}
 
 	err = watchers.StartDestinationWatcher(ctx, flags.Namespace)
@@ -328,9 +328,9 @@ func main() {
 		log.Printf("Error starting Destination watcher: %v", err)
 	}
 
-	err = watchers.StartInstrumentationInstanceWatcher(ctx, "")
+	err = watchers.StartKarmaInstrumentationInstanceWatcher(ctx, "")
 	if err != nil {
-		log.Printf("Error starting InstrumentationInstance watcher: %v", err)
+		log.Printf("Error starting KarmaInstrumentationInstance watcher: %v", err)
 	}
 
 	r.GET("/api/events", sse.HandleSSEConnections)

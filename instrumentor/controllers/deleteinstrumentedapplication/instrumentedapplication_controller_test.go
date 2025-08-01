@@ -11,13 +11,13 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-var _ = Describe("deleteInstrumentedApplication InstrumentedApplication controller", func() {
+var _ = Describe("deleteKarmaInstrumentedApplication KarmaInstrumentedApplication controller", func() {
 	ctx := context.Background()
 	var namespace *corev1.Namespace
 	var deployment *appsv1.Deployment
-	var instrumentedApplication *odigosv1.InstrumentedApplication
+	var instrumentedApplication *odigosv1.KarmaInstrumentedApplication
 
-	Describe("Delete InstrumentedApplication", func() {
+	Describe("Delete KarmaInstrumentedApplication", func() {
 
 		When("Object created after deployment reconciled", func() {
 
@@ -29,12 +29,12 @@ var _ = Describe("deleteInstrumentedApplication InstrumentedApplication controll
 				Expect(k8sClient.Create(ctx, deployment)).Should(Succeed())
 			})
 
-			It("InstrumentedApplication created for deployment which is not enabled", func() {
+			It("KarmaInstrumentedApplication created for deployment which is not enabled", func() {
 
-				instrumentedApplication = testutil.NewMockInstrumentedApplication(deployment)
+				instrumentedApplication = testutil.NewMockKarmaInstrumentedApplication(deployment)
 				Expect(k8sClient.Create(ctx, instrumentedApplication)).Should(Succeed())
 
-				testutil.AssertInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplication)
+				testutil.AssertKarmaInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplication)
 			})
 
 		})

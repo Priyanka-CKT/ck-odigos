@@ -87,8 +87,8 @@ type CollectorGatewayConfiguration struct {
 	GoMemLimitMib int `json:"goMemLimitMiB,omitempty"`
 }
 
-// OdigosConfiguration defines the desired state of OdigosConfiguration
-type OdigosConfiguration struct {
+// CodekarmaConfiguration defines the desired state of CodekarmaConfiguration
+type CodekarmaConfiguration struct {
 	ConfigVersion         int                            `json:"configVersion"`
 	TelemetryEnabled      bool                           `json:"telemetryEnabled,omitempty"`
 	OpenshiftEnabled      bool                           `json:"openshiftEnabled,omitempty"`

@@ -1,8 +1,8 @@
 package labels
 
 const (
-	OdigosSystemLabelKey       = "odigos.io/system-object"
-	OdigosSystemConfigLabelKey = "odigos.io/config"
+	OdigosSystemLabelKey       = "codekarma.tech/system-object"
+	OdigosSystemConfigLabelKey = "codekarma.tech/config"
 	OdigosSystemLabelValue     = "true"
 )
 

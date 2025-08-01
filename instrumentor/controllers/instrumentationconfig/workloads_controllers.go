@@ -14,7 +14,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 )
 
-// These controllers handle update of the InstrumentationConfig's ServiceName
+// These controllers handle update of the KarmaInstrumentationConfig's ServiceName
 // whenever there are changes in the associated workloads (Deployments, DaemonSets, StatefulSets).
 
 type DeploymentReconciler struct {
@@ -50,14 +50,14 @@ func reconcileWorkload(ctx context.Context, k8sClient client.Client, objKind wor
 		return ctrl.Result{}, err
 	}
 	instConfigName := workload.CalculateWorkloadRuntimeObjectName(req.Name, objKind)
-	return updateInstrumentationConfigServiceName(ctx, k8sClient, instConfigName, req.Namespace, serviceName)
+	return updateKarmaInstrumentationConfigServiceName(ctx, k8sClient, instConfigName, req.Namespace, serviceName)
 
 }
 
-func updateInstrumentationConfigServiceName(ctx context.Context, k8sClient client.Client, instConfigName, namespace string, serviceName string) (reconcile.Result, error) {
+func updateKarmaInstrumentationConfigServiceName(ctx context.Context, k8sClient client.Client, instConfigName, namespace string, serviceName string) (reconcile.Result, error) {
 	logger := log.FromContext(ctx)
 
-	instConfig := &odigosv1alpha1.InstrumentationConfig{}
+	instConfig := &odigosv1alpha1.KarmaInstrumentationConfig{}
 	err := k8sClient.Get(ctx, types.NamespacedName{Name: instConfigName, Namespace: namespace}, instConfig)
 	if err != nil {
 		return reconcile.Result{}, client.IgnoreNotFound(err)
@@ -66,7 +66,7 @@ func updateInstrumentationConfigServiceName(ctx context.Context, k8sClient clien
 	if instConfig.Spec.ServiceName != serviceName {
 		instConfig.Spec.ServiceName = serviceName
 
-		logger.Info("Updating InstrumentationConfig", "name", instConfigName, "namespace", namespace)
+		logger.Info("Updating KarmaInstrumentationConfig", "name", instConfigName, "namespace", namespace)
 		err = k8sClient.Update(ctx, instConfig)
 		return utils.K8SUpdateErrorHandler(err)
 	}

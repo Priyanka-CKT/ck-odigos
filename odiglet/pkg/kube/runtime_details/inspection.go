@@ -51,13 +51,13 @@ func inspectRuntimesOfRunningPods(ctx context.Context, logger *logr.Logger, labe
 		return errNoPodsFound
 	}
 
-	odigosConfig, err := k8sutils.GetCurrentOdigosConfig(ctx, kubeClient)
+	codekarmaConfig, err := k8sutils.GetCurrentCodekarmaConfig(ctx, kubeClient)
 	if err != nil {
 		logger.Error(err, "failed to get odigos config")
 		return err
 	}
 
-	runtimeResults, err := runtimeInspection(pods, odigosConfig.IgnoredContainers)
+	runtimeResults, err := runtimeInspection(pods, codekarmaConfig.IgnoredContainers)
 	if err != nil {
 		logger.Error(err, "error inspecting pods")
 		return err

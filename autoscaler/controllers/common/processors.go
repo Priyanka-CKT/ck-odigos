@@ -52,7 +52,7 @@ func GetGenericBatchProcessor() odigosv1.Processor {
 			Name: "generic-batch-processor",
 		},
 		TypeMeta: metav1.TypeMeta{
-			APIVersion: "odigos.io/v1alpha1",
+			APIVersion: "codekarma.tech/v1alpha1",
 			Kind:       "Processor",
 		},
 		Spec: odigosv1.ProcessorSpec{

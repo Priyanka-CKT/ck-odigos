@@ -2,20 +2,20 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app.kubernetes.io/name: odigos-instrumentor
-  name: odigos-instrumentor
+    app.kubernetes.io/name: karmatap
+  name: karmatap
   namespace: {{ .Release.Namespace }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app.kubernetes.io/name: odigos-instrumentor
+      app.kubernetes.io/name: karmatap
   template:
     metadata:
       annotations:
         kubectl.kubernetes.io/default-container: manager
       labels:
-        app.kubernetes.io/name: odigos-instrumentor
+        app.kubernetes.io/name: karmatap
     spec:
       containers:
       - args:
@@ -68,7 +68,7 @@ spec:
           allowPrivilegeEscalation: false
       securityContext:
         runAsNonRoot: true
-      serviceAccountName: odigos-instrumentor
+      serviceAccountName: karmatap
       volumes:
         - name: webhook-cert
           secret:

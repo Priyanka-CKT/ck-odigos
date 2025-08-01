@@ -24,12 +24,12 @@ type PodsReconciler struct {
 }
 
 func (p *PodsReconciler) isNamespaceIgnored(ctx context.Context, ns string) bool {
-	odigosConfig, err := k8sutils.GetCurrentOdigosConfig(ctx, p.Client)
+	codekarmaConfig, err := k8sutils.GetCurrentCodekarmaConfig(ctx, p.Client)
 	if err != nil {
 		return false
 	}
 
-	ignoredNamespaces := odigosConfig.IgnoredNamespaces
+	ignoredNamespaces := codekarmaConfig.IgnoredNamespaces
 	for _, ignoredNamespace := range ignoredNamespaces {
 		if ignoredNamespace == ns {
 			return true
@@ -123,4 +123,3 @@ func (p *PodsReconciler) getPodWorkloadObject(ctx context.Context, pod *corev1.P
 	// Pod does not necessarily have to be managed by a controller
 	return nil, nil
 }
-

@@ -156,7 +156,7 @@ func syncGenericWorkloadListToNs(ctx context.Context, c client.Client, kind work
 	}
 
 	var err error
-	err = errors.Join(err, deleteWorkloadInstrumentedApplication(ctx, c, freshWorkloadCopy))
+	err = errors.Join(err, deleteWorkloadKarmaInstrumentedApplication(ctx, c, freshWorkloadCopy))
 	err = errors.Join(err, removeReportedNameAnnotation(ctx, c, freshWorkloadCopy))
 	return err
 }

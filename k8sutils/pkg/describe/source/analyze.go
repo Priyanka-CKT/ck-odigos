@@ -38,7 +38,7 @@ type RuntimeInfoAnalyze struct {
 	Containers []ContainerRuntimeInfoAnalyze `json:"containers"`
 }
 
-type InstrumentedApplicationAnalyze struct {
+type KarmaInstrumentedApplicationAnalyze struct {
 	Created    properties.EntityProperty     `json:"created"`
 	CreateTime *properties.EntityProperty    `json:"createTime"`
 	Containers []ContainerRuntimeInfoAnalyze `json:"containers"`
@@ -55,7 +55,7 @@ type InstrumentationDeviceAnalyze struct {
 	Containers []ContainerWorkloadManifestAnalyze `json:"containers"`
 }
 
-type InstrumentationInstanceAnalyze struct {
+type KarmaInstrumentationInstanceAnalyze struct {
 	Healthy               properties.EntityProperty   `json:"healthy"`
 	Message               *properties.EntityProperty  `json:"message"`
 	IdentifyingAttributes []properties.EntityProperty `json:"identifyingAttributes"`
@@ -64,7 +64,7 @@ type InstrumentationInstanceAnalyze struct {
 type PodContainerAnalyze struct {
 	ContainerName            properties.EntityProperty        `json:"containerName"`
 	ActualDevices            properties.EntityProperty        `json:"actualDevices"`
-	InstrumentationInstances []InstrumentationInstanceAnalyze `json:"instrumentationInstances"`
+	KarmaInstrumentationInstances []KarmaInstrumentationInstanceAnalyze `json:"instrumentationInstances"`
 }
 
 type PodAnalyze struct {
@@ -82,7 +82,7 @@ type SourceAnalyze struct {
 
 	InstrumentationConfig   InstrumentationConfigAnalyze   `json:"instrumentationConfig"`
 	RuntimeInfo             *RuntimeInfoAnalyze            `json:"runtimeInfo"`
-	InstrumentedApplication InstrumentedApplicationAnalyze `json:"instrumentedApplication"`
+	KarmaInstrumentedApplication KarmaInstrumentedApplicationAnalyze `json:"instrumentedApplication"`
 	InstrumentationDevice   InstrumentationDeviceAnalyze   `json:"instrumentationDevice"`
 
 	TotalPods       int          `json:"totalPods"`
@@ -236,8 +236,8 @@ func analyzeRuntimeInfo(resources *OdigosSourceResources) *RuntimeInfoAnalyze {
 	}
 }
 
-func analyzeInstrumentedApplication(resources *OdigosSourceResources) InstrumentedApplicationAnalyze {
-	instrumentedApplicationCreated := resources.InstrumentedApplication != nil
+func analyzeKarmaInstrumentedApplication(resources *OdigosSourceResources) KarmaInstrumentedApplicationAnalyze {
+	instrumentedApplicationCreated := resources.KarmaInstrumentedApplication != nil
 
 	created := properties.EntityProperty{
 		Name:    "Created",
@@ -250,17 +250,17 @@ func analyzeInstrumentedApplication(resources *OdigosSourceResources) Instrument
 	if instrumentedApplicationCreated {
 		createdTime = &properties.EntityProperty{
 			Name:    "create time",
-			Value:   resources.InstrumentedApplication.GetCreationTimestamp().String(),
+			Value:   resources.KarmaInstrumentedApplication.GetCreationTimestamp().String(),
 			Explain: "the time when the instrumented application object was created",
 		}
 	}
 
 	containers := make([]ContainerRuntimeInfoAnalyze, 0)
-	if resources.InstrumentedApplication != nil {
-		containers = analyzeRuntimeDetails(resources.InstrumentedApplication.Spec.RuntimeDetails)
+	if resources.KarmaInstrumentedApplication != nil {
+		containers = analyzeRuntimeDetails(resources.KarmaInstrumentedApplication.Spec.RuntimeDetails)
 	}
 
-	return InstrumentedApplicationAnalyze{
+	return KarmaInstrumentedApplicationAnalyze{
 		Created:    created,
 		CreateTime: createdTime,
 		Containers: containers,
@@ -269,7 +269,7 @@ func analyzeInstrumentedApplication(resources *OdigosSourceResources) Instrument
 
 func analyzeInstrumentationDevice(resources *OdigosSourceResources, workloadObj *K8sSourceObject, instrumented bool) InstrumentationDeviceAnalyze {
 
-	instrumentedApplication := resources.InstrumentedApplication
+	instrumentedApplication := resources.KarmaInstrumentedApplication
 
 	appliedInstrumentationDeviceStatusMessage := "Unknown"
 	var appliedDeviceStatus properties.PropertyStatus
@@ -362,7 +362,7 @@ func analyzeInstrumentationDevice(resources *OdigosSourceResources, workloadObj 
 	}
 }
 
-func analyzeInstrumentationInstance(instrumentationInstance *odigosv1.InstrumentationInstance) InstrumentationInstanceAnalyze {
+func analyzeKarmaInstrumentationInstance(instrumentationInstance *odigosv1.KarmaInstrumentationInstance) KarmaInstrumentationInstanceAnalyze {
 
 	var healthy properties.EntityProperty
 	if instrumentationInstance.Status.Healthy == nil {
@@ -398,7 +398,7 @@ func analyzeInstrumentationInstance(instrumentationInstance *odigosv1.Instrument
 		})
 	}
 
-	return InstrumentationInstanceAnalyze{
+	return KarmaInstrumentationInstanceAnalyze{
 		Healthy:               healthy,
 		Message:               message,
 		IdentifyingAttributes: identifyingAttributes,
@@ -485,8 +485,8 @@ func analyzePods(resources *OdigosSourceResources, expectedDevices Instrumentati
 			}
 
 			// find the instrumentation instances for this pod
-			thisPodInstrumentationInstances := make([]InstrumentationInstanceAnalyze, 0)
-			for _, instance := range resources.InstrumentationInstances.Items {
+			thisPodKarmaInstrumentationInstances := make([]KarmaInstrumentationInstanceAnalyze, 0)
+			for _, instance := range resources.KarmaInstrumentationInstances.Items {
 				if len(instance.OwnerReferences) != 1 || instance.OwnerReferences[0].Kind != "Pod" {
 					continue
 				}
@@ -496,14 +496,14 @@ func analyzePods(resources *OdigosSourceResources, expectedDevices Instrumentati
 				if instance.Spec.ContainerName != container.Name {
 					continue
 				}
-				instanceAnalyze := analyzeInstrumentationInstance(&instance)
-				thisPodInstrumentationInstances = append(thisPodInstrumentationInstances, instanceAnalyze)
+				instanceAnalyze := analyzeKarmaInstrumentationInstance(&instance)
+				thisPodKarmaInstrumentationInstances = append(thisPodKarmaInstrumentationInstances, instanceAnalyze)
 			}
 
 			containers = append(containers, PodContainerAnalyze{
 				ContainerName:            containerName,
 				ActualDevices:            actualDevices,
-				InstrumentationInstances: thisPodInstrumentationInstances,
+				KarmaInstrumentationInstances: thisPodKarmaInstrumentationInstances,
 			})
 		}
 
@@ -529,7 +529,7 @@ func AnalyzeSource(resources *OdigosSourceResources, workloadObj *K8sSourceObjec
 	labelsAnalysis, instrumented := analyzeInstrumentationLabels(resources, workloadObj)
 	icAnalysis := analyzeInstrumentationConfig(resources, instrumented)
 	runtimeAnalysis := analyzeRuntimeInfo(resources)
-	instrumentedApplication := analyzeInstrumentedApplication(resources)
+	instrumentedApplication := analyzeKarmaInstrumentedApplication(resources)
 	device := analyzeInstrumentationDevice(resources, workloadObj, instrumented)
 	pods, podsText := analyzePods(resources, device)
 
@@ -541,7 +541,7 @@ func AnalyzeSource(resources *OdigosSourceResources, workloadObj *K8sSourceObjec
 
 		InstrumentationConfig:   icAnalysis,
 		RuntimeInfo:             runtimeAnalysis,
-		InstrumentedApplication: instrumentedApplication,
+		KarmaInstrumentedApplication: instrumentedApplication,
 		InstrumentationDevice:   device,
 
 		TotalPods:       len(pods),

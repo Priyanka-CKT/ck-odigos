@@ -82,7 +82,7 @@ type ComplexityRoot struct {
 		Actions              func(childComplexity int) int
 		ComputePlatformType  func(childComplexity int) int
 		Destinations         func(childComplexity int) int
-		InstrumentationRules func(childComplexity int) int
+		KarmaInstrumentationRules func(childComplexity int) int
 		K8sActualNamespace   func(childComplexity int, name string) int
 		K8sActualNamespaces  func(childComplexity int) int
 		K8sActualSource      func(childComplexity int, name *string, namespace *string, kind *string) int
@@ -225,7 +225,7 @@ type ComplexityRoot struct {
 		StatusText func(childComplexity int) int
 	}
 
-	InstrumentationInstanceAnalyze struct {
+	KarmaInstrumentationInstanceAnalyze struct {
 		Healthy               func(childComplexity int) int
 		IdentifyingAttributes func(childComplexity int) int
 		Message               func(childComplexity int) int
@@ -254,7 +254,7 @@ type ComplexityRoot struct {
 		SpanKind  func(childComplexity int) int
 	}
 
-	InstrumentationRule struct {
+	KarmaInstrumentationRule struct {
 		Disabled                 func(childComplexity int) int
 		InstrumentationLibraries func(childComplexity int) int
 		Notes                    func(childComplexity int) int
@@ -264,13 +264,13 @@ type ComplexityRoot struct {
 		Workloads                func(childComplexity int) int
 	}
 
-	InstrumentedApplicationAnalyze struct {
+	KarmaInstrumentedApplicationAnalyze struct {
 		Containers func(childComplexity int) int
 		CreateTime func(childComplexity int) int
 		Created    func(childComplexity int) int
 	}
 
-	InstrumentedApplicationDetails struct {
+	KarmaInstrumentedApplicationDetails struct {
 		Conditions             func(childComplexity int) int
 		Containers             func(childComplexity int) int
 		InstrumentationOptions func(childComplexity int) int
@@ -285,7 +285,7 @@ type ComplexityRoot struct {
 	K8sActualSource struct {
 		AutoInstrumented               func(childComplexity int) int
 		AutoInstrumentedDecision       func(childComplexity int) int
-		InstrumentedApplicationDetails func(childComplexity int) int
+		KarmaInstrumentedApplicationDetails func(childComplexity int) int
 		Kind                           func(childComplexity int) int
 		Name                           func(childComplexity int) int
 		Namespace                      func(childComplexity int) int
@@ -311,17 +311,17 @@ type ComplexityRoot struct {
 
 	Mutation struct {
 		CreateAction                 func(childComplexity int, action model.ActionInput) int
-		CreateInstrumentationRule    func(childComplexity int, instrumentationRule model.InstrumentationRuleInput) int
+		CreateKarmaInstrumentationRule    func(childComplexity int, instrumentationRule model.KarmaInstrumentationRuleInput) int
 		CreateNewDestination         func(childComplexity int, destination model.DestinationInput) int
 		DeleteAction                 func(childComplexity int, id string, actionType string) int
 		DeleteDestination            func(childComplexity int, id string) int
-		DeleteInstrumentationRule    func(childComplexity int, ruleID string) int
+		DeleteKarmaInstrumentationRule    func(childComplexity int, ruleID string) int
 		PersistK8sNamespace          func(childComplexity int, namespace model.PersistNamespaceItemInput) int
 		PersistK8sSources            func(childComplexity int, namespace string, sources []*model.PersistNamespaceSourceInput) int
 		TestConnectionForDestination func(childComplexity int, destination model.DestinationInput) int
 		UpdateAction                 func(childComplexity int, id string, action model.ActionInput) int
 		UpdateDestination            func(childComplexity int, id string, destination model.DestinationInput) int
-		UpdateInstrumentationRule    func(childComplexity int, ruleID string, instrumentationRule model.InstrumentationRuleInput) int
+		UpdateKarmaInstrumentationRule    func(childComplexity int, ruleID string, instrumentationRule model.KarmaInstrumentationRuleInput) int
 		UpdateK8sActualSource        func(childComplexity int, sourceID model.K8sSourceID, patchSourceRequest model.PatchSourceRequestInput) int
 	}
 
@@ -384,7 +384,7 @@ type ComplexityRoot struct {
 	PodContainerAnalyze struct {
 		ActualDevices            func(childComplexity int) int
 		ContainerName            func(childComplexity int) int
-		InstrumentationInstances func(childComplexity int) int
+		KarmaInstrumentationInstances func(childComplexity int) int
 	}
 
 	PodWorkload struct {
@@ -446,7 +446,7 @@ type ComplexityRoot struct {
 	SourceAnalyze struct {
 		InstrumentationConfig   func(childComplexity int) int
 		InstrumentationDevice   func(childComplexity int) int
-		InstrumentedApplication func(childComplexity int) int
+		KarmaInstrumentedApplication func(childComplexity int) int
 		Kind                    func(childComplexity int) int
 		Labels                  func(childComplexity int) int
 		Name                    func(childComplexity int) int
@@ -486,7 +486,7 @@ type ComputePlatformResolver interface {
 	K8sActualSources(ctx context.Context, obj *model.ComputePlatform) ([]*model.K8sActualSource, error)
 	Destinations(ctx context.Context, obj *model.ComputePlatform) ([]*model.Destination, error)
 	Actions(ctx context.Context, obj *model.ComputePlatform) ([]*model.IcaInstanceResponse, error)
-	InstrumentationRules(ctx context.Context, obj *model.ComputePlatform) ([]*model.InstrumentationRule, error)
+	KarmaInstrumentationRules(ctx context.Context, obj *model.ComputePlatform) ([]*model.KarmaInstrumentationRule, error)
 }
 type DestinationResolver interface {
 	Type(ctx context.Context, obj *model.Destination) (string, error)
@@ -507,9 +507,9 @@ type MutationResolver interface {
 	CreateAction(ctx context.Context, action model.ActionInput) (model.Action, error)
 	UpdateAction(ctx context.Context, id string, action model.ActionInput) (model.Action, error)
 	DeleteAction(ctx context.Context, id string, actionType string) (bool, error)
-	CreateInstrumentationRule(ctx context.Context, instrumentationRule model.InstrumentationRuleInput) (*model.InstrumentationRule, error)
-	UpdateInstrumentationRule(ctx context.Context, ruleID string, instrumentationRule model.InstrumentationRuleInput) (*model.InstrumentationRule, error)
-	DeleteInstrumentationRule(ctx context.Context, ruleID string) (bool, error)
+	CreateKarmaInstrumentationRule(ctx context.Context, instrumentationRule model.KarmaInstrumentationRuleInput) (*model.KarmaInstrumentationRule, error)
+	UpdateKarmaInstrumentationRule(ctx context.Context, ruleID string, instrumentationRule model.KarmaInstrumentationRuleInput) (*model.KarmaInstrumentationRule, error)
+	DeleteKarmaInstrumentationRule(ctx context.Context, ruleID string) (bool, error)
 }
 type QueryResolver interface {
 	ComputePlatform(ctx context.Context) (*model.ComputePlatform, error)
@@ -696,11 +696,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.ComputePlatform.Destinations(childComplexity), true
 
 	case "ComputePlatform.instrumentationRules":
-		if e.complexity.ComputePlatform.InstrumentationRules == nil {
+		if e.complexity.ComputePlatform.KarmaInstrumentationRules == nil {
 			break
 		}
 
-		return e.complexity.ComputePlatform.InstrumentationRules(childComplexity), true
+		return e.complexity.ComputePlatform.KarmaInstrumentationRules(childComplexity), true
 
 	case "ComputePlatform.k8sActualNamespace":
 		if e.complexity.ComputePlatform.K8sActualNamespace == nil {
@@ -1251,26 +1251,26 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.InstrumentationDeviceAnalyze.StatusText(childComplexity), true
 
-	case "InstrumentationInstanceAnalyze.healthy":
-		if e.complexity.InstrumentationInstanceAnalyze.Healthy == nil {
+	case "KarmaInstrumentationInstanceAnalyze.healthy":
+		if e.complexity.KarmaInstrumentationInstanceAnalyze.Healthy == nil {
 			break
 		}
 
-		return e.complexity.InstrumentationInstanceAnalyze.Healthy(childComplexity), true
+		return e.complexity.KarmaInstrumentationInstanceAnalyze.Healthy(childComplexity), true
 
-	case "InstrumentationInstanceAnalyze.identifyingAttributes":
-		if e.complexity.InstrumentationInstanceAnalyze.IdentifyingAttributes == nil {
+	case "KarmaInstrumentationInstanceAnalyze.identifyingAttributes":
+		if e.complexity.KarmaInstrumentationInstanceAnalyze.IdentifyingAttributes == nil {
 			break
 		}
 
-		return e.complexity.InstrumentationInstanceAnalyze.IdentifyingAttributes(childComplexity), true
+		return e.complexity.KarmaInstrumentationInstanceAnalyze.IdentifyingAttributes(childComplexity), true
 
-	case "InstrumentationInstanceAnalyze.message":
-		if e.complexity.InstrumentationInstanceAnalyze.Message == nil {
+	case "KarmaInstrumentationInstanceAnalyze.message":
+		if e.complexity.KarmaInstrumentationInstanceAnalyze.Message == nil {
 			break
 		}
 
-		return e.complexity.InstrumentationInstanceAnalyze.Message(childComplexity), true
+		return e.complexity.KarmaInstrumentationInstanceAnalyze.Message(childComplexity), true
 
 	case "InstrumentationLabelsAnalyze.instrumented":
 		if e.complexity.InstrumentationLabelsAnalyze.Instrumented == nil {
@@ -1349,96 +1349,96 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.InstrumentationOption.SpanKind(childComplexity), true
 
-	case "InstrumentationRule.disabled":
-		if e.complexity.InstrumentationRule.Disabled == nil {
+	case "KarmaInstrumentationRule.disabled":
+		if e.complexity.KarmaInstrumentationRule.Disabled == nil {
 			break
 		}
 
-		return e.complexity.InstrumentationRule.Disabled(childComplexity), true
+		return e.complexity.KarmaInstrumentationRule.Disabled(childComplexity), true
 
-	case "InstrumentationRule.instrumentationLibraries":
-		if e.complexity.InstrumentationRule.InstrumentationLibraries == nil {
+	case "KarmaInstrumentationRule.instrumentationLibraries":
+		if e.complexity.KarmaInstrumentationRule.InstrumentationLibraries == nil {
 			break
 		}
 
-		return e.complexity.InstrumentationRule.InstrumentationLibraries(childComplexity), true
+		return e.complexity.KarmaInstrumentationRule.InstrumentationLibraries(childComplexity), true
 
-	case "InstrumentationRule.notes":
-		if e.complexity.InstrumentationRule.Notes == nil {
+	case "KarmaInstrumentationRule.notes":
+		if e.complexity.KarmaInstrumentationRule.Notes == nil {
 			break
 		}
 
-		return e.complexity.InstrumentationRule.Notes(childComplexity), true
+		return e.complexity.KarmaInstrumentationRule.Notes(childComplexity), true
 
-	case "InstrumentationRule.payloadCollection":
-		if e.complexity.InstrumentationRule.PayloadCollection == nil {
+	case "KarmaInstrumentationRule.payloadCollection":
+		if e.complexity.KarmaInstrumentationRule.PayloadCollection == nil {
 			break
 		}
 
-		return e.complexity.InstrumentationRule.PayloadCollection(childComplexity), true
+		return e.complexity.KarmaInstrumentationRule.PayloadCollection(childComplexity), true
 
-	case "InstrumentationRule.ruleId":
-		if e.complexity.InstrumentationRule.RuleID == nil {
+	case "KarmaInstrumentationRule.ruleId":
+		if e.complexity.KarmaInstrumentationRule.RuleID == nil {
 			break
 		}
 
-		return e.complexity.InstrumentationRule.RuleID(childComplexity), true
+		return e.complexity.KarmaInstrumentationRule.RuleID(childComplexity), true
 
-	case "InstrumentationRule.ruleName":
-		if e.complexity.InstrumentationRule.RuleName == nil {
+	case "KarmaInstrumentationRule.ruleName":
+		if e.complexity.KarmaInstrumentationRule.RuleName == nil {
 			break
 		}
 
-		return e.complexity.InstrumentationRule.RuleName(childComplexity), true
+		return e.complexity.KarmaInstrumentationRule.RuleName(childComplexity), true
 
-	case "InstrumentationRule.workloads":
-		if e.complexity.InstrumentationRule.Workloads == nil {
+	case "KarmaInstrumentationRule.workloads":
+		if e.complexity.KarmaInstrumentationRule.Workloads == nil {
 			break
 		}
 
-		return e.complexity.InstrumentationRule.Workloads(childComplexity), true
+		return e.complexity.KarmaInstrumentationRule.Workloads(childComplexity), true
 
-	case "InstrumentedApplicationAnalyze.containers":
-		if e.complexity.InstrumentedApplicationAnalyze.Containers == nil {
+	case "KarmaInstrumentedApplicationAnalyze.containers":
+		if e.complexity.KarmaInstrumentedApplicationAnalyze.Containers == nil {
 			break
 		}
 
-		return e.complexity.InstrumentedApplicationAnalyze.Containers(childComplexity), true
+		return e.complexity.KarmaInstrumentedApplicationAnalyze.Containers(childComplexity), true
 
-	case "InstrumentedApplicationAnalyze.createTime":
-		if e.complexity.InstrumentedApplicationAnalyze.CreateTime == nil {
+	case "KarmaInstrumentedApplicationAnalyze.createTime":
+		if e.complexity.KarmaInstrumentedApplicationAnalyze.CreateTime == nil {
 			break
 		}
 
-		return e.complexity.InstrumentedApplicationAnalyze.CreateTime(childComplexity), true
+		return e.complexity.KarmaInstrumentedApplicationAnalyze.CreateTime(childComplexity), true
 
-	case "InstrumentedApplicationAnalyze.created":
-		if e.complexity.InstrumentedApplicationAnalyze.Created == nil {
+	case "KarmaInstrumentedApplicationAnalyze.created":
+		if e.complexity.KarmaInstrumentedApplicationAnalyze.Created == nil {
 			break
 		}
 
-		return e.complexity.InstrumentedApplicationAnalyze.Created(childComplexity), true
+		return e.complexity.KarmaInstrumentedApplicationAnalyze.Created(childComplexity), true
 
-	case "InstrumentedApplicationDetails.conditions":
-		if e.complexity.InstrumentedApplicationDetails.Conditions == nil {
+	case "KarmaInstrumentedApplicationDetails.conditions":
+		if e.complexity.KarmaInstrumentedApplicationDetails.Conditions == nil {
 			break
 		}
 
-		return e.complexity.InstrumentedApplicationDetails.Conditions(childComplexity), true
+		return e.complexity.KarmaInstrumentedApplicationDetails.Conditions(childComplexity), true
 
-	case "InstrumentedApplicationDetails.containers":
-		if e.complexity.InstrumentedApplicationDetails.Containers == nil {
+	case "KarmaInstrumentedApplicationDetails.containers":
+		if e.complexity.KarmaInstrumentedApplicationDetails.Containers == nil {
 			break
 		}
 
-		return e.complexity.InstrumentedApplicationDetails.Containers(childComplexity), true
+		return e.complexity.KarmaInstrumentedApplicationDetails.Containers(childComplexity), true
 
-	case "InstrumentedApplicationDetails.instrumentationOptions":
-		if e.complexity.InstrumentedApplicationDetails.InstrumentationOptions == nil {
+	case "KarmaInstrumentedApplicationDetails.instrumentationOptions":
+		if e.complexity.KarmaInstrumentedApplicationDetails.InstrumentationOptions == nil {
 			break
 		}
 
-		return e.complexity.InstrumentedApplicationDetails.InstrumentationOptions(childComplexity), true
+		return e.complexity.KarmaInstrumentedApplicationDetails.InstrumentationOptions(childComplexity), true
 
 	case "K8sActualNamespace.instrumentationLabelEnabled":
 		if e.complexity.K8sActualNamespace.InstrumentationLabelEnabled == nil {
@@ -1481,11 +1481,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.K8sActualSource.AutoInstrumentedDecision(childComplexity), true
 
 	case "K8sActualSource.instrumentedApplicationDetails":
-		if e.complexity.K8sActualSource.InstrumentedApplicationDetails == nil {
+		if e.complexity.K8sActualSource.KarmaInstrumentedApplicationDetails == nil {
 			break
 		}
 
-		return e.complexity.K8sActualSource.InstrumentedApplicationDetails(childComplexity), true
+		return e.complexity.K8sActualSource.KarmaInstrumentedApplicationDetails(childComplexity), true
 
 	case "K8sActualSource.kind":
 		if e.complexity.K8sActualSource.Kind == nil {
@@ -1604,17 +1604,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.CreateAction(childComplexity, args["action"].(model.ActionInput)), true
 
-	case "Mutation.createInstrumentationRule":
-		if e.complexity.Mutation.CreateInstrumentationRule == nil {
+	case "Mutation.createKarmaInstrumentationRule":
+		if e.complexity.Mutation.CreateKarmaInstrumentationRule == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_createInstrumentationRule_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_createKarmaInstrumentationRule_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.CreateInstrumentationRule(childComplexity, args["instrumentationRule"].(model.InstrumentationRuleInput)), true
+		return e.complexity.Mutation.CreateKarmaInstrumentationRule(childComplexity, args["instrumentationRule"].(model.KarmaInstrumentationRuleInput)), true
 
 	case "Mutation.createNewDestination":
 		if e.complexity.Mutation.CreateNewDestination == nil {
@@ -1652,17 +1652,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.DeleteDestination(childComplexity, args["id"].(string)), true
 
-	case "Mutation.deleteInstrumentationRule":
-		if e.complexity.Mutation.DeleteInstrumentationRule == nil {
+	case "Mutation.deleteKarmaInstrumentationRule":
+		if e.complexity.Mutation.DeleteKarmaInstrumentationRule == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_deleteInstrumentationRule_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_deleteKarmaInstrumentationRule_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.DeleteInstrumentationRule(childComplexity, args["ruleId"].(string)), true
+		return e.complexity.Mutation.DeleteKarmaInstrumentationRule(childComplexity, args["ruleId"].(string)), true
 
 	case "Mutation.persistK8sNamespace":
 		if e.complexity.Mutation.PersistK8sNamespace == nil {
@@ -1724,17 +1724,17 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Mutation.UpdateDestination(childComplexity, args["id"].(string), args["destination"].(model.DestinationInput)), true
 
-	case "Mutation.updateInstrumentationRule":
-		if e.complexity.Mutation.UpdateInstrumentationRule == nil {
+	case "Mutation.updateKarmaInstrumentationRule":
+		if e.complexity.Mutation.UpdateKarmaInstrumentationRule == nil {
 			break
 		}
 
-		args, err := ec.field_Mutation_updateInstrumentationRule_args(context.TODO(), rawArgs)
+		args, err := ec.field_Mutation_updateKarmaInstrumentationRule_args(context.TODO(), rawArgs)
 		if err != nil {
 			return 0, false
 		}
 
-		return e.complexity.Mutation.UpdateInstrumentationRule(childComplexity, args["ruleId"].(string), args["instrumentationRule"].(model.InstrumentationRuleInput)), true
+		return e.complexity.Mutation.UpdateKarmaInstrumentationRule(childComplexity, args["ruleId"].(string), args["instrumentationRule"].(model.KarmaInstrumentationRuleInput)), true
 
 	case "Mutation.updateK8sActualSource":
 		if e.complexity.Mutation.UpdateK8sActualSource == nil {
@@ -2008,11 +2008,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.PodContainerAnalyze.ContainerName(childComplexity), true
 
 	case "PodContainerAnalyze.instrumentationInstances":
-		if e.complexity.PodContainerAnalyze.InstrumentationInstances == nil {
+		if e.complexity.PodContainerAnalyze.KarmaInstrumentationInstances == nil {
 			break
 		}
 
-		return e.complexity.PodContainerAnalyze.InstrumentationInstances(childComplexity), true
+		return e.complexity.PodContainerAnalyze.KarmaInstrumentationInstances(childComplexity), true
 
 	case "PodWorkload.kind":
 		if e.complexity.PodWorkload.Kind == nil {
@@ -2284,11 +2284,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.SourceAnalyze.InstrumentationDevice(childComplexity), true
 
 	case "SourceAnalyze.instrumentedApplication":
-		if e.complexity.SourceAnalyze.InstrumentedApplication == nil {
+		if e.complexity.SourceAnalyze.KarmaInstrumentedApplication == nil {
 			break
 		}
 
-		return e.complexity.SourceAnalyze.InstrumentedApplication(childComplexity), true
+		return e.complexity.SourceAnalyze.KarmaInstrumentedApplication(childComplexity), true
 
 	case "SourceAnalyze.kind":
 		if e.complexity.SourceAnalyze.Kind == nil {
@@ -2445,7 +2445,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 		ec.unmarshalInputFieldInput,
 		ec.unmarshalInputHttpPayloadCollectionInput,
 		ec.unmarshalInputInstrumentationLibraryGlobalIdInput,
-		ec.unmarshalInputInstrumentationRuleInput,
+		ec.unmarshalInputKarmaInstrumentationRuleInput,
 		ec.unmarshalInputK8sDesiredNamespaceInput,
 		ec.unmarshalInputK8sDesiredSourceInput,
 		ec.unmarshalInputK8sNamespaceId,
@@ -2650,13 +2650,13 @@ func (ec *executionContext) field_Mutation_createAction_args(ctx context.Context
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_createInstrumentationRule_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_createKarmaInstrumentationRule_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.InstrumentationRuleInput
+	var arg0 model.KarmaInstrumentationRuleInput
 	if tmp, ok := rawArgs["instrumentationRule"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("instrumentationRule"))
-		arg0, err = ec.unmarshalNInstrumentationRuleInput2githubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationRuleInput(ctx, tmp)
+		arg0, err = ec.unmarshalNKarmaInstrumentationRuleInput2githubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationRuleInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2719,7 +2719,7 @@ func (ec *executionContext) field_Mutation_deleteDestination_args(ctx context.Co
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_deleteInstrumentationRule_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_deleteKarmaInstrumentationRule_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -2836,7 +2836,7 @@ func (ec *executionContext) field_Mutation_updateDestination_args(ctx context.Co
 	return args, nil
 }
 
-func (ec *executionContext) field_Mutation_updateInstrumentationRule_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+func (ec *executionContext) field_Mutation_updateKarmaInstrumentationRule_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
 	var arg0 string
@@ -2848,10 +2848,10 @@ func (ec *executionContext) field_Mutation_updateInstrumentationRule_args(ctx co
 		}
 	}
 	args["ruleId"] = arg0
-	var arg1 model.InstrumentationRuleInput
+	var arg1 model.KarmaInstrumentationRuleInput
 	if tmp, ok := rawArgs["instrumentationRule"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("instrumentationRule"))
-		arg1, err = ec.unmarshalNInstrumentationRuleInput2githubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationRuleInput(ctx, tmp)
+		arg1, err = ec.unmarshalNKarmaInstrumentationRuleInput2githubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationRuleInput(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -4315,7 +4315,7 @@ func (ec *executionContext) _ComputePlatform_instrumentationRules(ctx context.Co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.ComputePlatform().InstrumentationRules(rctx, obj)
+		return ec.resolvers.ComputePlatform().KarmaInstrumentationRules(rctx, obj)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4327,9 +4327,9 @@ func (ec *executionContext) _ComputePlatform_instrumentationRules(ctx context.Co
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.InstrumentationRule)
+	res := resTmp.([]*model.KarmaInstrumentationRule)
 	fc.Result = res
-	return ec.marshalNInstrumentationRule2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationRuleᚄ(ctx, field.Selections, res)
+	return ec.marshalNKarmaInstrumentationRule2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationRuleᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ComputePlatform_instrumentationRules(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4341,21 +4341,21 @@ func (ec *executionContext) fieldContext_ComputePlatform_instrumentationRules(_ 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "ruleId":
-				return ec.fieldContext_InstrumentationRule_ruleId(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_ruleId(ctx, field)
 			case "ruleName":
-				return ec.fieldContext_InstrumentationRule_ruleName(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_ruleName(ctx, field)
 			case "notes":
-				return ec.fieldContext_InstrumentationRule_notes(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_notes(ctx, field)
 			case "disabled":
-				return ec.fieldContext_InstrumentationRule_disabled(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_disabled(ctx, field)
 			case "workloads":
-				return ec.fieldContext_InstrumentationRule_workloads(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_workloads(ctx, field)
 			case "instrumentationLibraries":
-				return ec.fieldContext_InstrumentationRule_instrumentationLibraries(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_instrumentationLibraries(ctx, field)
 			case "payloadCollection":
-				return ec.fieldContext_InstrumentationRule_payloadCollection(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_payloadCollection(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type InstrumentationRule", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type KarmaInstrumentationRule", field.Name)
 		},
 	}
 	return fc, nil
@@ -7698,8 +7698,8 @@ func (ec *executionContext) fieldContext_InstrumentationDeviceAnalyze_containers
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentationInstanceAnalyze_healthy(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentationInstanceAnalyze) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentationInstanceAnalyze_healthy(ctx, field)
+func (ec *executionContext) _KarmaInstrumentationInstanceAnalyze_healthy(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentationInstanceAnalyze) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentationInstanceAnalyze_healthy(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7729,9 +7729,9 @@ func (ec *executionContext) _InstrumentationInstanceAnalyze_healthy(ctx context.
 	return ec.marshalNEntityProperty2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐEntityProperty(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentationInstanceAnalyze_healthy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentationInstanceAnalyze_healthy(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentationInstanceAnalyze",
+		Object:     "KarmaInstrumentationInstanceAnalyze",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -7752,8 +7752,8 @@ func (ec *executionContext) fieldContext_InstrumentationInstanceAnalyze_healthy(
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentationInstanceAnalyze_message(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentationInstanceAnalyze) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentationInstanceAnalyze_message(ctx, field)
+func (ec *executionContext) _KarmaInstrumentationInstanceAnalyze_message(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentationInstanceAnalyze) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentationInstanceAnalyze_message(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7780,9 +7780,9 @@ func (ec *executionContext) _InstrumentationInstanceAnalyze_message(ctx context.
 	return ec.marshalOEntityProperty2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐEntityProperty(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentationInstanceAnalyze_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentationInstanceAnalyze_message(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentationInstanceAnalyze",
+		Object:     "KarmaInstrumentationInstanceAnalyze",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -7803,8 +7803,8 @@ func (ec *executionContext) fieldContext_InstrumentationInstanceAnalyze_message(
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentationInstanceAnalyze_identifyingAttributes(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentationInstanceAnalyze) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentationInstanceAnalyze_identifyingAttributes(ctx, field)
+func (ec *executionContext) _KarmaInstrumentationInstanceAnalyze_identifyingAttributes(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentationInstanceAnalyze) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentationInstanceAnalyze_identifyingAttributes(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -7834,9 +7834,9 @@ func (ec *executionContext) _InstrumentationInstanceAnalyze_identifyingAttribute
 	return ec.marshalNEntityProperty2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐEntityPropertyᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentationInstanceAnalyze_identifyingAttributes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentationInstanceAnalyze_identifyingAttributes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentationInstanceAnalyze",
+		Object:     "KarmaInstrumentationInstanceAnalyze",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8372,8 +8372,8 @@ func (ec *executionContext) fieldContext_InstrumentationOption_spanKind(_ contex
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentationRule_ruleId(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentationRule) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentationRule_ruleId(ctx, field)
+func (ec *executionContext) _KarmaInstrumentationRule_ruleId(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentationRule) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentationRule_ruleId(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8403,9 +8403,9 @@ func (ec *executionContext) _InstrumentationRule_ruleId(ctx context.Context, fie
 	return ec.marshalNID2string(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentationRule_ruleId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentationRule_ruleId(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentationRule",
+		Object:     "KarmaInstrumentationRule",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8416,8 +8416,8 @@ func (ec *executionContext) fieldContext_InstrumentationRule_ruleId(_ context.Co
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentationRule_ruleName(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentationRule) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentationRule_ruleName(ctx, field)
+func (ec *executionContext) _KarmaInstrumentationRule_ruleName(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentationRule) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentationRule_ruleName(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8444,9 +8444,9 @@ func (ec *executionContext) _InstrumentationRule_ruleName(ctx context.Context, f
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentationRule_ruleName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentationRule_ruleName(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentationRule",
+		Object:     "KarmaInstrumentationRule",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8457,8 +8457,8 @@ func (ec *executionContext) fieldContext_InstrumentationRule_ruleName(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentationRule_notes(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentationRule) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentationRule_notes(ctx, field)
+func (ec *executionContext) _KarmaInstrumentationRule_notes(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentationRule) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentationRule_notes(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8485,9 +8485,9 @@ func (ec *executionContext) _InstrumentationRule_notes(ctx context.Context, fiel
 	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentationRule_notes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentationRule_notes(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentationRule",
+		Object:     "KarmaInstrumentationRule",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8498,8 +8498,8 @@ func (ec *executionContext) fieldContext_InstrumentationRule_notes(_ context.Con
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentationRule_disabled(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentationRule) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentationRule_disabled(ctx, field)
+func (ec *executionContext) _KarmaInstrumentationRule_disabled(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentationRule) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentationRule_disabled(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8526,9 +8526,9 @@ func (ec *executionContext) _InstrumentationRule_disabled(ctx context.Context, f
 	return ec.marshalOBoolean2ᚖbool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentationRule_disabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentationRule_disabled(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentationRule",
+		Object:     "KarmaInstrumentationRule",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8539,8 +8539,8 @@ func (ec *executionContext) fieldContext_InstrumentationRule_disabled(_ context.
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentationRule_workloads(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentationRule) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentationRule_workloads(ctx, field)
+func (ec *executionContext) _KarmaInstrumentationRule_workloads(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentationRule) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentationRule_workloads(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8567,9 +8567,9 @@ func (ec *executionContext) _InstrumentationRule_workloads(ctx context.Context, 
 	return ec.marshalOPodWorkload2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐPodWorkloadᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentationRule_workloads(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentationRule_workloads(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentationRule",
+		Object:     "KarmaInstrumentationRule",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8588,8 +8588,8 @@ func (ec *executionContext) fieldContext_InstrumentationRule_workloads(_ context
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentationRule_instrumentationLibraries(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentationRule) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentationRule_instrumentationLibraries(ctx, field)
+func (ec *executionContext) _KarmaInstrumentationRule_instrumentationLibraries(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentationRule) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentationRule_instrumentationLibraries(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8616,9 +8616,9 @@ func (ec *executionContext) _InstrumentationRule_instrumentationLibraries(ctx co
 	return ec.marshalOInstrumentationLibraryGlobalId2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationLibraryGlobalIDᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentationRule_instrumentationLibraries(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentationRule_instrumentationLibraries(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentationRule",
+		Object:     "KarmaInstrumentationRule",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8637,8 +8637,8 @@ func (ec *executionContext) fieldContext_InstrumentationRule_instrumentationLibr
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentationRule_payloadCollection(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentationRule) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentationRule_payloadCollection(ctx, field)
+func (ec *executionContext) _KarmaInstrumentationRule_payloadCollection(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentationRule) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentationRule_payloadCollection(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8665,9 +8665,9 @@ func (ec *executionContext) _InstrumentationRule_payloadCollection(ctx context.C
 	return ec.marshalOPayloadCollection2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐPayloadCollection(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentationRule_payloadCollection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentationRule_payloadCollection(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentationRule",
+		Object:     "KarmaInstrumentationRule",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8688,8 +8688,8 @@ func (ec *executionContext) fieldContext_InstrumentationRule_payloadCollection(_
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentedApplicationAnalyze_created(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentedApplicationAnalyze) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentedApplicationAnalyze_created(ctx, field)
+func (ec *executionContext) _KarmaInstrumentedApplicationAnalyze_created(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentedApplicationAnalyze) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentedApplicationAnalyze_created(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8719,9 +8719,9 @@ func (ec *executionContext) _InstrumentedApplicationAnalyze_created(ctx context.
 	return ec.marshalNEntityProperty2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐEntityProperty(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentedApplicationAnalyze_created(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentedApplicationAnalyze_created(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentedApplicationAnalyze",
+		Object:     "KarmaInstrumentedApplicationAnalyze",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8742,8 +8742,8 @@ func (ec *executionContext) fieldContext_InstrumentedApplicationAnalyze_created(
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentedApplicationAnalyze_createTime(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentedApplicationAnalyze) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentedApplicationAnalyze_createTime(ctx, field)
+func (ec *executionContext) _KarmaInstrumentedApplicationAnalyze_createTime(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentedApplicationAnalyze) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentedApplicationAnalyze_createTime(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8770,9 +8770,9 @@ func (ec *executionContext) _InstrumentedApplicationAnalyze_createTime(ctx conte
 	return ec.marshalOEntityProperty2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐEntityProperty(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentedApplicationAnalyze_createTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentedApplicationAnalyze_createTime(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentedApplicationAnalyze",
+		Object:     "KarmaInstrumentedApplicationAnalyze",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8793,8 +8793,8 @@ func (ec *executionContext) fieldContext_InstrumentedApplicationAnalyze_createTi
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentedApplicationAnalyze_containers(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentedApplicationAnalyze) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentedApplicationAnalyze_containers(ctx, field)
+func (ec *executionContext) _KarmaInstrumentedApplicationAnalyze_containers(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentedApplicationAnalyze) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentedApplicationAnalyze_containers(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8824,9 +8824,9 @@ func (ec *executionContext) _InstrumentedApplicationAnalyze_containers(ctx conte
 	return ec.marshalNContainerRuntimeInfoAnalyze2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐContainerRuntimeInfoAnalyzeᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentedApplicationAnalyze_containers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentedApplicationAnalyze_containers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentedApplicationAnalyze",
+		Object:     "KarmaInstrumentedApplicationAnalyze",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8847,8 +8847,8 @@ func (ec *executionContext) fieldContext_InstrumentedApplicationAnalyze_containe
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentedApplicationDetails_containers(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentedApplicationDetails) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentedApplicationDetails_containers(ctx, field)
+func (ec *executionContext) _KarmaInstrumentedApplicationDetails_containers(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentedApplicationDetails) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentedApplicationDetails_containers(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8875,9 +8875,9 @@ func (ec *executionContext) _InstrumentedApplicationDetails_containers(ctx conte
 	return ec.marshalOSourceContainerRuntimeDetails2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐSourceContainerRuntimeDetailsᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentedApplicationDetails_containers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentedApplicationDetails_containers(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentedApplicationDetails",
+		Object:     "KarmaInstrumentedApplicationDetails",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8898,8 +8898,8 @@ func (ec *executionContext) fieldContext_InstrumentedApplicationDetails_containe
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentedApplicationDetails_conditions(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentedApplicationDetails) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentedApplicationDetails_conditions(ctx, field)
+func (ec *executionContext) _KarmaInstrumentedApplicationDetails_conditions(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentedApplicationDetails) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentedApplicationDetails_conditions(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8926,9 +8926,9 @@ func (ec *executionContext) _InstrumentedApplicationDetails_conditions(ctx conte
 	return ec.marshalOCondition2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐConditionᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentedApplicationDetails_conditions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentedApplicationDetails_conditions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentedApplicationDetails",
+		Object:     "KarmaInstrumentedApplicationDetails",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -8951,8 +8951,8 @@ func (ec *executionContext) fieldContext_InstrumentedApplicationDetails_conditio
 	return fc, nil
 }
 
-func (ec *executionContext) _InstrumentedApplicationDetails_instrumentationOptions(ctx context.Context, field graphql.CollectedField, obj *model.InstrumentedApplicationDetails) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_InstrumentedApplicationDetails_instrumentationOptions(ctx, field)
+func (ec *executionContext) _KarmaInstrumentedApplicationDetails_instrumentationOptions(ctx context.Context, field graphql.CollectedField, obj *model.KarmaInstrumentedApplicationDetails) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_KarmaInstrumentedApplicationDetails_instrumentationOptions(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -8982,9 +8982,9 @@ func (ec *executionContext) _InstrumentedApplicationDetails_instrumentationOptio
 	return ec.marshalNInstrumentationLibrary2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationLibraryᚄ(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_InstrumentedApplicationDetails_instrumentationOptions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_KarmaInstrumentedApplicationDetails_instrumentationOptions(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
-		Object:     "InstrumentedApplicationDetails",
+		Object:     "KarmaInstrumentedApplicationDetails",
 		Field:      field,
 		IsMethod:   false,
 		IsResolver: false,
@@ -9518,7 +9518,7 @@ func (ec *executionContext) _K8sActualSource_instrumentedApplicationDetails(ctx 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.InstrumentedApplicationDetails, nil
+		return obj.KarmaInstrumentedApplicationDetails, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9527,9 +9527,9 @@ func (ec *executionContext) _K8sActualSource_instrumentedApplicationDetails(ctx 
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*model.InstrumentedApplicationDetails)
+	res := resTmp.(*model.KarmaInstrumentedApplicationDetails)
 	fc.Result = res
-	return ec.marshalOInstrumentedApplicationDetails2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentedApplicationDetails(ctx, field.Selections, res)
+	return ec.marshalOKarmaInstrumentedApplicationDetails2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentedApplicationDetails(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_K8sActualSource_instrumentedApplicationDetails(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9541,13 +9541,13 @@ func (ec *executionContext) fieldContext_K8sActualSource_instrumentedApplication
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "containers":
-				return ec.fieldContext_InstrumentedApplicationDetails_containers(ctx, field)
+				return ec.fieldContext_KarmaInstrumentedApplicationDetails_containers(ctx, field)
 			case "conditions":
-				return ec.fieldContext_InstrumentedApplicationDetails_conditions(ctx, field)
+				return ec.fieldContext_KarmaInstrumentedApplicationDetails_conditions(ctx, field)
 			case "instrumentationOptions":
-				return ec.fieldContext_InstrumentedApplicationDetails_instrumentationOptions(ctx, field)
+				return ec.fieldContext_KarmaInstrumentedApplicationDetails_instrumentationOptions(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type InstrumentedApplicationDetails", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type KarmaInstrumentedApplicationDetails", field.Name)
 		},
 	}
 	return fc, nil
@@ -10531,8 +10531,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteAction(ctx context.Conte
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_createInstrumentationRule(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_createInstrumentationRule(ctx, field)
+func (ec *executionContext) _Mutation_createKarmaInstrumentationRule(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_createKarmaInstrumentationRule(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10545,7 +10545,7 @@ func (ec *executionContext) _Mutation_createInstrumentationRule(ctx context.Cont
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateInstrumentationRule(rctx, fc.Args["instrumentationRule"].(model.InstrumentationRuleInput))
+		return ec.resolvers.Mutation().CreateKarmaInstrumentationRule(rctx, fc.Args["instrumentationRule"].(model.KarmaInstrumentationRuleInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10557,12 +10557,12 @@ func (ec *executionContext) _Mutation_createInstrumentationRule(ctx context.Cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.InstrumentationRule)
+	res := resTmp.(*model.KarmaInstrumentationRule)
 	fc.Result = res
-	return ec.marshalNInstrumentationRule2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationRule(ctx, field.Selections, res)
+	return ec.marshalNKarmaInstrumentationRule2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationRule(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_createInstrumentationRule(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_createKarmaInstrumentationRule(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -10571,21 +10571,21 @@ func (ec *executionContext) fieldContext_Mutation_createInstrumentationRule(ctx 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "ruleId":
-				return ec.fieldContext_InstrumentationRule_ruleId(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_ruleId(ctx, field)
 			case "ruleName":
-				return ec.fieldContext_InstrumentationRule_ruleName(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_ruleName(ctx, field)
 			case "notes":
-				return ec.fieldContext_InstrumentationRule_notes(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_notes(ctx, field)
 			case "disabled":
-				return ec.fieldContext_InstrumentationRule_disabled(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_disabled(ctx, field)
 			case "workloads":
-				return ec.fieldContext_InstrumentationRule_workloads(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_workloads(ctx, field)
 			case "instrumentationLibraries":
-				return ec.fieldContext_InstrumentationRule_instrumentationLibraries(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_instrumentationLibraries(ctx, field)
 			case "payloadCollection":
-				return ec.fieldContext_InstrumentationRule_payloadCollection(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_payloadCollection(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type InstrumentationRule", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type KarmaInstrumentationRule", field.Name)
 		},
 	}
 	defer func() {
@@ -10595,15 +10595,15 @@ func (ec *executionContext) fieldContext_Mutation_createInstrumentationRule(ctx 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_createInstrumentationRule_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_createKarmaInstrumentationRule_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_updateInstrumentationRule(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_updateInstrumentationRule(ctx, field)
+func (ec *executionContext) _Mutation_updateKarmaInstrumentationRule(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_updateKarmaInstrumentationRule(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10616,7 +10616,7 @@ func (ec *executionContext) _Mutation_updateInstrumentationRule(ctx context.Cont
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateInstrumentationRule(rctx, fc.Args["ruleId"].(string), fc.Args["instrumentationRule"].(model.InstrumentationRuleInput))
+		return ec.resolvers.Mutation().UpdateKarmaInstrumentationRule(rctx, fc.Args["ruleId"].(string), fc.Args["instrumentationRule"].(model.KarmaInstrumentationRuleInput))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10628,12 +10628,12 @@ func (ec *executionContext) _Mutation_updateInstrumentationRule(ctx context.Cont
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.InstrumentationRule)
+	res := resTmp.(*model.KarmaInstrumentationRule)
 	fc.Result = res
-	return ec.marshalNInstrumentationRule2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationRule(ctx, field.Selections, res)
+	return ec.marshalNKarmaInstrumentationRule2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationRule(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_updateInstrumentationRule(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_updateKarmaInstrumentationRule(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -10642,21 +10642,21 @@ func (ec *executionContext) fieldContext_Mutation_updateInstrumentationRule(ctx 
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "ruleId":
-				return ec.fieldContext_InstrumentationRule_ruleId(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_ruleId(ctx, field)
 			case "ruleName":
-				return ec.fieldContext_InstrumentationRule_ruleName(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_ruleName(ctx, field)
 			case "notes":
-				return ec.fieldContext_InstrumentationRule_notes(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_notes(ctx, field)
 			case "disabled":
-				return ec.fieldContext_InstrumentationRule_disabled(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_disabled(ctx, field)
 			case "workloads":
-				return ec.fieldContext_InstrumentationRule_workloads(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_workloads(ctx, field)
 			case "instrumentationLibraries":
-				return ec.fieldContext_InstrumentationRule_instrumentationLibraries(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_instrumentationLibraries(ctx, field)
 			case "payloadCollection":
-				return ec.fieldContext_InstrumentationRule_payloadCollection(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationRule_payloadCollection(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type InstrumentationRule", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type KarmaInstrumentationRule", field.Name)
 		},
 	}
 	defer func() {
@@ -10666,15 +10666,15 @@ func (ec *executionContext) fieldContext_Mutation_updateInstrumentationRule(ctx 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_updateInstrumentationRule_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_updateKarmaInstrumentationRule_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_deleteInstrumentationRule(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_deleteInstrumentationRule(ctx, field)
+func (ec *executionContext) _Mutation_deleteKarmaInstrumentationRule(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_deleteKarmaInstrumentationRule(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -10687,7 +10687,7 @@ func (ec *executionContext) _Mutation_deleteInstrumentationRule(ctx context.Cont
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().DeleteInstrumentationRule(rctx, fc.Args["ruleId"].(string))
+		return ec.resolvers.Mutation().DeleteKarmaInstrumentationRule(rctx, fc.Args["ruleId"].(string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10704,7 +10704,7 @@ func (ec *executionContext) _Mutation_deleteInstrumentationRule(ctx context.Cont
 	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_deleteInstrumentationRule(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_deleteKarmaInstrumentationRule(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -10721,7 +10721,7 @@ func (ec *executionContext) fieldContext_Mutation_deleteInstrumentationRule(ctx 
 		}
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_deleteInstrumentationRule_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+	if fc.Args, err = ec.field_Mutation_deleteKarmaInstrumentationRule_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -12588,7 +12588,7 @@ func (ec *executionContext) _PodContainerAnalyze_instrumentationInstances(ctx co
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.InstrumentationInstances, nil
+		return obj.KarmaInstrumentationInstances, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -12600,9 +12600,9 @@ func (ec *executionContext) _PodContainerAnalyze_instrumentationInstances(ctx co
 		}
 		return graphql.Null
 	}
-	res := resTmp.([]*model.InstrumentationInstanceAnalyze)
+	res := resTmp.([]*model.KarmaInstrumentationInstanceAnalyze)
 	fc.Result = res
-	return ec.marshalNInstrumentationInstanceAnalyze2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationInstanceAnalyzeᚄ(ctx, field.Selections, res)
+	return ec.marshalNKarmaInstrumentationInstanceAnalyze2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationInstanceAnalyzeᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_PodContainerAnalyze_instrumentationInstances(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -12614,13 +12614,13 @@ func (ec *executionContext) fieldContext_PodContainerAnalyze_instrumentationInst
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "healthy":
-				return ec.fieldContext_InstrumentationInstanceAnalyze_healthy(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationInstanceAnalyze_healthy(ctx, field)
 			case "message":
-				return ec.fieldContext_InstrumentationInstanceAnalyze_message(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationInstanceAnalyze_message(ctx, field)
 			case "identifyingAttributes":
-				return ec.fieldContext_InstrumentationInstanceAnalyze_identifyingAttributes(ctx, field)
+				return ec.fieldContext_KarmaInstrumentationInstanceAnalyze_identifyingAttributes(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type InstrumentationInstanceAnalyze", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type KarmaInstrumentationInstanceAnalyze", field.Name)
 		},
 	}
 	return fc, nil
@@ -14724,7 +14724,7 @@ func (ec *executionContext) _SourceAnalyze_instrumentedApplication(ctx context.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.InstrumentedApplication, nil
+		return obj.KarmaInstrumentedApplication, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -14736,9 +14736,9 @@ func (ec *executionContext) _SourceAnalyze_instrumentedApplication(ctx context.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.InstrumentedApplicationAnalyze)
+	res := resTmp.(*model.KarmaInstrumentedApplicationAnalyze)
 	fc.Result = res
-	return ec.marshalNInstrumentedApplicationAnalyze2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentedApplicationAnalyze(ctx, field.Selections, res)
+	return ec.marshalNKarmaInstrumentedApplicationAnalyze2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentedApplicationAnalyze(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_SourceAnalyze_instrumentedApplication(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -14750,13 +14750,13 @@ func (ec *executionContext) fieldContext_SourceAnalyze_instrumentedApplication(_
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
 			case "created":
-				return ec.fieldContext_InstrumentedApplicationAnalyze_created(ctx, field)
+				return ec.fieldContext_KarmaInstrumentedApplicationAnalyze_created(ctx, field)
 			case "createTime":
-				return ec.fieldContext_InstrumentedApplicationAnalyze_createTime(ctx, field)
+				return ec.fieldContext_KarmaInstrumentedApplicationAnalyze_createTime(ctx, field)
 			case "containers":
-				return ec.fieldContext_InstrumentedApplicationAnalyze_containers(ctx, field)
+				return ec.fieldContext_KarmaInstrumentedApplicationAnalyze_containers(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type InstrumentedApplicationAnalyze", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type KarmaInstrumentedApplicationAnalyze", field.Name)
 		},
 	}
 	return fc, nil
@@ -17556,8 +17556,8 @@ func (ec *executionContext) unmarshalInputInstrumentationLibraryGlobalIdInput(ct
 	return it, nil
 }
 
-func (ec *executionContext) unmarshalInputInstrumentationRuleInput(ctx context.Context, obj interface{}) (model.InstrumentationRuleInput, error) {
-	var it model.InstrumentationRuleInput
+func (ec *executionContext) unmarshalInputKarmaInstrumentationRuleInput(ctx context.Context, obj interface{}) (model.KarmaInstrumentationRuleInput, error) {
+	var it model.KarmaInstrumentationRuleInput
 	asMap := map[string]interface{}{}
 	for k, v := range obj.(map[string]interface{}) {
 		asMap[k] = v
@@ -19574,9 +19574,9 @@ func (ec *executionContext) _InstrumentationDeviceAnalyze(ctx context.Context, s
 	return out
 }
 
-var instrumentationInstanceAnalyzeImplementors = []string{"InstrumentationInstanceAnalyze"}
+var instrumentationInstanceAnalyzeImplementors = []string{"KarmaInstrumentationInstanceAnalyze"}
 
-func (ec *executionContext) _InstrumentationInstanceAnalyze(ctx context.Context, sel ast.SelectionSet, obj *model.InstrumentationInstanceAnalyze) graphql.Marshaler {
+func (ec *executionContext) _KarmaInstrumentationInstanceAnalyze(ctx context.Context, sel ast.SelectionSet, obj *model.KarmaInstrumentationInstanceAnalyze) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, instrumentationInstanceAnalyzeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -19584,16 +19584,16 @@ func (ec *executionContext) _InstrumentationInstanceAnalyze(ctx context.Context,
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("InstrumentationInstanceAnalyze")
+			out.Values[i] = graphql.MarshalString("KarmaInstrumentationInstanceAnalyze")
 		case "healthy":
-			out.Values[i] = ec._InstrumentationInstanceAnalyze_healthy(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentationInstanceAnalyze_healthy(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "message":
-			out.Values[i] = ec._InstrumentationInstanceAnalyze_message(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentationInstanceAnalyze_message(ctx, field, obj)
 		case "identifyingAttributes":
-			out.Values[i] = ec._InstrumentationInstanceAnalyze_identifyingAttributes(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentationInstanceAnalyze_identifyingAttributes(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -19796,9 +19796,9 @@ func (ec *executionContext) _InstrumentationOption(ctx context.Context, sel ast.
 	return out
 }
 
-var instrumentationRuleImplementors = []string{"InstrumentationRule"}
+var instrumentationRuleImplementors = []string{"KarmaInstrumentationRule"}
 
-func (ec *executionContext) _InstrumentationRule(ctx context.Context, sel ast.SelectionSet, obj *model.InstrumentationRule) graphql.Marshaler {
+func (ec *executionContext) _KarmaInstrumentationRule(ctx context.Context, sel ast.SelectionSet, obj *model.KarmaInstrumentationRule) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, instrumentationRuleImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -19806,24 +19806,24 @@ func (ec *executionContext) _InstrumentationRule(ctx context.Context, sel ast.Se
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("InstrumentationRule")
+			out.Values[i] = graphql.MarshalString("KarmaInstrumentationRule")
 		case "ruleId":
-			out.Values[i] = ec._InstrumentationRule_ruleId(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentationRule_ruleId(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "ruleName":
-			out.Values[i] = ec._InstrumentationRule_ruleName(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentationRule_ruleName(ctx, field, obj)
 		case "notes":
-			out.Values[i] = ec._InstrumentationRule_notes(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentationRule_notes(ctx, field, obj)
 		case "disabled":
-			out.Values[i] = ec._InstrumentationRule_disabled(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentationRule_disabled(ctx, field, obj)
 		case "workloads":
-			out.Values[i] = ec._InstrumentationRule_workloads(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentationRule_workloads(ctx, field, obj)
 		case "instrumentationLibraries":
-			out.Values[i] = ec._InstrumentationRule_instrumentationLibraries(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentationRule_instrumentationLibraries(ctx, field, obj)
 		case "payloadCollection":
-			out.Values[i] = ec._InstrumentationRule_payloadCollection(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentationRule_payloadCollection(ctx, field, obj)
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -19847,9 +19847,9 @@ func (ec *executionContext) _InstrumentationRule(ctx context.Context, sel ast.Se
 	return out
 }
 
-var instrumentedApplicationAnalyzeImplementors = []string{"InstrumentedApplicationAnalyze"}
+var instrumentedApplicationAnalyzeImplementors = []string{"KarmaInstrumentedApplicationAnalyze"}
 
-func (ec *executionContext) _InstrumentedApplicationAnalyze(ctx context.Context, sel ast.SelectionSet, obj *model.InstrumentedApplicationAnalyze) graphql.Marshaler {
+func (ec *executionContext) _KarmaInstrumentedApplicationAnalyze(ctx context.Context, sel ast.SelectionSet, obj *model.KarmaInstrumentedApplicationAnalyze) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, instrumentedApplicationAnalyzeImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -19857,16 +19857,16 @@ func (ec *executionContext) _InstrumentedApplicationAnalyze(ctx context.Context,
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("InstrumentedApplicationAnalyze")
+			out.Values[i] = graphql.MarshalString("KarmaInstrumentedApplicationAnalyze")
 		case "created":
-			out.Values[i] = ec._InstrumentedApplicationAnalyze_created(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentedApplicationAnalyze_created(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
 		case "createTime":
-			out.Values[i] = ec._InstrumentedApplicationAnalyze_createTime(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentedApplicationAnalyze_createTime(ctx, field, obj)
 		case "containers":
-			out.Values[i] = ec._InstrumentedApplicationAnalyze_containers(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentedApplicationAnalyze_containers(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -19893,9 +19893,9 @@ func (ec *executionContext) _InstrumentedApplicationAnalyze(ctx context.Context,
 	return out
 }
 
-var instrumentedApplicationDetailsImplementors = []string{"InstrumentedApplicationDetails"}
+var instrumentedApplicationDetailsImplementors = []string{"KarmaInstrumentedApplicationDetails"}
 
-func (ec *executionContext) _InstrumentedApplicationDetails(ctx context.Context, sel ast.SelectionSet, obj *model.InstrumentedApplicationDetails) graphql.Marshaler {
+func (ec *executionContext) _KarmaInstrumentedApplicationDetails(ctx context.Context, sel ast.SelectionSet, obj *model.KarmaInstrumentedApplicationDetails) graphql.Marshaler {
 	fields := graphql.CollectFields(ec.OperationContext, sel, instrumentedApplicationDetailsImplementors)
 
 	out := graphql.NewFieldSet(fields)
@@ -19903,13 +19903,13 @@ func (ec *executionContext) _InstrumentedApplicationDetails(ctx context.Context,
 	for i, field := range fields {
 		switch field.Name {
 		case "__typename":
-			out.Values[i] = graphql.MarshalString("InstrumentedApplicationDetails")
+			out.Values[i] = graphql.MarshalString("KarmaInstrumentedApplicationDetails")
 		case "containers":
-			out.Values[i] = ec._InstrumentedApplicationDetails_containers(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentedApplicationDetails_containers(ctx, field, obj)
 		case "conditions":
-			out.Values[i] = ec._InstrumentedApplicationDetails_conditions(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentedApplicationDetails_conditions(ctx, field, obj)
 		case "instrumentationOptions":
-			out.Values[i] = ec._InstrumentedApplicationDetails_instrumentationOptions(ctx, field, obj)
+			out.Values[i] = ec._KarmaInstrumentedApplicationDetails_instrumentationOptions(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
@@ -20270,23 +20270,23 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "createInstrumentationRule":
+		case "createKarmaInstrumentationRule":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_createInstrumentationRule(ctx, field)
+				return ec._Mutation_createKarmaInstrumentationRule(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "updateInstrumentationRule":
+		case "updateKarmaInstrumentationRule":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_updateInstrumentationRule(ctx, field)
+				return ec._Mutation_updateKarmaInstrumentationRule(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "deleteInstrumentationRule":
+		case "deleteKarmaInstrumentationRule":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_deleteInstrumentationRule(ctx, field)
+				return ec._Mutation_deleteKarmaInstrumentationRule(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -22520,7 +22520,7 @@ func (ec *executionContext) marshalNInstrumentationDeviceAnalyze2ᚖgithubᚗcom
 	return ec._InstrumentationDeviceAnalyze(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNInstrumentationInstanceAnalyze2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationInstanceAnalyzeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.InstrumentationInstanceAnalyze) graphql.Marshaler {
+func (ec *executionContext) marshalNKarmaInstrumentationInstanceAnalyze2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationInstanceAnalyzeᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.KarmaInstrumentationInstanceAnalyze) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -22544,7 +22544,7 @@ func (ec *executionContext) marshalNInstrumentationInstanceAnalyze2ᚕᚖgithub�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNInstrumentationInstanceAnalyze2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationInstanceAnalyze(ctx, sel, v[i])
+			ret[i] = ec.marshalNKarmaInstrumentationInstanceAnalyze2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationInstanceAnalyze(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -22564,14 +22564,14 @@ func (ec *executionContext) marshalNInstrumentationInstanceAnalyze2ᚕᚖgithub�
 	return ret
 }
 
-func (ec *executionContext) marshalNInstrumentationInstanceAnalyze2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationInstanceAnalyze(ctx context.Context, sel ast.SelectionSet, v *model.InstrumentationInstanceAnalyze) graphql.Marshaler {
+func (ec *executionContext) marshalNKarmaInstrumentationInstanceAnalyze2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationInstanceAnalyze(ctx context.Context, sel ast.SelectionSet, v *model.KarmaInstrumentationInstanceAnalyze) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._InstrumentationInstanceAnalyze(ctx, sel, v)
+	return ec._KarmaInstrumentationInstanceAnalyze(ctx, sel, v)
 }
 
 func (ec *executionContext) marshalNInstrumentationLabelsAnalyze2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationLabelsAnalyze(ctx context.Context, sel ast.SelectionSet, v *model.InstrumentationLabelsAnalyze) graphql.Marshaler {
@@ -22707,11 +22707,11 @@ func (ec *executionContext) marshalNInstrumentationOption2ᚖgithubᚗcomᚋodig
 	return ec._InstrumentationOption(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNInstrumentationRule2githubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationRule(ctx context.Context, sel ast.SelectionSet, v model.InstrumentationRule) graphql.Marshaler {
-	return ec._InstrumentationRule(ctx, sel, &v)
+func (ec *executionContext) marshalNKarmaInstrumentationRule2githubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationRule(ctx context.Context, sel ast.SelectionSet, v model.KarmaInstrumentationRule) graphql.Marshaler {
+	return ec._KarmaInstrumentationRule(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNInstrumentationRule2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationRuleᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.InstrumentationRule) graphql.Marshaler {
+func (ec *executionContext) marshalNKarmaInstrumentationRule2ᚕᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationRuleᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.KarmaInstrumentationRule) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -22735,7 +22735,7 @@ func (ec *executionContext) marshalNInstrumentationRule2ᚕᚖgithubᚗcomᚋodi
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNInstrumentationRule2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationRule(ctx, sel, v[i])
+			ret[i] = ec.marshalNKarmaInstrumentationRule2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationRule(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -22755,29 +22755,29 @@ func (ec *executionContext) marshalNInstrumentationRule2ᚕᚖgithubᚗcomᚋodi
 	return ret
 }
 
-func (ec *executionContext) marshalNInstrumentationRule2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationRule(ctx context.Context, sel ast.SelectionSet, v *model.InstrumentationRule) graphql.Marshaler {
+func (ec *executionContext) marshalNKarmaInstrumentationRule2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationRule(ctx context.Context, sel ast.SelectionSet, v *model.KarmaInstrumentationRule) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._InstrumentationRule(ctx, sel, v)
+	return ec._KarmaInstrumentationRule(ctx, sel, v)
 }
 
-func (ec *executionContext) unmarshalNInstrumentationRuleInput2githubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentationRuleInput(ctx context.Context, v interface{}) (model.InstrumentationRuleInput, error) {
-	res, err := ec.unmarshalInputInstrumentationRuleInput(ctx, v)
+func (ec *executionContext) unmarshalNKarmaInstrumentationRuleInput2githubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentationRuleInput(ctx context.Context, v interface{}) (model.KarmaInstrumentationRuleInput, error) {
+	res, err := ec.unmarshalInputKarmaInstrumentationRuleInput(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNInstrumentedApplicationAnalyze2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentedApplicationAnalyze(ctx context.Context, sel ast.SelectionSet, v *model.InstrumentedApplicationAnalyze) graphql.Marshaler {
+func (ec *executionContext) marshalNKarmaInstrumentedApplicationAnalyze2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentedApplicationAnalyze(ctx context.Context, sel ast.SelectionSet, v *model.KarmaInstrumentedApplicationAnalyze) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
 		}
 		return graphql.Null
 	}
-	return ec._InstrumentedApplicationAnalyze(ctx, sel, v)
+	return ec._KarmaInstrumentedApplicationAnalyze(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
@@ -23845,11 +23845,11 @@ func (ec *executionContext) unmarshalOInstrumentationLibraryGlobalIdInput2ᚕᚖ
 	return res, nil
 }
 
-func (ec *executionContext) marshalOInstrumentedApplicationDetails2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐInstrumentedApplicationDetails(ctx context.Context, sel ast.SelectionSet, v *model.InstrumentedApplicationDetails) graphql.Marshaler {
+func (ec *executionContext) marshalOKarmaInstrumentedApplicationDetails2ᚖgithubᚗcomᚋodigosᚑioᚋodigosᚋfrontendᚋgraphᚋmodelᚐKarmaInstrumentedApplicationDetails(ctx context.Context, sel ast.SelectionSet, v *model.KarmaInstrumentedApplicationDetails) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
-	return ec._InstrumentedApplicationDetails(ctx, sel, v)
+	return ec._KarmaInstrumentedApplicationDetails(ctx, sel, v)
 }
 
 func (ec *executionContext) unmarshalOInt2ᚖint(ctx context.Context, v interface{}) (*int, error) {

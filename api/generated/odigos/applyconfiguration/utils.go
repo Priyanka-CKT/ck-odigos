@@ -30,13 +30,17 @@ import (
 // apply configuration type exists for the given GroupVersionKind.
 func ForKind(kind schema.GroupVersionKind) interface{} {
 	switch kind {
-	// Group=odigos.io, Version=v1alpha1
+	// Group=codekarma.tech, Version=v1alpha1
 	case v1alpha1.SchemeGroupVersion.WithKind("Attribute"):
 		return &odigosv1alpha1.AttributeApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("AttributeCondition"):
 		return &odigosv1alpha1.AttributeConditionApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("AttributesAndSamplerRule"):
 		return &odigosv1alpha1.AttributesAndSamplerRuleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("CodekarmaConfiguration"):
+		return &odigosv1alpha1.CodekarmaConfigurationApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("CodekarmaConfigurationSpec"):
+		return &odigosv1alpha1.CodekarmaConfigurationSpecApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("CollectorGatewayConfiguration"):
 		return &odigosv1alpha1.CollectorGatewayConfigurationApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("CollectorsGroup"):
@@ -59,18 +63,6 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &odigosv1alpha1.EnvVarApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("HeadSamplingConfig"):
 		return &odigosv1alpha1.HeadSamplingConfigApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentationConfig"):
-		return &odigosv1alpha1.InstrumentationConfigApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentationConfigSpec"):
-		return &odigosv1alpha1.InstrumentationConfigSpecApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentationConfigStatus"):
-		return &odigosv1alpha1.InstrumentationConfigStatusApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentationInstance"):
-		return &odigosv1alpha1.InstrumentationInstanceApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentationInstanceSpec"):
-		return &odigosv1alpha1.InstrumentationInstanceSpecApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentationInstanceStatus"):
-		return &odigosv1alpha1.InstrumentationInstanceStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentationLibrary"):
 		return &odigosv1alpha1.InstrumentationLibraryApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentationLibraryConfig"):
@@ -85,22 +77,30 @@ func ForKind(kind schema.GroupVersionKind) interface{} {
 		return &odigosv1alpha1.InstrumentationLibraryOptionsApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentationLibraryStatus"):
 		return &odigosv1alpha1.InstrumentationLibraryStatusApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentationRule"):
-		return &odigosv1alpha1.InstrumentationRuleApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentationRuleSpec"):
-		return &odigosv1alpha1.InstrumentationRuleSpecApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentationRuleStatus"):
-		return &odigosv1alpha1.InstrumentationRuleStatusApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentedApplication"):
-		return &odigosv1alpha1.InstrumentedApplicationApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentedApplicationSpec"):
-		return &odigosv1alpha1.InstrumentedApplicationSpecApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("InstrumentedApplicationStatus"):
-		return &odigosv1alpha1.InstrumentedApplicationStatusApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("OdigosConfiguration"):
-		return &odigosv1alpha1.OdigosConfigurationApplyConfiguration{}
-	case v1alpha1.SchemeGroupVersion.WithKind("OdigosConfigurationSpec"):
-		return &odigosv1alpha1.OdigosConfigurationSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KarmaInstrumentationConfig"):
+		return &odigosv1alpha1.KarmaInstrumentationConfigApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KarmaInstrumentationConfigSpec"):
+		return &odigosv1alpha1.KarmaInstrumentationConfigSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KarmaInstrumentationConfigStatus"):
+		return &odigosv1alpha1.KarmaInstrumentationConfigStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KarmaInstrumentationInstance"):
+		return &odigosv1alpha1.KarmaInstrumentationInstanceApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KarmaInstrumentationInstanceSpec"):
+		return &odigosv1alpha1.KarmaInstrumentationInstanceSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KarmaInstrumentationInstanceStatus"):
+		return &odigosv1alpha1.KarmaInstrumentationInstanceStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KarmaInstrumentationRule"):
+		return &odigosv1alpha1.KarmaInstrumentationRuleApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KarmaInstrumentationRuleSpec"):
+		return &odigosv1alpha1.KarmaInstrumentationRuleSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KarmaInstrumentationRuleStatus"):
+		return &odigosv1alpha1.KarmaInstrumentationRuleStatusApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KarmaInstrumentedApplication"):
+		return &odigosv1alpha1.KarmaInstrumentedApplicationApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KarmaInstrumentedApplicationSpec"):
+		return &odigosv1alpha1.KarmaInstrumentedApplicationSpecApplyConfiguration{}
+	case v1alpha1.SchemeGroupVersion.WithKind("KarmaInstrumentedApplicationStatus"):
+		return &odigosv1alpha1.KarmaInstrumentedApplicationStatusApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("OptionByContainer"):
 		return &odigosv1alpha1.OptionByContainerApplyConfiguration{}
 	case v1alpha1.SchemeGroupVersion.WithKind("OtherAgent"):

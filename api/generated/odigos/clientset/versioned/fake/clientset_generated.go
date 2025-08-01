@@ -20,8 +20,8 @@ package fake
 import (
 	applyconfiguration "github.com/odigos-io/odigos/api/generated/odigos/applyconfiguration"
 	clientset "github.com/odigos-io/odigos/api/generated/odigos/clientset/versioned"
-	odigosv1alpha1 "github.com/odigos-io/odigos/api/generated/odigos/clientset/versioned/typed/odigos/v1alpha1"
-	fakeodigosv1alpha1 "github.com/odigos-io/odigos/api/generated/odigos/clientset/versioned/typed/odigos/v1alpha1/fake"
+	codekarmav1alpha1 "github.com/odigos-io/odigos/api/generated/odigos/clientset/versioned/typed/odigos/v1alpha1"
+	fakecodekarmav1alpha1 "github.com/odigos-io/odigos/api/generated/odigos/clientset/versioned/typed/odigos/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -115,7 +115,7 @@ var (
 	_ testing.FakeClient  = &Clientset{}
 )
 
-// OdigosV1alpha1 retrieves the OdigosV1alpha1Client
-func (c *Clientset) OdigosV1alpha1() odigosv1alpha1.OdigosV1alpha1Interface {
-	return &fakeodigosv1alpha1.FakeOdigosV1alpha1{Fake: &c.Fake}
+// CodekarmaV1alpha1 retrieves the CodekarmaV1alpha1Client
+func (c *Clientset) CodekarmaV1alpha1() codekarmav1alpha1.CodekarmaV1alpha1Interface {
+	return &fakecodekarmav1alpha1.FakeCodekarmaV1alpha1{Fake: &c.Fake}
 }

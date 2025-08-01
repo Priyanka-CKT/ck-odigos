@@ -15,7 +15,7 @@ func newClusterCollectorGroup(namespace string, resourcesSettings *odigosv1.Coll
 	return &odigosv1.CollectorsGroup{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "CollectorsGroup",
-			APIVersion: "odigos.io/v1alpha1",
+			APIVersion: "codekarma.tech/v1alpha1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      consts.OdigosClusterCollectorCollectorGroupName,
@@ -39,12 +39,12 @@ func sync(ctx context.Context, c client.Client) error {
 		return err
 	}
 
-	odigosConfig, err := utils.GetCurrentOdigosConfig(ctx, c)
+	codekarmaConfig, err := utils.GetCurrentCodekarmaConfig(ctx, c)
 	if err != nil {
 		return err
 	}
 
-	resourceSettings := getGatewayResourceSettings(&odigosConfig)
+	resourceSettings := getGatewayResourceSettings(&codekarmaConfig)
 
 	if len(dests.Items) > 0 {
 		err := utils.ApplyCollectorGroup(ctx, c, newClusterCollectorGroup(namespace, resourceSettings))

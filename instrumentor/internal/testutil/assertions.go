@@ -18,19 +18,19 @@ const (
 	interval = time.Millisecond * 250
 )
 
-func AssertInstrumentedApplicationDeleted(ctx context.Context, k8sClient client.Client, instrumentedApplication *odigosv1.InstrumentedApplication) {
+func AssertKarmaInstrumentedApplicationDeleted(ctx context.Context, k8sClient client.Client, instrumentedApplication *odigosv1.KarmaInstrumentedApplication) {
 	key := client.ObjectKey{Namespace: instrumentedApplication.GetNamespace(), Name: instrumentedApplication.GetName()}
 	Eventually(func() bool {
-		var runtimeDetails odigosv1.InstrumentedApplication
+		var runtimeDetails odigosv1.KarmaInstrumentedApplication
 		err := k8sClient.Get(ctx, key, &runtimeDetails)
 		return apierrors.IsNotFound(err)
 	}, timeout, interval).Should(BeTrue())
 }
 
-func AssertInstrumentedApplicationRetained(ctx context.Context, k8sClient client.Client, instrumentedApplication *odigosv1.InstrumentedApplication) {
+func AssertKarmaInstrumentedApplicationRetained(ctx context.Context, k8sClient client.Client, instrumentedApplication *odigosv1.KarmaInstrumentedApplication) {
 	key := client.ObjectKey{Namespace: instrumentedApplication.GetNamespace(), Name: instrumentedApplication.GetName()}
 	Consistently(func() bool {
-		var runtimeDetails odigosv1.InstrumentedApplication
+		var runtimeDetails odigosv1.KarmaInstrumentedApplication
 		err := k8sClient.Get(ctx, key, &runtimeDetails)
 		return err == nil
 	}, duration, interval).Should(BeTrue())

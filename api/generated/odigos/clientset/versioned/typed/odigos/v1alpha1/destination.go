@@ -59,7 +59,7 @@ type destinations struct {
 }
 
 // newDestinations returns a Destinations
-func newDestinations(c *OdigosV1alpha1Client, namespace string) *destinations {
+func newDestinations(c *CodekarmaV1alpha1Client, namespace string) *destinations {
 	return &destinations{
 		gentype.NewClientWithListAndApply[*v1alpha1.Destination, *v1alpha1.DestinationList, *odigosv1alpha1.DestinationApplyConfiguration](
 			"destinations",

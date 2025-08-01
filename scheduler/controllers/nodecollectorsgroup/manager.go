@@ -11,7 +11,7 @@ import (
 func SetupWithManager(mgr ctrl.Manager) error {
 
 	err := ctrl.NewControllerManagedBy(mgr).
-		For(&odigosv1.InstrumentationConfig{}).
+		For(&odigosv1.KarmaInstrumentationConfig{}).
 		Named("nodecollectorgroup-instrumentationconfig").
 		WithEventFilter(&odigospredicates.ExistencePredicate{}).
 		Complete(&instrumentationConfigController{

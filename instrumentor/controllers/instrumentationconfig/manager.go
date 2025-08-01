@@ -8,12 +8,12 @@ import (
 )
 
 func SetupWithManager(mgr ctrl.Manager) error {
-	// Watch InstrumentationRule
+	// Watch KarmaInstrumentationRule
 	err := builder.
 		ControllerManagedBy(mgr).
 		Named("instrumentor-instrumentationconfig-instrumentationrule").
-		For(&odigosv1alpha1.InstrumentationRule{}).
-		Complete(&InstrumentationRuleReconciler{
+		For(&odigosv1alpha1.KarmaInstrumentationRule{}).
+		Complete(&KarmaInstrumentationRuleReconciler{
 			Client: mgr.GetClient(),
 			Scheme: mgr.GetScheme(),
 		})
@@ -21,12 +21,12 @@ func SetupWithManager(mgr ctrl.Manager) error {
 		return err
 	}
 
-	// Watch InstrumentedApplication
+	// Watch KarmaInstrumentedApplication
 	err = builder.
 		ControllerManagedBy(mgr).
 		Named("instrumentor-instrumentationconfig-instrumentedapplication").
-		For(&odigosv1alpha1.InstrumentedApplication{}).
-		Complete(&InstrumentedApplicationReconciler{
+		For(&odigosv1alpha1.KarmaInstrumentedApplication{}).
+		Complete(&KarmaInstrumentedApplicationReconciler{
 			Client: mgr.GetClient(),
 			Scheme: mgr.GetScheme(),
 		})

@@ -72,16 +72,16 @@ func getWorkloadObject(ctx context.Context, k8sClient client.Client, req ctrl.Re
 
 func requestOdigletsToCalculateRuntimeDetails(ctx context.Context, k8sClient client.Client, instConfigName string, namespace string, obj client.Object, scheme *runtime.Scheme) error {
 	logger := log.FromContext(ctx)
-	instConfig := &odigosv1.InstrumentationConfig{
+	instConfig := &odigosv1.KarmaInstrumentationConfig{
 		TypeMeta: metav1.TypeMeta{
-			APIVersion: "odigos.io/v1alpha1",
-			Kind:       "InstrumentationConfig",
+			APIVersion: "codekarma.tech/v1alpha1",
+			Kind:       "KarmaInstrumentationConfig",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      instConfigName,
 			Namespace: namespace,
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{
 			RuntimeDetailsInvalidated: true,
 		},
 	}

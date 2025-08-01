@@ -25,59 +25,59 @@ import (
 	rest "k8s.io/client-go/rest"
 )
 
-type OdigosV1alpha1Interface interface {
+type CodekarmaV1alpha1Interface interface {
 	RESTClient() rest.Interface
+	CodekarmaConfigurationsGetter
 	CollectorsGroupsGetter
 	DestinationsGetter
-	InstrumentationConfigsGetter
-	InstrumentationInstancesGetter
-	InstrumentationRulesGetter
-	InstrumentedApplicationsGetter
-	OdigosConfigurationsGetter
+	KarmaInstrumentationConfigsGetter
+	KarmaInstrumentationInstancesGetter
+	KarmaInstrumentationRulesGetter
+	KarmaInstrumentedApplicationsGetter
 	ProcessorsGetter
 }
 
-// OdigosV1alpha1Client is used to interact with features provided by the odigos.io group.
-type OdigosV1alpha1Client struct {
+// CodekarmaV1alpha1Client is used to interact with features provided by the codekarma.tech group.
+type CodekarmaV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *OdigosV1alpha1Client) CollectorsGroups(namespace string) CollectorsGroupInterface {
+func (c *CodekarmaV1alpha1Client) CodekarmaConfigurations(namespace string) CodekarmaConfigurationInterface {
+	return newCodekarmaConfigurations(c, namespace)
+}
+
+func (c *CodekarmaV1alpha1Client) CollectorsGroups(namespace string) CollectorsGroupInterface {
 	return newCollectorsGroups(c, namespace)
 }
 
-func (c *OdigosV1alpha1Client) Destinations(namespace string) DestinationInterface {
+func (c *CodekarmaV1alpha1Client) Destinations(namespace string) DestinationInterface {
 	return newDestinations(c, namespace)
 }
 
-func (c *OdigosV1alpha1Client) InstrumentationConfigs(namespace string) InstrumentationConfigInterface {
-	return newInstrumentationConfigs(c, namespace)
+func (c *CodekarmaV1alpha1Client) KarmaInstrumentationConfigs(namespace string) KarmaInstrumentationConfigInterface {
+	return newKarmaInstrumentationConfigs(c, namespace)
 }
 
-func (c *OdigosV1alpha1Client) InstrumentationInstances(namespace string) InstrumentationInstanceInterface {
-	return newInstrumentationInstances(c, namespace)
+func (c *CodekarmaV1alpha1Client) KarmaInstrumentationInstances(namespace string) KarmaInstrumentationInstanceInterface {
+	return newKarmaInstrumentationInstances(c, namespace)
 }
 
-func (c *OdigosV1alpha1Client) InstrumentationRules(namespace string) InstrumentationRuleInterface {
-	return newInstrumentationRules(c, namespace)
+func (c *CodekarmaV1alpha1Client) KarmaInstrumentationRules(namespace string) KarmaInstrumentationRuleInterface {
+	return newKarmaInstrumentationRules(c, namespace)
 }
 
-func (c *OdigosV1alpha1Client) InstrumentedApplications(namespace string) InstrumentedApplicationInterface {
-	return newInstrumentedApplications(c, namespace)
+func (c *CodekarmaV1alpha1Client) KarmaInstrumentedApplications(namespace string) KarmaInstrumentedApplicationInterface {
+	return newKarmaInstrumentedApplications(c, namespace)
 }
 
-func (c *OdigosV1alpha1Client) OdigosConfigurations(namespace string) OdigosConfigurationInterface {
-	return newOdigosConfigurations(c, namespace)
-}
-
-func (c *OdigosV1alpha1Client) Processors(namespace string) ProcessorInterface {
+func (c *CodekarmaV1alpha1Client) Processors(namespace string) ProcessorInterface {
 	return newProcessors(c, namespace)
 }
 
-// NewForConfig creates a new OdigosV1alpha1Client for the given config.
+// NewForConfig creates a new CodekarmaV1alpha1Client for the given config.
 // NewForConfig is equivalent to NewForConfigAndClient(c, httpClient),
 // where httpClient was generated with rest.HTTPClientFor(c).
-func NewForConfig(c *rest.Config) (*OdigosV1alpha1Client, error) {
+func NewForConfig(c *rest.Config) (*CodekarmaV1alpha1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -89,9 +89,9 @@ func NewForConfig(c *rest.Config) (*OdigosV1alpha1Client, error) {
 	return NewForConfigAndClient(&config, httpClient)
 }
 
-// NewForConfigAndClient creates a new OdigosV1alpha1Client for the given config and http client.
+// NewForConfigAndClient creates a new CodekarmaV1alpha1Client for the given config and http client.
 // Note the http client provided takes precedence over the configured transport values.
-func NewForConfigAndClient(c *rest.Config, h *http.Client) (*OdigosV1alpha1Client, error) {
+func NewForConfigAndClient(c *rest.Config, h *http.Client) (*CodekarmaV1alpha1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -100,12 +100,12 @@ func NewForConfigAndClient(c *rest.Config, h *http.Client) (*OdigosV1alpha1Clien
 	if err != nil {
 		return nil, err
 	}
-	return &OdigosV1alpha1Client{client}, nil
+	return &CodekarmaV1alpha1Client{client}, nil
 }
 
-// NewForConfigOrDie creates a new OdigosV1alpha1Client for the given config and
+// NewForConfigOrDie creates a new CodekarmaV1alpha1Client for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *OdigosV1alpha1Client {
+func NewForConfigOrDie(c *rest.Config) *CodekarmaV1alpha1Client {
 	client, err := NewForConfig(c)
 	if err != nil {
 		panic(err)
@@ -113,9 +113,9 @@ func NewForConfigOrDie(c *rest.Config) *OdigosV1alpha1Client {
 	return client
 }
 
-// New creates a new OdigosV1alpha1Client for the given RESTClient.
-func New(c rest.Interface) *OdigosV1alpha1Client {
-	return &OdigosV1alpha1Client{c}
+// New creates a new CodekarmaV1alpha1Client for the given RESTClient.
+func New(c rest.Interface) *CodekarmaV1alpha1Client {
+	return &CodekarmaV1alpha1Client{c}
 }
 
 func setConfigDefaults(config *rest.Config) error {
@@ -133,7 +133,7 @@ func setConfigDefaults(config *rest.Config) error {
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *OdigosV1alpha1Client) RESTClient() rest.Interface {
+func (c *CodekarmaV1alpha1Client) RESTClient() rest.Interface {
 	if c == nil {
 		return nil
 	}

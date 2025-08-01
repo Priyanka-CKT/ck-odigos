@@ -41,8 +41,8 @@ type DestinationStatus struct {
 //+genclient
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:metadata:labels=odigos.io/config=1
-//+kubebuilder:metadata:labels=odigos.io/system-object=true
+//+kubebuilder:metadata:labels=codekarma.tech/config=1
+//+kubebuilder:metadata:labels=codekarma.tech/system-object=true
 
 // Destination is the Schema for the destinations API
 type Destination struct {

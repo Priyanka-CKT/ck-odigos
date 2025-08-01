@@ -51,23 +51,23 @@ func (f *genericInformer) Lister() cache.GenericLister {
 // TODO extend this to unknown resources with a client pool
 func (f *sharedInformerFactory) ForResource(resource schema.GroupVersionResource) (GenericInformer, error) {
 	switch resource {
-	// Group=odigos.io, Version=v1alpha1
+	// Group=codekarma.tech, Version=v1alpha1
+	case v1alpha1.SchemeGroupVersion.WithResource("codekarmaconfigurations"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Codekarma().V1alpha1().CodekarmaConfigurations().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("collectorsgroups"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Odigos().V1alpha1().CollectorsGroups().Informer()}, nil
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Codekarma().V1alpha1().CollectorsGroups().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("destinations"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Odigos().V1alpha1().Destinations().Informer()}, nil
-	case v1alpha1.SchemeGroupVersion.WithResource("instrumentationconfigs"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Odigos().V1alpha1().InstrumentationConfigs().Informer()}, nil
-	case v1alpha1.SchemeGroupVersion.WithResource("instrumentationinstances"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Odigos().V1alpha1().InstrumentationInstances().Informer()}, nil
-	case v1alpha1.SchemeGroupVersion.WithResource("instrumentationrules"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Odigos().V1alpha1().InstrumentationRules().Informer()}, nil
-	case v1alpha1.SchemeGroupVersion.WithResource("instrumentedapplications"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Odigos().V1alpha1().InstrumentedApplications().Informer()}, nil
-	case v1alpha1.SchemeGroupVersion.WithResource("odigosconfigurations"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Odigos().V1alpha1().OdigosConfigurations().Informer()}, nil
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Codekarma().V1alpha1().Destinations().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("karmainstrumentationconfigs"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Codekarma().V1alpha1().KarmaInstrumentationConfigs().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("karmainstrumentationinstances"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Codekarma().V1alpha1().KarmaInstrumentationInstances().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("karmainstrumentationrules"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Codekarma().V1alpha1().KarmaInstrumentationRules().Informer()}, nil
+	case v1alpha1.SchemeGroupVersion.WithResource("karmainstrumentedapplications"):
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Codekarma().V1alpha1().KarmaInstrumentedApplications().Informer()}, nil
 	case v1alpha1.SchemeGroupVersion.WithResource("processors"):
-		return &genericInformer{resource: resource.GroupResource(), informer: f.Odigos().V1alpha1().Processors().Informer()}, nil
+		return &genericInformer{resource: resource.GroupResource(), informer: f.Codekarma().V1alpha1().Processors().Informer()}, nil
 
 	}
 

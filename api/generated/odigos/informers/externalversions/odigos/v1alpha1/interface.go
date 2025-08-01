@@ -23,20 +23,20 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
+	// CodekarmaConfigurations returns a CodekarmaConfigurationInformer.
+	CodekarmaConfigurations() CodekarmaConfigurationInformer
 	// CollectorsGroups returns a CollectorsGroupInformer.
 	CollectorsGroups() CollectorsGroupInformer
 	// Destinations returns a DestinationInformer.
 	Destinations() DestinationInformer
-	// InstrumentationConfigs returns a InstrumentationConfigInformer.
-	InstrumentationConfigs() InstrumentationConfigInformer
-	// InstrumentationInstances returns a InstrumentationInstanceInformer.
-	InstrumentationInstances() InstrumentationInstanceInformer
-	// InstrumentationRules returns a InstrumentationRuleInformer.
-	InstrumentationRules() InstrumentationRuleInformer
-	// InstrumentedApplications returns a InstrumentedApplicationInformer.
-	InstrumentedApplications() InstrumentedApplicationInformer
-	// OdigosConfigurations returns a OdigosConfigurationInformer.
-	OdigosConfigurations() OdigosConfigurationInformer
+	// KarmaInstrumentationConfigs returns a KarmaInstrumentationConfigInformer.
+	KarmaInstrumentationConfigs() KarmaInstrumentationConfigInformer
+	// KarmaInstrumentationInstances returns a KarmaInstrumentationInstanceInformer.
+	KarmaInstrumentationInstances() KarmaInstrumentationInstanceInformer
+	// KarmaInstrumentationRules returns a KarmaInstrumentationRuleInformer.
+	KarmaInstrumentationRules() KarmaInstrumentationRuleInformer
+	// KarmaInstrumentedApplications returns a KarmaInstrumentedApplicationInformer.
+	KarmaInstrumentedApplications() KarmaInstrumentedApplicationInformer
 	// Processors returns a ProcessorInformer.
 	Processors() ProcessorInformer
 }
@@ -52,6 +52,11 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
+// CodekarmaConfigurations returns a CodekarmaConfigurationInformer.
+func (v *version) CodekarmaConfigurations() CodekarmaConfigurationInformer {
+	return &codekarmaConfigurationInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+}
+
 // CollectorsGroups returns a CollectorsGroupInformer.
 func (v *version) CollectorsGroups() CollectorsGroupInformer {
 	return &collectorsGroupInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
@@ -62,29 +67,24 @@ func (v *version) Destinations() DestinationInformer {
 	return &destinationInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
-// InstrumentationConfigs returns a InstrumentationConfigInformer.
-func (v *version) InstrumentationConfigs() InstrumentationConfigInformer {
-	return &instrumentationConfigInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// KarmaInstrumentationConfigs returns a KarmaInstrumentationConfigInformer.
+func (v *version) KarmaInstrumentationConfigs() KarmaInstrumentationConfigInformer {
+	return &karmaInstrumentationConfigInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
-// InstrumentationInstances returns a InstrumentationInstanceInformer.
-func (v *version) InstrumentationInstances() InstrumentationInstanceInformer {
-	return &instrumentationInstanceInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// KarmaInstrumentationInstances returns a KarmaInstrumentationInstanceInformer.
+func (v *version) KarmaInstrumentationInstances() KarmaInstrumentationInstanceInformer {
+	return &karmaInstrumentationInstanceInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
-// InstrumentationRules returns a InstrumentationRuleInformer.
-func (v *version) InstrumentationRules() InstrumentationRuleInformer {
-	return &instrumentationRuleInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// KarmaInstrumentationRules returns a KarmaInstrumentationRuleInformer.
+func (v *version) KarmaInstrumentationRules() KarmaInstrumentationRuleInformer {
+	return &karmaInstrumentationRuleInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
-// InstrumentedApplications returns a InstrumentedApplicationInformer.
-func (v *version) InstrumentedApplications() InstrumentedApplicationInformer {
-	return &instrumentedApplicationInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
-}
-
-// OdigosConfigurations returns a OdigosConfigurationInformer.
-func (v *version) OdigosConfigurations() OdigosConfigurationInformer {
-	return &odigosConfigurationInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// KarmaInstrumentedApplications returns a KarmaInstrumentedApplicationInformer.
+func (v *version) KarmaInstrumentedApplications() KarmaInstrumentedApplicationInformer {
+	return &karmaInstrumentedApplicationInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }
 
 // Processors returns a ProcessorInformer.

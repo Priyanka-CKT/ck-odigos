@@ -91,7 +91,7 @@ func (p *plugin) Allocate(ctx context.Context, request *v1beta1.AllocateRequest)
 	enabledSignals := make(map[common.ObservabilitySignal]struct{})
 
 	odigosNs := env.GetCurrentNamespace()
-	nodeCollectorGroup, err := p.odigosKubeClient.OdigosV1alpha1().CollectorsGroups(odigosNs).Get(ctx, k8sconsts.OdigosNodeCollectorCollectorGroupName, metav1.GetOptions{})
+	nodeCollectorGroup, err := p.odigosKubeClient.CodekarmaV1alpha1().CollectorsGroups(odigosNs).Get(ctx, k8sconsts.OdigosNodeCollectorCollectorGroupName, metav1.GetOptions{})
 	if err != nil {
 		// we should have collectors group created for odigos device to trigger.
 		// however if we don't, just log and enable all signals by default.

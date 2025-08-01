@@ -11,14 +11,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-type InstrumentationRuleReconciler struct {
+type KarmaInstrumentationRuleReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-func (r *InstrumentationRuleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *KarmaInstrumentationRuleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 
-	var instApps odigosv1.InstrumentedApplicationList
+	var instApps odigosv1.KarmaInstrumentedApplicationList
 	if err := r.List(ctx, &instApps); err != nil {
 		return ctrl.Result{}, err
 	}
@@ -37,7 +37,7 @@ func (r *InstrumentationRuleReconciler) Reconcile(ctx context.Context, req ctrl.
 	}
 
 	logger := log.FromContext(ctx)
-	logger.V(0).Info("InstrumentationRule changed, recalculating instrumentation device for potential changes of otel sdks")
+	logger.V(0).Info("KarmaInstrumentationRule changed, recalculating instrumentation device for potential changes of otel sdks")
 
 	if gotConflict {
 		return ctrl.Result{Requeue: true}, nil

@@ -5,17 +5,17 @@ import (
 )
 
 const (
-	CurrentNamespaceEnvVar       = "CURRENT_NS"
-	DefaultOdigosNamespace       = "codekarma"
-	OdigosConfigurationName      = "odigos-config"
-	OdigosConfigurationFileName  = "config.yaml"
-	OTLPPort                     = 4317
-	OTLPHttpPort                 = 4318
-	PprofOdigosPort              = 6060
-	OdigosInstrumentationLabel   = "codekarma-instrumentation"
-	InstrumentationEnabled       = "enabled"
-	InstrumentationDisabled      = "disabled"
-	OdigosReportedNameAnnotation = "odigos.io/reported-name"
+	CurrentNamespaceEnvVar         = "CURRENT_NS"
+	DefaultOdigosNamespace         = "codekarma"
+	CodekarmaConfigurationName     = "ck-config"
+	CodekarmaConfigurationFileName = "config.yaml"
+	OTLPPort                       = 4317
+	OTLPHttpPort                   = 4318
+	PprofOdigosPort                = 6060
+	OdigosInstrumentationLabel     = "codekarma-instrumentation"
+	InstrumentationEnabled         = "enabled"
+	InstrumentationDisabled        = "disabled"
+	OdigosReportedNameAnnotation   = "codekarma.tech/reported-name"
 
 	// GatewayMaxConnectionAge and GatewayMaxConnectionAgeGrace are the default values for the gateway collector.
 	GatewayMaxConnectionAge      = "15s"
@@ -25,7 +25,7 @@ const (
 	// This is used to restore the original value when an instrumentation is removed
 	// or odigos is uninstalled.
 	// Should only be used for environment variables that are modified by odigos.
-	ManifestEnvOriginalValAnnotation = "odigos.io/manifest-env-original-val"
+	ManifestEnvOriginalValAnnotation = "codekarma.tech/manifest-env-original-val"
 	// Used to label instrumentation instances by the corresponding
 	// instrumented app for better query performance.
 	InstrumentedAppNameLabel = "instrumented-app"

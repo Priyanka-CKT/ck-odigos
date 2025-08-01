@@ -29,27 +29,27 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-type InstrumentedApplicationReconciler struct {
+type KarmaInstrumentedApplicationReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *KarmaInstrumentedApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	var ia odigosv1.InstrumentedApplication
+	var ia odigosv1.KarmaInstrumentedApplication
 	err := r.Client.Get(ctx, req.NamespacedName, &ia)
 	if err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	var ic odigosv1.InstrumentationConfig
+	var ic odigosv1.KarmaInstrumentationConfig
 	err = r.Client.Get(ctx, req.NamespacedName, &ic)
 	if err != nil {
-		// each InstrumentedApplication should have a corresponding InstrumentationConfig
-		// but it might rarely happen that the InstrumentationConfig is deleted before the InstrumentedApplication
+		// each KarmaInstrumentedApplication should have a corresponding KarmaInstrumentationConfig
+		// but it might rarely happen that the KarmaInstrumentationConfig is deleted before the KarmaInstrumentedApplication
 		if apierrors.IsNotFound(err) {
-			logger.V(0).Info("Ignoring InstrumentedApplication without InstrumentationConfig", "runtime object name", ia.Name)
+			logger.V(0).Info("Ignoring KarmaInstrumentedApplication without KarmaInstrumentationConfig", "runtime object name", ia.Name)
 			return ctrl.Result{}, nil
 		}
 		return ctrl.Result{}, err
@@ -66,13 +66,13 @@ func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req c
 		return ctrl.Result{}, err
 	}
 
-	instrumentationRules := &odigosv1.InstrumentationRuleList{}
+	instrumentationRules := &odigosv1.KarmaInstrumentationRuleList{}
 	err = r.Client.List(ctx, instrumentationRules)
 	if client.IgnoreNotFound(err) != nil {
 		return ctrl.Result{}, err
 	}
 
-	err = updateInstrumentationConfigForWorkload(&ic, &ia, instrumentationRules, serviceName)
+	err = updateKarmaInstrumentationConfigForWorkload(&ic, &ia, instrumentationRules, serviceName)
 	if err != nil {
 		return ctrl.Result{}, err
 	}

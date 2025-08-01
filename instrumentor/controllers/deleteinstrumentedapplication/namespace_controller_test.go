@@ -11,7 +11,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-var _ = Describe("DeleteInstrumentedApplication Namespace controller", func() {
+var _ = Describe("DeleteKarmaInstrumentedApplication Namespace controller", func() {
 
 	ctx := context.Background()
 	var namespace *corev1.Namespace
@@ -20,9 +20,9 @@ var _ = Describe("DeleteInstrumentedApplication Namespace controller", func() {
 	var daemonSet *appsv1.DaemonSet
 	var statefulSet *appsv1.StatefulSet
 
-	var instrumentedApplicationDeployment *odigosv1.InstrumentedApplication
-	var instrumentedApplicationDaemonSet *odigosv1.InstrumentedApplication
-	var instrumentedApplicationStatefulSet *odigosv1.InstrumentedApplication
+	var instrumentedApplicationDeployment *odigosv1.KarmaInstrumentedApplication
+	var instrumentedApplicationDaemonSet *odigosv1.KarmaInstrumentedApplication
+	var instrumentedApplicationStatefulSet *odigosv1.KarmaInstrumentedApplication
 
 	When("namespace instrumentation is disabled", func() {
 
@@ -42,11 +42,11 @@ var _ = Describe("DeleteInstrumentedApplication Namespace controller", func() {
 				Expect(k8sClient.Create(ctx, statefulSet)).Should(Succeed())
 
 				// these workloads has instrumentation application because the namespace has instrumentation enabled
-				instrumentedApplicationDeployment = testutil.NewMockInstrumentedApplication(deployment)
+				instrumentedApplicationDeployment = testutil.NewMockKarmaInstrumentedApplication(deployment)
 				Expect(k8sClient.Create(ctx, instrumentedApplicationDeployment)).Should(Succeed())
-				instrumentedApplicationDaemonSet = testutil.NewMockInstrumentedApplication(daemonSet)
+				instrumentedApplicationDaemonSet = testutil.NewMockKarmaInstrumentedApplication(daemonSet)
 				Expect(k8sClient.Create(ctx, instrumentedApplicationDaemonSet)).Should(Succeed())
-				instrumentedApplicationStatefulSet = testutil.NewMockInstrumentedApplication(statefulSet)
+				instrumentedApplicationStatefulSet = testutil.NewMockKarmaInstrumentedApplication(statefulSet)
 				Expect(k8sClient.Create(ctx, instrumentedApplicationStatefulSet)).Should(Succeed())
 			})
 
@@ -55,9 +55,9 @@ var _ = Describe("DeleteInstrumentedApplication Namespace controller", func() {
 				namespace = testutil.SetOdigosInstrumentationDisabled(namespace)
 				Expect(k8sClient.Update(ctx, namespace)).Should(Succeed())
 
-				testutil.AssertInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplicationDeployment)
-				testutil.AssertInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplicationDaemonSet)
-				testutil.AssertInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplicationStatefulSet)
+				testutil.AssertKarmaInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplicationDeployment)
+				testutil.AssertKarmaInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplicationDaemonSet)
+				testutil.AssertKarmaInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplicationStatefulSet)
 			})
 
 			It("should delete reported name annotation", func() {
@@ -82,11 +82,11 @@ var _ = Describe("DeleteInstrumentedApplication Namespace controller", func() {
 				Expect(k8sClient.Create(ctx, statefulSet)).Should(Succeed())
 
 				// these workloads has instrumentation application because the namespace has instrumentation enabled
-				instrumentedApplicationDeployment = testutil.NewMockInstrumentedApplication(deployment)
+				instrumentedApplicationDeployment = testutil.NewMockKarmaInstrumentedApplication(deployment)
 				Expect(k8sClient.Create(ctx, instrumentedApplicationDeployment)).Should(Succeed())
-				instrumentedApplicationDaemonSet = testutil.NewMockInstrumentedApplication(daemonSet)
+				instrumentedApplicationDaemonSet = testutil.NewMockKarmaInstrumentedApplication(daemonSet)
 				Expect(k8sClient.Create(ctx, instrumentedApplicationDaemonSet)).Should(Succeed())
-				instrumentedApplicationStatefulSet = testutil.NewMockInstrumentedApplication(statefulSet)
+				instrumentedApplicationStatefulSet = testutil.NewMockKarmaInstrumentedApplication(statefulSet)
 				Expect(k8sClient.Create(ctx, instrumentedApplicationStatefulSet)).Should(Succeed())
 			})
 
@@ -94,9 +94,9 @@ var _ = Describe("DeleteInstrumentedApplication Namespace controller", func() {
 				namespace = testutil.SetOdigosInstrumentationDisabled(namespace)
 				Expect(k8sClient.Update(ctx, namespace)).Should(Succeed())
 
-				testutil.AssertInstrumentedApplicationRetained(ctx, k8sClient, instrumentedApplicationDeployment)
-				testutil.AssertInstrumentedApplicationRetained(ctx, k8sClient, instrumentedApplicationDaemonSet)
-				testutil.AssertInstrumentedApplicationRetained(ctx, k8sClient, instrumentedApplicationStatefulSet)
+				testutil.AssertKarmaInstrumentedApplicationRetained(ctx, k8sClient, instrumentedApplicationDeployment)
+				testutil.AssertKarmaInstrumentedApplicationRetained(ctx, k8sClient, instrumentedApplicationDaemonSet)
+				testutil.AssertKarmaInstrumentedApplicationRetained(ctx, k8sClient, instrumentedApplicationStatefulSet)
 			})
 
 		})

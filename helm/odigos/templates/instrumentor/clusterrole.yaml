@@ -1,7 +1,7 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  name: odigos-instrumentor
+  name: karmatap
 rules:
   - apiGroups:
       - ""
@@ -54,10 +54,10 @@ rules:
     verbs:
       - get
   - apiGroups:
-      - odigos.io
+      - codekarma.tech
     resources:
       - collectorsgroups
-      - instrumentedapplications
+      - karmainstrumentedapplications
       - destinations
     verbs:
       - create
@@ -68,27 +68,27 @@ rules:
       - update
       - watch
   - apiGroups:
-      - odigos.io
+      - codekarma.tech
     resources:
       - collectorsgroups/finalizers
-      - instrumentedapplications/finalizers
+      - karmainstrumentedapplications/finalizers
       - destinations/finalizers
     verbs:
       - update
   - apiGroups:
-      - odigos.io
+      - codekarma.tech
     resources:
       - collectorsgroups/status
-      - instrumentedapplications/status
+      - karmainstrumentedapplications/status
       - destinations/status
     verbs:
       - get
       - patch
       - update
   - apiGroups:
-    - odigos.io
+    - codekarma.tech
     resources:
-    - instrumentationconfigs
+    - karmainstrumentationconfigs
     verbs:
     - create
     - delete
@@ -98,9 +98,9 @@ rules:
     - update
     - watch
   - apiGroups:
-    - odigos.io
+    - codekarma.tech
     resources:
-    - instrumentationrules
+    - karmainstrumentationrules
     verbs:
     - get
     - list

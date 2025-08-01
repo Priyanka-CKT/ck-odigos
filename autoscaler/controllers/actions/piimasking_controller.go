@@ -151,7 +151,7 @@ func (r *PiiMaskingReconciler) convertToProcessor(action *actionv1.PiiMasking) (
 
 	processor := v1.Processor{
 		TypeMeta: metav1.TypeMeta{
-			APIVersion: "odigos.io/v1alpha1",
+			APIVersion: "codekarma.tech/v1alpha1",
 			Kind:       "Processor",
 		},
 		ObjectMeta: metav1.ObjectMeta{

@@ -138,7 +138,7 @@ func GetDestinationTypeDetails(c *gin.Context) {
 }
 
 func GetDestinations(c *gin.Context, odigosns string) {
-	dests, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).List(c, metav1.ListOptions{})
+	dests, err := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).List(c, metav1.ListOptions{})
 	if err != nil {
 		returnError(c, err)
 		return
@@ -160,7 +160,7 @@ func GetDestinations(c *gin.Context, odigosns string) {
 
 func GetDestinationById(c *gin.Context, odigosns string) {
 	destId := c.Param("id")
-	destination, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).Get(c, destId, metav1.GetOptions{})
+	destination, err := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).Get(c, destId, metav1.GetOptions{})
 	if err != nil {
 		returnError(c, err)
 		return
@@ -222,7 +222,7 @@ func CreateNewDestination(c *gin.Context, odigosns string) {
 		k8sDestination.Spec.SecretRef = secretRef
 	}
 
-	dest, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).Create(c, &k8sDestination, metav1.CreateOptions{})
+	dest, err := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).Create(c, &k8sDestination, metav1.CreateOptions{})
 	if err != nil {
 		// if we failed to create the destination, we need to rollback the secret creation
 		if createSecret {
@@ -303,7 +303,7 @@ func UpdateExistingDestination(c *gin.Context, odigosns string) {
 	dataFields, secretFields := transformFieldsToDataAndSecrets(destTypeConfig, request.Fields)
 
 	// update destination
-	dest, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).Get(c, destId, metav1.GetOptions{})
+	dest, err := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).Get(c, destId, metav1.GetOptions{})
 	if err != nil {
 		returnError(c, err)
 		return
@@ -377,7 +377,7 @@ func UpdateExistingDestination(c *gin.Context, odigosns string) {
 	dest.Spec.Data = dataFields
 	dest.Spec.Signals = exportedSignalsObjectToSlice(request.ExportedSignals)
 
-	updatedDest, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).Update(c, dest, metav1.UpdateOptions{})
+	updatedDest, err := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).Update(c, dest, metav1.UpdateOptions{})
 	if err != nil {
 		if origSecret != nil {
 			// rollback secret, it might fail but we have nothing to do with it
@@ -395,7 +395,7 @@ func DeleteDestination(c *gin.Context, odigosns string) {
 	destId := c.Param("id")
 
 	// delete the destination
-	errDest := kube.DefaultClient.OdigosClient.Destinations(odigosns).Delete(c, destId, metav1.DeleteOptions{})
+	errDest := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).Delete(c, destId, metav1.DeleteOptions{})
 	// the secret (if exits) will be deleted by the owner reference
 
 	if errDest != nil {
@@ -609,7 +609,7 @@ func createDestinationSecret(ctx context.Context, destType common.DestinationTyp
 
 func addDestinationOwnerReferenceToSecret(ctx context.Context, odigosns string, dest *v1alpha1.Destination) error {
 	destOwnerRef := metav1.OwnerReference{
-		APIVersion: "odigos.io/v1alpha1",
+		APIVersion: "codekarma.tech/v1alpha1",
 		Kind:       "Destination",
 		Name:       dest.Name,
 		UID:        dest.UID,
@@ -645,7 +645,7 @@ func potentialDestinations(c *gin.Context, odigosns string) []destination_recogn
 	}
 
 	// Existing Destinations
-	existingDestination, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).List(c, metav1.ListOptions{})
+	existingDestination, err := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).List(c, metav1.ListOptions{})
 	if err != nil {
 		return nil
 	}

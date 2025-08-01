@@ -33,7 +33,7 @@ func SetReportedNameAnnotation[W client.Object](obj W, reportedName string) W {
 	return copy
 }
 
-func SetInstrumentedApplicationContainer(obj *odigosv1.InstrumentedApplication, envName *string, envValue *string, language common.ProgrammingLanguage) *odigosv1.InstrumentedApplication {
+func SetKarmaInstrumentedApplicationContainer(obj *odigosv1.KarmaInstrumentedApplication, envName *string, envValue *string, language common.ProgrammingLanguage) *odigosv1.KarmaInstrumentedApplication {
 	copy := obj.DeepCopy()
 	copy.Spec.RuntimeDetails[0] = odigosv1.RuntimeDetailsByContainer{
 		ContainerName: copy.Spec.RuntimeDetails[0].ContainerName,

@@ -28,7 +28,7 @@ import (
 	semconv "go.opentelemetry.io/otel/semconv/v1.26.0"
 )
 
-func SyncConfigMap(apps *odigosv1.InstrumentedApplicationList, dests *odigosv1.DestinationList, allProcessors *odigosv1.ProcessorList,
+func SyncConfigMap(apps *odigosv1.KarmaInstrumentedApplicationList, dests *odigosv1.DestinationList, allProcessors *odigosv1.ProcessorList,
 	datacollection *odigosv1.CollectorsGroup, ctx context.Context,
 	c client.Client, scheme *runtime.Scheme, disableNameProcessor bool) error {
 	logger := log.FromContext(ctx)
@@ -96,7 +96,7 @@ func createConfigMap(desired *v1.ConfigMap, ctx context.Context, c client.Client
 	return desired, nil
 }
 
-func getDesiredConfigMap(apps *odigosv1.InstrumentedApplicationList, dests *odigosv1.DestinationList, processors []*odigosv1.Processor,
+func getDesiredConfigMap(apps *odigosv1.KarmaInstrumentedApplicationList, dests *odigosv1.DestinationList, processors []*odigosv1.Processor,
 	datacollection *odigosv1.CollectorsGroup, scheme *runtime.Scheme, setTracesLoadBalancer bool, disableNameProcessor bool) (*v1.ConfigMap, error) {
 	cmData, err := calculateConfigMapData(datacollection, apps, dests, processors, setTracesLoadBalancer, disableNameProcessor)
 	if err != nil {
@@ -124,7 +124,7 @@ func getDesiredConfigMap(apps *odigosv1.InstrumentedApplicationList, dests *odig
 	return &desired, nil
 }
 
-func calculateConfigMapData(nodeCG *odigosv1.CollectorsGroup, apps *odigosv1.InstrumentedApplicationList, dests *odigosv1.DestinationList, processors []*odigosv1.Processor,
+func calculateConfigMapData(nodeCG *odigosv1.CollectorsGroup, apps *odigosv1.KarmaInstrumentedApplicationList, dests *odigosv1.DestinationList, processors []*odigosv1.Processor,
 	setTracesLoadBalancer bool, disableNameProcessor bool) (string, error) {
 
 	ownMetricsPort := nodeCG.Spec.CollectorOwnMetricsPort

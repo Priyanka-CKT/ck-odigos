@@ -61,13 +61,13 @@ func NewFilteredCollectorsGroupInformer(client versioned.Interface, namespace st
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.OdigosV1alpha1().CollectorsGroups(namespace).List(context.TODO(), options)
+				return client.CodekarmaV1alpha1().CollectorsGroups(namespace).List(context.TODO(), options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.OdigosV1alpha1().CollectorsGroups(namespace).Watch(context.TODO(), options)
+				return client.CodekarmaV1alpha1().CollectorsGroups(namespace).Watch(context.TODO(), options)
 			},
 		},
 		&odigosv1alpha1.CollectorsGroup{},

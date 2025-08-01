@@ -1,13 +1,13 @@
 apiVersion: v1
 kind: ConfigMap
 metadata:
-  name: odigos-config
+  name: ck-config
   namespace: {{ .Release.Namespace }}
   annotations:
     "helm.sh/hook": post-install,post-upgrade
   labels:
-    odigos.io/config: "1"
-    odigos.io/system-object: "true"
+    codekarma.tech/config: "1"
+    codekarma.tech/system-object: "true"
 data:
   config.yaml: |
     configVersion: 1

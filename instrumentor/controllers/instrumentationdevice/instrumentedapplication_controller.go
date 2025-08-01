@@ -29,15 +29,15 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-type InstrumentedApplicationReconciler struct {
+type KarmaInstrumentedApplicationReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *KarmaInstrumentedApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	var runtimeDetails odigosv1.InstrumentedApplication
+	var runtimeDetails odigosv1.KarmaInstrumentedApplication
 	err := r.Client.Get(ctx, req.NamespacedName, &runtimeDetails)
 	if err != nil {
 

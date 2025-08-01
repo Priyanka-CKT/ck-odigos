@@ -16,7 +16,7 @@ type OdigosService struct{}
 func GetOdigosDescription(ctx context.Context) (*model.OdigosAnalyze, error) {
 
 	namespace := env.GetCurrentNamespace()
-	desc, err := describe.DescribeOdigos(ctx, kube.DefaultClient, kube.DefaultClient.OdigosClient, namespace)
+	desc, err := describe.DescribeOdigos(ctx, kube.DefaultClient, kube.DefaultClient.CodekarmaClient, namespace)
 	if err != nil {
 		return nil, err
 	}

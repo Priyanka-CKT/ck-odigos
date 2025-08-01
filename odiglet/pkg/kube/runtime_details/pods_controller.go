@@ -49,7 +49,7 @@ func (p *PodsReconciler) Reconcile(ctx context.Context, request reconcile.Reques
 
 	// get instrumentation config for the pod to check if it is instrumented or not
 	instrumentationConfigName := workload.CalculateWorkloadRuntimeObjectName(podWorkload.Name, podWorkload.Kind)
-	instrumentationConfig := odigosv1.InstrumentationConfig{}
+	instrumentationConfig := odigosv1.KarmaInstrumentationConfig{}
 	err = p.Client.Get(ctx, client.ObjectKey{Name: instrumentationConfigName, Namespace: podWorkload.Namespace}, &instrumentationConfig)
 	if err != nil {
 		return reconcile.Result{}, client.IgnoreNotFound(err)
@@ -72,18 +72,18 @@ func (p *PodsReconciler) Reconcile(ctx context.Context, request reconcile.Reques
 		return reconcile.Result{}, nil
 	}
 
-	odigosConfig, err := k8sutils.GetCurrentOdigosConfig(ctx, p.Client)
+	codekarmaConfig, err := k8sutils.GetCurrentCodekarmaConfig(ctx, p.Client)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
 	// Perform runtime inspection once we know the pod is newer that the latest runtime inspection performed and saved.
-	runtimeResults, err := runtimeInspection([]corev1.Pod{pod}, odigosConfig.IgnoredContainers)
+	runtimeResults, err := runtimeInspection([]corev1.Pod{pod}, codekarmaConfig.IgnoredContainers)
 	if err != nil {
 		return reconcile.Result{}, err
 	}
 
-	err = persistRuntimeDetailsToInstrumentationConfig(ctx, p.Client, &instrumentationConfig, odigosv1.InstrumentationConfigStatus{
+	err = persistRuntimeDetailsToInstrumentationConfig(ctx, p.Client, &instrumentationConfig, odigosv1.KarmaInstrumentationConfigStatus{
 		RuntimeDetailsByContainer:  runtimeResults,
 		ObservedWorkloadGeneration: podGeneration,
 	})
@@ -113,7 +113,7 @@ func (p *PodsReconciler) getPodWorkloadObject(ctx context.Context, pod *corev1.P
 	return nil, nil
 }
 
-func InstrumentationConfigContainsUnknownLanguage(config odigosv1.InstrumentationConfig) bool {
+func InstrumentationConfigContainsUnknownLanguage(config odigosv1.KarmaInstrumentationConfig) bool {
 	for _, containerDetails := range config.Status.RuntimeDetailsByContainer {
 		if containerDetails.Language == common.UnknownProgrammingLanguage {
 			return true

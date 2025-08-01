@@ -40,12 +40,12 @@ var (
 	FullPayloadCollectionProfile = Profile{
 		ProfileName:      common.ProfileName("full-payload-collection"),
 		ShortDescription: "Collect any payload from the cluster where supported with default settings",
-		KubeObject:       &odigosv1alpha1.InstrumentationRule{},
+		KubeObject:       &odigosv1alpha1.KarmaInstrumentationRule{},
 	}
 	DbPayloadCollectionProfile = Profile{
 		ProfileName:      common.ProfileName("db-payload-collection"),
 		ShortDescription: "Collect db payload from the cluster where supported with default settings",
-		KubeObject:       &odigosv1alpha1.InstrumentationRule{},
+		KubeObject:       &odigosv1alpha1.KarmaInstrumentationRule{},
 	}
 	QueryOperationDetector = Profile{
 		ProfileName:      common.ProfileName("query-operation-detector"),
@@ -75,7 +75,7 @@ var (
 	JavaNativeInstrumentationsProfile = Profile{
 		ProfileName:      common.ProfileName("java-native-instrumentations"),
 		ShortDescription: "Instrument Java applications using native instrumentation and eBPF enterprise processing",
-		KubeObject:       &odigosv1alpha1.InstrumentationRule{},
+		KubeObject:       &odigosv1alpha1.KarmaInstrumentationRule{},
 	}
 	CodeAttributesProfile = Profile{
 		ProfileName:      common.ProfileName("code-attributes"),

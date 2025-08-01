@@ -82,7 +82,7 @@ func (r *computePlatformResolver) K8sActualSource(ctx context.Context, obj *mode
 
 // K8sActualSources is the resolver for the k8sActualSources field.
 func (r *computePlatformResolver) K8sActualSources(ctx context.Context, obj *model.ComputePlatform) ([]*model.K8sActualSource, error) {
-	instrumentedApplications, err := kube.DefaultClient.OdigosClient.InstrumentedApplications("").List(ctx, metav1.ListOptions{})
+	instrumentedApplications, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentedApplications("").List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -93,7 +93,7 @@ func (r *computePlatformResolver) K8sActualSources(ctx context.Context, obj *mod
 	// Convert each instrumented application to the K8sActualSource type
 	for _, app := range instrumentedApplications.Items {
 		actualSource := instrumentedApplicationToActualSource(app)
-		services.AddHealthyInstrumentationInstancesCondition(ctx, &app, actualSource)
+		services.AddHealthyKarmaInstrumentationInstancesCondition(ctx, &app, actualSource)
 		owner, _ := services.GetWorkload(ctx, actualSource.Namespace, string(actualSource.Kind), actualSource.Name)
 		if owner == nil {
 
@@ -114,7 +114,7 @@ func (r *computePlatformResolver) K8sActualSources(ctx context.Context, obj *mod
 // Destinations is the resolver for the destinations field.
 func (r *computePlatformResolver) Destinations(ctx context.Context, obj *model.ComputePlatform) ([]*model.Destination, error) {
 	odigosns := consts.DefaultOdigosNamespace
-	dests, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).List(ctx, metav1.ListOptions{})
+	dests, err := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
@@ -141,9 +141,9 @@ func (r *computePlatformResolver) Actions(ctx context.Context, obj *model.Comput
 	return response, nil
 }
 
-// InstrumentationRules is the resolver for the instrumentationRules field.
-func (r *computePlatformResolver) InstrumentationRules(ctx context.Context, obj *model.ComputePlatform) ([]*model.InstrumentationRule, error) {
-	return services.ListInstrumentationRules(ctx)
+// KarmaInstrumentationRules is the resolver for the instrumentationRules field.
+func (r *computePlatformResolver) KarmaInstrumentationRules(ctx context.Context, obj *model.ComputePlatform) ([]*model.KarmaInstrumentationRule, error) {
+	return services.ListKarmaInstrumentationRules(ctx)
 }
 
 // Type is the resolver for the type field.
@@ -237,7 +237,7 @@ func (r *mutationResolver) CreateNewDestination(ctx context.Context, destination
 		k8sDestination.Spec.SecretRef = secretRef
 	}
 
-	dest, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).Create(ctx, &k8sDestination, metav1.CreateOptions{})
+	dest, err := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).Create(ctx, &k8sDestination, metav1.CreateOptions{})
 	if err != nil {
 		if createSecret {
 			kube.DefaultClient.CoreV1().Secrets(odigosns).Delete(ctx, destName, metav1.DeleteOptions{})
@@ -378,7 +378,7 @@ func (r *mutationResolver) UpdateDestination(ctx context.Context, id string, des
 	dataFields, secretFields := services.TransformFieldsToDataAndSecrets(destTypeConfig, fields)
 
 	// Retrieve the existing destination
-	dest, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).Get(ctx, id, metav1.GetOptions{})
+	dest, err := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).Get(ctx, id, metav1.GetOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to get destination: %v", err)
 	}
@@ -433,7 +433,7 @@ func (r *mutationResolver) UpdateDestination(ctx context.Context, id string, des
 	dest.Spec.Signals = services.ExportedSignalsObjectToSlice(destination.ExportedSignals)
 
 	// Update the destination in Kubernetes
-	updatedDest, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).Update(ctx, dest, metav1.UpdateOptions{})
+	updatedDest, err := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).Update(ctx, dest, metav1.UpdateOptions{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to update destination: %v", err)
 	}
@@ -453,7 +453,7 @@ func (r *mutationResolver) UpdateDestination(ctx context.Context, id string, des
 // DeleteDestination is the resolver for the deleteDestination field.
 func (r *mutationResolver) DeleteDestination(ctx context.Context, id string) (bool, error) {
 	odigosns := consts.DefaultOdigosNamespace
-	err := kube.DefaultClient.OdigosClient.Destinations(odigosns).Delete(ctx, id, metav1.DeleteOptions{})
+	err := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).Delete(ctx, id, metav1.DeleteOptions{})
 
 	if err != nil {
 		return false, fmt.Errorf("failed to delete destination: %w", err)
@@ -553,19 +553,19 @@ func (r *mutationResolver) DeleteAction(ctx context.Context, id string, actionTy
 	return true, nil
 }
 
-// CreateInstrumentationRule is the resolver for the createInstrumentationRule field.
-func (r *mutationResolver) CreateInstrumentationRule(ctx context.Context, instrumentationRule model.InstrumentationRuleInput) (*model.InstrumentationRule, error) {
-	return services.CreateInstrumentationRule(ctx, instrumentationRule)
+// CreateKarmaInstrumentationRule is the resolver for the createKarmaInstrumentationRule field.
+func (r *mutationResolver) CreateKarmaInstrumentationRule(ctx context.Context, instrumentationRule model.KarmaInstrumentationRuleInput) (*model.KarmaInstrumentationRule, error) {
+	return services.CreateKarmaInstrumentationRule(ctx, instrumentationRule)
 }
 
-// UpdateInstrumentationRule is the resolver for the updateInstrumentationRule field.
-func (r *mutationResolver) UpdateInstrumentationRule(ctx context.Context, ruleID string, instrumentationRule model.InstrumentationRuleInput) (*model.InstrumentationRule, error) {
-	return services.UpdateInstrumentationRule(ctx, ruleID, instrumentationRule)
+// UpdateKarmaInstrumentationRule is the resolver for the updateKarmaInstrumentationRule field.
+func (r *mutationResolver) UpdateKarmaInstrumentationRule(ctx context.Context, ruleID string, instrumentationRule model.KarmaInstrumentationRuleInput) (*model.KarmaInstrumentationRule, error) {
+	return services.UpdateKarmaInstrumentationRule(ctx, ruleID, instrumentationRule)
 }
 
-// DeleteInstrumentationRule is the resolver for the deleteInstrumentationRule field.
-func (r *mutationResolver) DeleteInstrumentationRule(ctx context.Context, ruleID string) (bool, error) {
-	_, err := services.DeleteInstrumentationRule(ctx, ruleID)
+// DeleteKarmaInstrumentationRule is the resolver for the deleteKarmaInstrumentationRule field.
+func (r *mutationResolver) DeleteKarmaInstrumentationRule(ctx context.Context, ruleID string) (bool, error) {
+	_, err := services.DeleteKarmaInstrumentationRule(ctx, ruleID)
 	if err != nil {
 		return false, err
 	}

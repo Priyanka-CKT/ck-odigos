@@ -18,11 +18,11 @@ func GetSourceDescription(ctx context.Context, namespace string, kind string, na
 
 	switch kind {
 	case "Deployment":
-		desc, err = describe.DescribeDeployment(ctx, kube.DefaultClient.Interface, kube.DefaultClient.OdigosClient, namespace, name)
+		desc, err = describe.DescribeDeployment(ctx, kube.DefaultClient.Interface, kube.DefaultClient.CodekarmaClient, namespace, name)
 	case "DaemonSet":
-		desc, err = describe.DescribeDaemonSet(ctx, kube.DefaultClient.Interface, kube.DefaultClient.OdigosClient, namespace, name)
+		desc, err = describe.DescribeDaemonSet(ctx, kube.DefaultClient.Interface, kube.DefaultClient.CodekarmaClient, namespace, name)
 	case "StatefulSet":
-		desc, err = describe.DescribeStatefulSet(ctx, kube.DefaultClient.Interface, kube.DefaultClient.OdigosClient, namespace, name)
+		desc, err = describe.DescribeStatefulSet(ctx, kube.DefaultClient.Interface, kube.DefaultClient.CodekarmaClient, namespace, name)
 	default:
 		return nil, fmt.Errorf("kind %s is not supported", kind)
 	}
@@ -55,10 +55,10 @@ func ConvertSourceAnalyzeToGQL(analyze *source.SourceAnalyze) *model.SourceAnaly
 			CreateTime: describe_utils.ConvertEntityPropertyToGQL(analyze.InstrumentationConfig.CreateTime),
 		},
 		RuntimeInfo: convertRuntimeInfoToGQL(analyze.RuntimeInfo),
-		InstrumentedApplication: &model.InstrumentedApplicationAnalyze{
-			Created:    describe_utils.ConvertEntityPropertyToGQL(&analyze.InstrumentedApplication.Created),
-			CreateTime: describe_utils.ConvertEntityPropertyToGQL(analyze.InstrumentedApplication.CreateTime),
-			Containers: convertRuntimeInfoContainersToGQL(analyze.InstrumentedApplication.Containers),
+		KarmaInstrumentedApplication: &model.KarmaInstrumentedApplicationAnalyze{
+			Created:    describe_utils.ConvertEntityPropertyToGQL(&analyze.KarmaInstrumentedApplication.Created),
+			CreateTime: describe_utils.ConvertEntityPropertyToGQL(analyze.KarmaInstrumentedApplication.CreateTime),
+			Containers: convertRuntimeInfoContainersToGQL(analyze.KarmaInstrumentedApplication.Containers),
 		},
 		InstrumentationDevice: &model.InstrumentationDeviceAnalyze{
 			StatusText: describe_utils.ConvertEntityPropertyToGQL(&analyze.InstrumentationDevice.StatusText),
@@ -132,16 +132,16 @@ func convertPodContainersToGQL(containers []source.PodContainerAnalyze) []*model
 		gqlContainers = append(gqlContainers, &model.PodContainerAnalyze{
 			ContainerName:            describe_utils.ConvertEntityPropertyToGQL(&container.ContainerName),
 			ActualDevices:            describe_utils.ConvertEntityPropertyToGQL(&container.ActualDevices),
-			InstrumentationInstances: convertInstrumentationInstancesToGQL(container.InstrumentationInstances),
+			KarmaInstrumentationInstances: convertKarmaInstrumentationInstancesToGQL(container.KarmaInstrumentationInstances),
 		})
 	}
 	return gqlContainers
 }
 
-func convertInstrumentationInstancesToGQL(instances []source.InstrumentationInstanceAnalyze) []*model.InstrumentationInstanceAnalyze {
-	gqlInstances := make([]*model.InstrumentationInstanceAnalyze, 0, len(instances))
+func convertKarmaInstrumentationInstancesToGQL(instances []source.KarmaInstrumentationInstanceAnalyze) []*model.KarmaInstrumentationInstanceAnalyze {
+	gqlInstances := make([]*model.KarmaInstrumentationInstanceAnalyze, 0, len(instances))
 	for _, instance := range instances {
-		gqlInstances = append(gqlInstances, &model.InstrumentationInstanceAnalyze{
+		gqlInstances = append(gqlInstances, &model.KarmaInstrumentationInstanceAnalyze{
 			Healthy:               describe_utils.ConvertEntityPropertyToGQL(&instance.Healthy),
 			Message:               describe_utils.ConvertEntityPropertyToGQL(instance.Message),
 			IdentifyingAttributes: convertEntityPropertiesToGQL(instance.IdentifyingAttributes),

@@ -41,7 +41,7 @@ func k8sLastTransitionTimeToGql(t v1.Time) *string {
 	return &str
 }
 
-func instrumentedApplicationToActualSource(instrumentedApp v1alpha1.InstrumentedApplication) *gqlmodel.K8sActualSource {
+func instrumentedApplicationToActualSource(instrumentedApp v1alpha1.KarmaInstrumentedApplication) *gqlmodel.K8sActualSource {
 	// Map the container runtime details
 	var containers []*gqlmodel.SourceContainerRuntimeDetails
 	for _, container := range instrumentedApp.Spec.RuntimeDetails {
@@ -83,7 +83,7 @@ func instrumentedApplicationToActualSource(instrumentedApp v1alpha1.Instrumented
 		ServiceName:       &instrumentedApp.Name,
 		NumberOfInstances: nil,
 		AutoInstrumented:  instrumentedApp.Spec.Options != nil,
-		InstrumentedApplicationDetails: &gqlmodel.InstrumentedApplicationDetails{
+		KarmaInstrumentedApplicationDetails: &gqlmodel.KarmaInstrumentedApplicationDetails{
 			Containers: containers,
 			Conditions: conditions,
 		},

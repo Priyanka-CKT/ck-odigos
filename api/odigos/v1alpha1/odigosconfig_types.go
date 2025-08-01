@@ -7,7 +7,7 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-// Deprecated: Use common.OdigosConfiguration instead
+// Deprecated: Use common.CodekarmaConfiguration instead
 type CollectorGatewayConfiguration struct {
 	// RequestMemoryMiB is the memory request for the cluster gateway collector deployment.
 	// it will be embedded in the deployment as a resource request of the form "memory: <value>Mi"
@@ -30,22 +30,22 @@ type CollectorGatewayConfiguration struct {
 	GoMemLimitMib int `json:"goMemLimitMiB,omitempty"`
 }
 
-// OdigosConfigurationSpec defines the desired state of OdigosConfiguration
+// CodekarmaConfigurationSpec defines the desired state of CodekarmaConfiguration
 //
-// Deprecated: Use common.OdigosConfiguration instead
-type OdigosConfigurationSpec struct {
-	OdigosVersion     string                                          `json:"odigosVersion"`
-	ConfigVersion     int                                             `json:"configVersion"`
-	TelemetryEnabled  bool                                            `json:"telemetryEnabled,omitempty"`
-	OpenshiftEnabled  bool                                            `json:"openshiftEnabled,omitempty"`
-	IgnoredNamespaces []string                                        `json:"ignoredNamespaces,omitempty"`
-	IgnoredContainers []string                                        `json:"ignoredContainers,omitempty"`
-	Psp               bool                                            `json:"psp,omitempty"`
-	ImagePrefix       string                                          `json:"imagePrefix,omitempty"`
-	OdigletImage      string                                          `json:"odigletImage,omitempty"`
-	InstrumentorImage string                                          `json:"instrumentorImage,omitempty"`
-	AutoscalerImage   string                                          `json:"autoscalerImage,omitempty"`
-	CollectorGateway  *CollectorGatewayConfiguration                  `json:"collectorGateway,omitempty"`
+// Deprecated: Use common.CodekarmaConfiguration instead
+type CodekarmaConfigurationSpec struct {
+	OdigosVersion     string                         `json:"odigosVersion"`
+	ConfigVersion     int                            `json:"configVersion"`
+	TelemetryEnabled  bool                           `json:"telemetryEnabled,omitempty"`
+	OpenshiftEnabled  bool                           `json:"openshiftEnabled,omitempty"`
+	IgnoredNamespaces []string                       `json:"ignoredNamespaces,omitempty"`
+	IgnoredContainers []string                       `json:"ignoredContainers,omitempty"`
+	Psp               bool                           `json:"psp,omitempty"`
+	ImagePrefix       string                         `json:"imagePrefix,omitempty"`
+	OdigletImage      string                         `json:"odigletImage,omitempty"`
+	InstrumentorImage string                         `json:"instrumentorImage,omitempty"`
+	AutoscalerImage   string                         `json:"autoscalerImage,omitempty"`
+	CollectorGateway  *CollectorGatewayConfiguration `json:"collectorGateway,omitempty"`
 
 	// this is internal currently, and is not exposed on the CLI / helm
 	// used for odigos enterprise
@@ -54,54 +54,54 @@ type OdigosConfigurationSpec struct {
 
 //+genclient
 //+kubebuilder:object:root=true
-//+kubebuilder:metadata:labels=odigos.io/config=1
-//+kubebuilder:metadata:labels=odigos.io/system-object=true
+//+kubebuilder:metadata:labels=codekarma.tech/config=1
+//+kubebuilder:metadata:labels=codekarma.tech/system-object=true
 
-// OdigosConfiguration is the Schema for the odigos configuration
+// CodekarmaConfiguration is the Schema for the codekarma configuration
 //
-// Deprecated: Use common.OdigosConfiguration instead
-type OdigosConfiguration struct {
+// Deprecated: Use common.CodekarmaConfiguration instead
+type CodekarmaConfiguration struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec OdigosConfigurationSpec `json:"spec,omitempty"`
+	Spec CodekarmaConfigurationSpec `json:"spec,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// OdigosConfigurationList contains a list of OdigosConfiguration
-type OdigosConfigurationList struct {
+// CodekarmaConfigurationList contains a list of CodekarmaConfiguration
+type CodekarmaConfigurationList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []OdigosConfiguration `json:"items"`
+	Items           []CodekarmaConfiguration `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&OdigosConfiguration{}, &OdigosConfigurationList{})
+	SchemeBuilder.Register(&CodekarmaConfiguration{}, &CodekarmaConfigurationList{})
 }
 
-func (odigosConfig *OdigosConfiguration) ToCommonConfig() *common.OdigosConfiguration {
+func (codekarmaConfig *CodekarmaConfiguration) ToCommonConfig() *common.CodekarmaConfiguration {
 	var collectorGateway common.CollectorGatewayConfiguration
-	if odigosConfig.Spec.CollectorGateway != nil {
+	if codekarmaConfig.Spec.CollectorGateway != nil {
 		collectorGateway = common.CollectorGatewayConfiguration{
-			RequestMemoryMiB:           odigosConfig.Spec.CollectorGateway.RequestMemoryMiB,
-			MemoryLimiterLimitMiB:      odigosConfig.Spec.CollectorGateway.MemoryLimiterLimitMiB,
-			MemoryLimiterSpikeLimitMiB: odigosConfig.Spec.CollectorGateway.MemoryLimiterSpikeLimitMiB,
-			GoMemLimitMib:              odigosConfig.Spec.CollectorGateway.GoMemLimitMib,
+			RequestMemoryMiB:           codekarmaConfig.Spec.CollectorGateway.RequestMemoryMiB,
+			MemoryLimiterLimitMiB:      codekarmaConfig.Spec.CollectorGateway.MemoryLimiterLimitMiB,
+			MemoryLimiterSpikeLimitMiB: codekarmaConfig.Spec.CollectorGateway.MemoryLimiterSpikeLimitMiB,
+			GoMemLimitMib:              codekarmaConfig.Spec.CollectorGateway.GoMemLimitMib,
 		}
 	}
-	return &common.OdigosConfiguration{
-		ConfigVersion:               odigosConfig.Spec.ConfigVersion,
-		TelemetryEnabled:            odigosConfig.Spec.TelemetryEnabled,
-		OpenshiftEnabled:            odigosConfig.Spec.OpenshiftEnabled,
-		IgnoredNamespaces:           odigosConfig.Spec.IgnoredNamespaces,
-		IgnoredContainers:           odigosConfig.Spec.IgnoredContainers,
-		Psp:                         odigosConfig.Spec.Psp,
-		ImagePrefix:                 odigosConfig.Spec.ImagePrefix,
-		OdigletImage:                odigosConfig.Spec.OdigletImage,
-		InstrumentorImage:           odigosConfig.Spec.InstrumentorImage,
-		AutoscalerImage:             odigosConfig.Spec.AutoscalerImage,
+	return &common.CodekarmaConfiguration{
+		ConfigVersion:               codekarmaConfig.Spec.ConfigVersion,
+		TelemetryEnabled:            codekarmaConfig.Spec.TelemetryEnabled,
+		OpenshiftEnabled:            codekarmaConfig.Spec.OpenshiftEnabled,
+		IgnoredNamespaces:           codekarmaConfig.Spec.IgnoredNamespaces,
+		IgnoredContainers:           codekarmaConfig.Spec.IgnoredContainers,
+		Psp:                         codekarmaConfig.Spec.Psp,
+		ImagePrefix:                 codekarmaConfig.Spec.ImagePrefix,
+		OdigletImage:                codekarmaConfig.Spec.OdigletImage,
+		InstrumentorImage:           codekarmaConfig.Spec.InstrumentorImage,
+		AutoscalerImage:             codekarmaConfig.Spec.AutoscalerImage,
 		CollectorGateway:            &collectorGateway,
-		GoAutoIncludeCodeAttributes: odigosConfig.Spec.GoAutoIncludeCodeAttributes,
+		GoAutoIncludeCodeAttributes: codekarmaConfig.Spec.GoAutoIncludeCodeAttributes,
 	}
 }

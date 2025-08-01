@@ -80,7 +80,7 @@ func main() {
 
 	odigosNs := env.GetCurrentNamespace()
 	nsSelector := client.InNamespace(odigosNs).AsSelector()
-	nameSelector := fields.OneTermEqualSelector("metadata.name", consts.OdigosConfigurationName)
+	nameSelector := fields.OneTermEqualSelector("metadata.name", consts.CodekarmaConfigurationName)
 	odigosConfigSelector := fields.AndSelectors(nsSelector, nameSelector)
 
 	mgr, err := ctrl.NewManager(ctrl.GetConfigOrDie(), ctrl.Options{

@@ -113,7 +113,7 @@ func (r *OdigosSamplingReconciler) syncOdigosSamplingProcessor(ctx context.Conte
 	}
 
 	samplingProcessor := &v1.Processor{
-		TypeMeta: metav1.TypeMeta{APIVersion: "odigos.io/v1alpha1", Kind: "Processor"},
+		TypeMeta: metav1.TypeMeta{APIVersion: "codekarma.tech/v1alpha1", Kind: "Processor"},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            "sampling-processor",
 			Namespace:       namespace,
@@ -237,7 +237,7 @@ func (r *OdigosSamplingReconciler) getGroupByTraceProcessor(namespace string, ac
 	}
 
 	return &v1.Processor{
-		TypeMeta: metav1.TypeMeta{APIVersion: "odigos.io/v1alpha1", Kind: "Processor"},
+		TypeMeta: metav1.TypeMeta{APIVersion: "codekarma.tech/v1alpha1", Kind: "Processor"},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:            "groupbytrace-processor",
 			Namespace:       namespace,

@@ -52,7 +52,7 @@ var _ cr_predicate.Predicate = &ObjectNamePredicate{}
 //		WithEventFilter(&odigospredicates.OdigosConfigMapPredicate).
 //		Complete(r)
 var OdigosConfigMapPredicate = ObjectNamePredicate{
-	AllowedObjectName: consts.OdigosConfigurationName,
+	AllowedObjectName: consts.CodekarmaConfigurationName,
 }
 
 // use this event filter to reconcile only collectors group events for node collectors group objects

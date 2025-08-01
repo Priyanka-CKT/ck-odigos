@@ -137,9 +137,9 @@ func NewMockTestStatefulSet(ns *corev1.Namespace) *appsv1.StatefulSet {
 
 // givin a workload object (deployment, daemonset, statefulset) return a mock instrumented application
 // with a single container with the GoProgrammingLanguage
-func NewMockInstrumentedApplication(workloadObject client.Object) *odigosv1.InstrumentedApplication {
+func NewMockKarmaInstrumentedApplication(workloadObject client.Object) *odigosv1.KarmaInstrumentedApplication {
 	gvk, _ := apiutil.GVKForObject(workloadObject, scheme.Scheme)
-	return &odigosv1.InstrumentedApplication{
+	return &odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      workload.CalculateWorkloadRuntimeObjectName(workloadObject.GetName(), gvk.Kind),
 			Namespace: workloadObject.GetNamespace(),
@@ -152,7 +152,7 @@ func NewMockInstrumentedApplication(workloadObject client.Object) *odigosv1.Inst
 				},
 			},
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 				{
 					ContainerName: "test",
@@ -163,13 +163,13 @@ func NewMockInstrumentedApplication(workloadObject client.Object) *odigosv1.Inst
 	}
 }
 
-func NewMockEmptyInstrumentationRule(name, ns string) *odigosv1.InstrumentationRule {
-	return &odigosv1.InstrumentationRule{
+func NewMockEmptyKarmaInstrumentationRule(name, ns string) *odigosv1.KarmaInstrumentationRule {
+	return &odigosv1.KarmaInstrumentationRule{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: ns,
 		},
-		Spec: odigosv1.InstrumentationRuleSpec{},
+		Spec: odigosv1.KarmaInstrumentationRuleSpec{},
 	}
 }
 

@@ -33,7 +33,7 @@ rules:
       - list
       - watch
   - apiGroups:
-      - odigos.io
+      - codekarma.tech
     resources:
       - instrumentedapplications
       - collectorsgroups
@@ -49,7 +49,7 @@ rules:
       - update
       - watch
   - apiGroups:
-      - odigos.io
+      - codekarma.tech
     resources:
       - collectorsgroups/finalizers
       - instrumentedapplications/finalizers
@@ -57,7 +57,7 @@ rules:
     verbs:
       - update
   - apiGroups:
-      - odigos.io
+      - codekarma.tech
     resources:
       - collectorsgroups/status
       - instrumentedapplications/status
@@ -67,7 +67,7 @@ rules:
       - patch
       - update
   - apiGroups:
-      - actions.odigos.io
+      - actions.codekarma.tech
     resources:
       - addclusterinfos
       - deleteattributes
@@ -81,7 +81,7 @@ rules:
       - get
       - list
   - apiGroups:
-      - actions.odigos.io
+      - actions.codekarma.tech
     resources:
       - addclusterinfos/status
       - deleteattributes/status
@@ -113,7 +113,7 @@ rules:
       - list
       - watch
   - apiGroups:
-      - odigos.io
+      - codekarma.tech
     resources:
       - odigosconfigurations
     verbs:

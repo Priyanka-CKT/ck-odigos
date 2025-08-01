@@ -85,8 +85,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.GoProgrammingLanguage,
@@ -126,8 +126,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{},
 // 		},
 // 	}
@@ -160,8 +160,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.GoProgrammingLanguage,
@@ -196,8 +196,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.GoProgrammingLanguage,
@@ -247,8 +247,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.GoProgrammingLanguage,
@@ -298,8 +298,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.JavaProgrammingLanguage,
@@ -348,8 +348,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.GoProgrammingLanguage,
@@ -401,8 +401,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.GoProgrammingLanguage,
@@ -462,8 +462,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.PythonProgrammingLanguage,
@@ -526,8 +526,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.GoProgrammingLanguage,
@@ -579,8 +579,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.GoProgrammingLanguage,
@@ -649,8 +649,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.PythonProgrammingLanguage,
@@ -713,8 +713,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.PythonProgrammingLanguage,
@@ -797,8 +797,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.PythonProgrammingLanguage,
@@ -892,8 +892,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.JavascriptProgrammingLanguage,
@@ -945,8 +945,8 @@ package instrumentation
 // 		},
 // 	}
 
-// 	runtimeDetails := &odigosv1.InstrumentedApplication{
-// 		Spec: odigosv1.InstrumentedApplicationSpec{
+// 	runtimeDetails := &odigosv1.KarmaInstrumentedApplication{
+// 		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 // 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 // 				{
 // 					Language:      common.JavascriptProgrammingLanguage,

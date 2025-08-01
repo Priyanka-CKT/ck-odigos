@@ -65,7 +65,7 @@ func isDataCollectionReady(ctx context.Context, c client.Client) bool {
 	return true
 }
 
-func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.Client, runtimeDetails *odigosv1.InstrumentedApplication) (error, bool) {
+func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.Client, runtimeDetails *odigosv1.KarmaInstrumentedApplication) (error, bool) {
 	// devicePartiallyApplied is used to indicate that the instrumentation device was partially applied for some of the containers.
 	devicePartiallyApplied := false
 	deviceNotAppliedDueToPresenceOfAnotherAgent := false
@@ -84,7 +84,7 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 
 	// build an otel sdk map from instrumentation rules first, and merge it with the default otel sdk map
 	// this way, we can override the default otel sdk with the instrumentation rules
-	instrumentationRules := odigosv1.InstrumentationRuleList{}
+	instrumentationRules := odigosv1.KarmaInstrumentationRuleList{}
 	err = kubeClient.List(ctx, &instrumentationRules)
 	if err != nil {
 		return err, false
@@ -121,15 +121,15 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 
 		// get the odigos configuration to check if agents can run concurrently
 		// if the configuration is not found, we assume that agents can't run concurrently [default behavior]
-		odigosConfiguration, err := k8sutils.GetCurrentOdigosConfig(ctx, kubeClient)
+		codekarmaConfiguration, err := k8sutils.GetCurrentCodekarmaConfig(ctx, kubeClient)
 		if err != nil {
 			return err
 		}
 
-		// User input <odigosConfiguration.AllowConcurrentAgents> prefered over the profile configuration
-		agentsCanRunConcurrently := k8sprofiles.AgentsCanRunConcurrently(odigosConfiguration.Profiles)
-		if odigosConfiguration.AllowConcurrentAgents != nil {
-			agentsCanRunConcurrently = *odigosConfiguration.AllowConcurrentAgents
+		// User input <codekarmaConfiguration.AllowConcurrentAgents> prefered over the profile configuration
+		agentsCanRunConcurrently := k8sprofiles.AgentsCanRunConcurrently(codekarmaConfiguration.Profiles)
+		if codekarmaConfiguration.AllowConcurrentAgents != nil {
+			agentsCanRunConcurrently = *codekarmaConfiguration.AllowConcurrentAgents
 		}
 
 		err, deviceApplied, deviceSkippedDueToOtherAgent := instrumentation.ApplyInstrumentationDevicesToPodTemplate(podSpec, runtimeDetails, otelSdkToUse, obj, logger, agentsCanRunConcurrently)
@@ -142,7 +142,7 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 		}
 
 		devicePartiallyApplied = deviceSkippedDueToOtherAgent && deviceApplied
-		// If instrumentation device is applied successfully, add odigos.io/inject-instrumentation label to enable the webhook
+		// If instrumentation device is applied successfully, add codekarma.tech/inject-instrumentation label to enable the webhook
 		if deviceApplied {
 			instrumentation.SetInjectInstrumentationLabel(podSpec)
 		}
@@ -186,7 +186,7 @@ func removeInstrumentationDeviceFromWorkload(ctx context.Context, kubeClient cli
 	if err != nil {
 		return err
 	}
-	// If instrumentation device is removed successfully, remove odigos.io/inject-instrumentation label to disable the webhook
+	// If instrumentation device is removed successfully, remove codekarma.tech/inject-instrumentation label to disable the webhook
 	webhookLabelRemoved := instrumentation.RemoveInjectInstrumentationLabel(podSpec)
 	deviceRemoved := instrumentation.RevertInstrumentationDevices(podSpec)
 	envChanged, err := instrumentation.RevertEnvOverwrites(workloadObj, podSpec)
@@ -212,7 +212,7 @@ func removeInstrumentationDeviceFromWorkload(ctx context.Context, kubeClient cli
 	return nil
 }
 
-func getWorkloadObject(ctx context.Context, kubeClient client.Client, runtimeDetails *odigosv1.InstrumentedApplication) (client.Object, error) {
+func getWorkloadObject(ctx context.Context, kubeClient client.Client, runtimeDetails *odigosv1.KarmaInstrumentedApplication) (client.Object, error) {
 	name, kind, err := workload.ExtractWorkloadInfoFromRuntimeObjectName(runtimeDetails.Name)
 	if err != nil {
 		return nil, err
@@ -259,8 +259,8 @@ func isSupportedLanguage(language common.ProgrammingLanguage) bool {
 
 // reconciles a single workload, which might be triggered by a change in multiple resources.
 // each time a relevant resource changes, this function is called to reconcile the workload
-// and always writes the status into the InstrumentedApplication CR
-func reconcileSingleWorkload(ctx context.Context, kubeClient client.Client, instrumentedApplication *odigosv1.InstrumentedApplication, isNodeCollectorReady bool) error {
+// and always writes the status into the KarmaInstrumentedApplication CR
+func reconcileSingleWorkload(ctx context.Context, kubeClient client.Client, instrumentedApplication *odigosv1.KarmaInstrumentedApplication, isNodeCollectorReady bool) error {
 
 	workloadName, workloadKind, err := workload.ExtractWorkloadInfoFromRuntimeObjectName(instrumentedApplication.Name)
 	if err != nil {

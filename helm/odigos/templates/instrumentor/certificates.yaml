@@ -10,7 +10,7 @@ metadata:
     app.kubernetes.io/instance: selfsigned-issuer
     app.kubernetes.io/component: certificate
     app.kubernetes.io/created-by: instrumentor
-    app.kubernetes.io/part-of: odigos
+    app.kubernetes.io/part-of: codekarma
 spec:
   selfSigned: {}
 ---
@@ -24,11 +24,11 @@ metadata:
     app.kubernetes.io/instance: instrumentor-cert
     app.kubernetes.io/component: certificate
     app.kubernetes.io/created-by: instrumentor
-    app.kubernetes.io/part-of: odigos
+    app.kubernetes.io/part-of: codekarma
 spec:
   dnsNames:
-    - "odigos-instrumentor.{{ .Release.Namespace }}.svc"
-    - "odigos-instrumentor.{{ .Release.Namespace }}.svc.cluster.local"
+    - "karmatap.{{ .Release.Namespace }}.svc"
+    - "karmatap.{{ .Release.Namespace }}.svc.cluster.local"
   issuerRef:
     kind: Issuer
     name: selfsigned-issuer

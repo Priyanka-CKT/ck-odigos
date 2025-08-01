@@ -41,6 +41,13 @@ spec:
             - /root/odiglet
           args:
             - init
+          resources:
+            requests:
+              cpu: "100m"
+              memory: "128Mi"
+            limits:
+              cpu: "200m"
+              memory: "256Mi"
           volumeMounts:
             - name: odigos
               mountPath: /var/odigos
@@ -86,6 +93,13 @@ spec:
                 name: odigos-own-telemetry-otel-config
                 optional: true
           imagePullPolicy: IfNotPresent
+          resources:
+            requests:
+              cpu: "500m"
+              memory: "512Mi"
+            limits:
+              cpu: "1000m"
+              memory: "1024Mi"
           securityContext:
             privileged: true
             capabilities:

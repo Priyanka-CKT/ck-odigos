@@ -12,15 +12,20 @@ import (
 	"sigs.k8s.io/yaml"
 )
 
-func GetCurrentOdigosConfig(ctx context.Context, k8sClient client.Client) (common.OdigosConfiguration, error) {
+func GetCurrentCodekarmaConfig(ctx context.Context, k8sClient client.Client) (common.CodekarmaConfiguration, error) {
 	var configMap v1.ConfigMap
-	var odigosConfig common.OdigosConfiguration
-	odigosSystemNamespaceName := env.GetCurrentNamespace()
-	if err := k8sClient.Get(ctx, types.NamespacedName{Namespace: odigosSystemNamespaceName, Name: consts.OdigosConfigurationName}, &configMap); err != nil {
-		return odigosConfig, err
+	var codekarmaConfig common.CodekarmaConfiguration
+	codekarmaSystemNamespaceName := env.GetCurrentNamespace()
+	if err := k8sClient.Get(ctx, types.NamespacedName{Namespace: codekarmaSystemNamespaceName, Name: consts.CodekarmaConfigurationName}, &configMap); err != nil {
+		return codekarmaConfig, err
 	}
-	if err := yaml.Unmarshal([]byte(configMap.Data[consts.OdigosConfigurationFileName]), &odigosConfig); err != nil {
-		return odigosConfig, err
+	if err := yaml.Unmarshal([]byte(configMap.Data[consts.CodekarmaConfigurationFileName]), &codekarmaConfig); err != nil {
+		return codekarmaConfig, err
 	}
-	return odigosConfig, nil
+	return codekarmaConfig, nil
+}
+
+// Function alias for backward compatibility
+func GetCurrentOdigosConfig(ctx context.Context, k8sClient client.Client) (common.CodekarmaConfiguration, error) {
+	return GetCurrentCodekarmaConfig(ctx, k8sClient)
 }

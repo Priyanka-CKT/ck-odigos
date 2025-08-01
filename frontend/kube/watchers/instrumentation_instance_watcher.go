@@ -16,28 +16,28 @@ import (
 
 var modifiedBatcher *EventBatcher
 
-func StartInstrumentationInstanceWatcher(ctx context.Context, namespace string) error {
+func StartKarmaInstrumentationInstanceWatcher(ctx context.Context, namespace string) error {
 	modifiedBatcher = NewEventBatcher(
 		EventBatcherConfig{
 			Event:       sse.MessageEventModified,
 			MessageType: sse.MessageTypeError,
 			Duration:    10 * time.Second,
-			CRDType:     "InstrumentationInstance",
+			CRDType:     "KarmaInstrumentationInstance",
 			FailureBatchMessageFunc: func(batchSize int, crd string) string {
 				return fmt.Sprintf("Failed to instrument %d instances", batchSize)
 			},
 		},
 	)
-	watcher, err := kube.DefaultClient.OdigosClient.InstrumentationInstances(namespace).Watch(context.Background(), metav1.ListOptions{})
+	watcher, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationInstances(namespace).Watch(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return fmt.Errorf("error creating watcher: %v", err)
 	}
 
-	go handleInstrumentationInstanceWatchEvents(ctx, watcher)
+	go handleKarmaInstrumentationInstanceWatchEvents(ctx, watcher)
 	return nil
 }
 
-func handleInstrumentationInstanceWatchEvents(ctx context.Context, watcher watch.Interface) {
+func handleKarmaInstrumentationInstanceWatchEvents(ctx context.Context, watcher watch.Interface) {
 	ch := watcher.ResultChan()
 	defer modifiedBatcher.Cancel()
 	for {
@@ -51,16 +51,16 @@ func handleInstrumentationInstanceWatchEvents(ctx context.Context, watcher watch
 			}
 			switch event.Type {
 			case watch.Modified:
-				handleModifiedInstrumentationInstance(event)
+				handleModifiedKarmaInstrumentationInstance(event)
 			}
 		}
 	}
 }
 
-func handleModifiedInstrumentationInstance(event watch.Event) {
-	instrumentedInstance, ok := event.Object.(*v1alpha1.InstrumentationInstance)
+func handleModifiedKarmaInstrumentationInstance(event watch.Event) {
+	instrumentedInstance, ok := event.Object.(*v1alpha1.KarmaInstrumentationInstance)
 	if !ok {
-		genericErrorMessage(sse.MessageEventModified, "InstrumentationInstance", "error type assertion")
+		genericErrorMessage(sse.MessageEventModified, "KarmaInstrumentationInstance", "error type assertion")
 	}
 	healthy := instrumentedInstance.Status.Healthy
 
@@ -75,17 +75,17 @@ func handleModifiedInstrumentationInstance(event watch.Event) {
 
 	labels := instrumentedInstance.GetLabels()
 	if labels == nil {
-		genericErrorMessage(sse.MessageEventModified, "InstrumentationInstance", "error getting labels")
+		genericErrorMessage(sse.MessageEventModified, "KarmaInstrumentationInstance", "error getting labels")
 	}
 
 	instrumentedAppName, ok := labels[consts.InstrumentedAppNameLabel]
 	if !ok {
-		genericErrorMessage(sse.MessageEventModified, "InstrumentationInstance", "error getting instrumented app name from labels")
+		genericErrorMessage(sse.MessageEventModified, "KarmaInstrumentationInstance", "error getting instrumented app name from labels")
 	}
 
 	name, kind, err := commonutils.ExtractWorkloadInfoFromRuntimeObjectName(instrumentedAppName)
 	if err != nil {
-		genericErrorMessage(sse.MessageEventModified, "InstrumentationInstance", "error getting workload info")
+		genericErrorMessage(sse.MessageEventModified, "KarmaInstrumentationInstance", "error getting workload info")
 	}
 
 	namespace := instrumentedInstance.Namespace
@@ -93,6 +93,6 @@ func handleModifiedInstrumentationInstance(event watch.Event) {
 	target := fmt.Sprintf("name=%s&kind=%s&namespace=%s", name, kind, namespace)
 	data := fmt.Sprintf("%s %s", instrumentedInstance.Status.Reason, instrumentedInstance.Status.Message)
 
-	fmt.Printf("InstrumentationInstance %s modified\n", name)
+	fmt.Printf("KarmaInstrumentationInstance %s modified\n", name)
 	modifiedBatcher.AddEvent(sse.MessageTypeError, data, target)
 }

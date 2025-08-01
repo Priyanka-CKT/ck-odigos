@@ -59,7 +59,7 @@ type collectorsGroups struct {
 }
 
 // newCollectorsGroups returns a CollectorsGroups
-func newCollectorsGroups(c *OdigosV1alpha1Client, namespace string) *collectorsGroups {
+func newCollectorsGroups(c *CodekarmaV1alpha1Client, namespace string) *collectorsGroups {
 	return &collectorsGroups{
 		gentype.NewClientWithListAndApply[*v1alpha1.CollectorsGroup, *v1alpha1.CollectorsGroupList, *odigosv1alpha1.CollectorsGroupApplyConfiguration](
 			"collectorsgroups",

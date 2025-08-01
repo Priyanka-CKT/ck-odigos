@@ -59,14 +59,14 @@ type OptionByContainer struct {
 	InstrumentationLibraries []InstrumentationLibraryOptions `json:"instrumentationsLibraries"`
 }
 
-// InstrumentedApplicationSpec defines the desired state of InstrumentedApplication
-type InstrumentedApplicationSpec struct {
+// KarmaInstrumentedApplicationSpec defines the desired state of KarmaInstrumentedApplication
+type KarmaInstrumentedApplicationSpec struct {
 	RuntimeDetails []RuntimeDetailsByContainer `json:"runtimeDetails,omitempty"`
 	Options        []OptionByContainer         `json:"options,omitempty"`
 }
 
-// InstrumentedApplicationStatus defines the observed state of InstrumentedApplication
-type InstrumentedApplicationStatus struct {
+// KarmaInstrumentedApplicationStatus defines the observed state of KarmaInstrumentedApplication
+type KarmaInstrumentedApplicationStatus struct {
 	// Represents the observations of a nstrumentedApplication's current state.
 	Conditions []metav1.Condition `json:"conditions,omitempty" patchStrategy:"merge" protobuf:"bytes,1,rep,name=conditions"`
 }
@@ -74,27 +74,33 @@ type InstrumentedApplicationStatus struct {
 //+genclient
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:metadata:labels=odigos.io/config=1
-//+kubebuilder:metadata:labels=odigos.io/system-object=true
+//+kubebuilder:metadata:labels=codekarma.tech/config=1
+//+kubebuilder:metadata:labels=codekarma.tech/system-object=true
 
-// InstrumentedApplication is the Schema for the instrumentedapplications API
-type InstrumentedApplication struct {
+// KarmaInstrumentedApplication is the Schema for the karmainstrumentedapplications API
+type KarmaInstrumentedApplication struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   InstrumentedApplicationSpec   `json:"spec,omitempty"`
-	Status InstrumentedApplicationStatus `json:"status,omitempty"`
+	Spec   KarmaInstrumentedApplicationSpec   `json:"spec,omitempty"`
+	Status KarmaInstrumentedApplicationStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-// InstrumentedApplicationList contains a list of InstrumentedApplication
-type InstrumentedApplicationList struct {
+// KarmaInstrumentedApplicationList contains a list of KarmaInstrumentedApplication
+type KarmaInstrumentedApplicationList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []InstrumentedApplication `json:"items"`
+	Items           []KarmaInstrumentedApplication `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&InstrumentedApplication{}, &InstrumentedApplicationList{})
+	SchemeBuilder.Register(&KarmaInstrumentedApplication{}, &KarmaInstrumentedApplicationList{})
 }
+
+// Type aliases for backward compatibility
+type InstrumentedApplication = KarmaInstrumentedApplication
+type InstrumentedApplicationSpec = KarmaInstrumentedApplicationSpec
+type InstrumentedApplicationStatus = KarmaInstrumentedApplicationStatus
+type InstrumentedApplicationList = KarmaInstrumentedApplicationList

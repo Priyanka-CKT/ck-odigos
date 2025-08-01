@@ -38,7 +38,7 @@ func GetConfig(c *gin.Context) {
 }
 
 func isDestinationChosen(ctx context.Context) bool {
-	dests, err := kube.DefaultClient.OdigosClient.Destinations("").List(ctx, metav1.ListOptions{})
+	dests, err := kube.DefaultClient.CodekarmaClient.Destinations("").List(ctx, metav1.ListOptions{})
 	if err != nil {
 		log.Printf("Error listing destinations: %v\n", err)
 		return false

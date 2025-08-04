@@ -4,11 +4,12 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"strings"
+	"time"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	podresourcesapi "k8s.io/kubelet/pkg/apis/podresources/v1alpha1"
-	"strings"
-	"time"
 )
 
 var (
@@ -52,7 +53,7 @@ func (c *kubeletClient) GetAllocations() (map[PodDetails]string, error) {
 		for _, container := range pod.Containers {
 			for _, device := range container.Devices {
 				for _, id := range device.DeviceIds {
-					if strings.Contains(device.GetResourceName(), "odigos.io") {
+					if strings.Contains(device.GetResourceName(), "codekarma.tech") {
 						allocations[podDetails] = id
 					}
 				}

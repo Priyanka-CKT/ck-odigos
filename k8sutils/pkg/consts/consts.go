@@ -17,7 +17,7 @@ const (
 )
 
 const (
-	OdigosDeploymentConfigMapName = "odigos-deployment"
+	OdigosDeploymentConfigMapName = "codekarma-deployment"
 )
 
 const (
@@ -43,9 +43,14 @@ const (
 )
 
 const (
-	OdigosEnvVarNamespace     = "ODIGOS_WORKLOAD_NAMESPACE"
-	OdigosEnvVarContainerName = "ODIGOS_CONTAINER_NAME"
-	OdigosEnvVarPodName       = "ODIGOS_POD_NAME"
+	OdigosEnvVarNamespace     = "CODEKARMA_WORKLOAD_NAMESPACE"
+	OdigosEnvVarContainerName = "CODEKARMA_CONTAINER_NAME"
+	OdigosEnvVarPodName       = "CODEKARMA_POD_NAME"
+)
+
+const (
+	// OdigosHostPath is the host path where odiglet stores instrumentation agents
+	OdigosHostPath = "/var/codekarma"
 )
 
 func OdigosInjectedEnvVars() []string {

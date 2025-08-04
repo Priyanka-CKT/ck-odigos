@@ -26,7 +26,7 @@ func Java(deviceId string, uniqueDestinationSignals map[common.ObservabilitySign
 	otlpEndpoint := fmt.Sprintf("http://%s:%d", env.Current.NodeIP, consts.OTLPPort)
 
 	// Use the correct agent jar file name
-	javaAgentPath := "/var/odigos/java/ck-agent-universal.jar"
+	javaAgentPath := "/var/codekarma/java/ck-agent-universal.jar"
 	javaOptsVal := fmt.Sprintf("-javaagent:%s", javaAgentPath)
 	javaToolOptionsVal := fmt.Sprintf("-javaagent:%s", javaAgentPath)
 
@@ -64,8 +64,8 @@ func Java(deviceId string, uniqueDestinationSignals map[common.ObservabilitySign
 		},
 		Mounts: []*v1beta1.Mount{
 			{
-				ContainerPath: "/var/odigos/java",
-				HostPath:      "/var/odigos/java",
+				ContainerPath: "/var/codekarma/java",
+				HostPath:      "/var/codekarma/java",
 				ReadOnly:      true,
 			},
 		},

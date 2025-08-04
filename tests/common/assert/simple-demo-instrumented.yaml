@@ -10,9 +10,9 @@ spec:
     - name: frontend
       resources:
         limits:
-          instrumentation.odigos.io/java-native-community: "1"
+          instrumentation.codekarma.tech/java-native-community: "1"
         requests:
-          instrumentation.odigos.io/java-native-community: "1"
+          instrumentation.codekarma.tech/java-native-community: "1"
 status:
   containerStatuses:
     - name: frontend
@@ -32,9 +32,9 @@ spec:
     - name: coupon
       resources:
         limits:
-          instrumentation.odigos.io/javascript-native-community: "1"
+          instrumentation.codekarma.tech/javascript-native-community: "1"
         requests:
-          instrumentation.odigos.io/javascript-native-community: "1"
+          instrumentation.codekarma.tech/javascript-native-community: "1"
 status:
   containerStatuses:
     - name: coupon
@@ -54,9 +54,9 @@ spec:
     - name: inventory
       resources:
         limits:
-          instrumentation.odigos.io/python-native-community: "1"
+          instrumentation.codekarma.tech/python-native-community: "1"
         requests:
-          instrumentation.odigos.io/python-native-community: "1"
+          instrumentation.codekarma.tech/python-native-community: "1"
 status:
   containerStatuses:
     - name: inventory
@@ -76,9 +76,9 @@ spec:
     - name: membership
       resources:
         limits:
-          instrumentation.odigos.io/go-ebpf-community: "1"
+          instrumentation.codekarma.tech/go-ebpf-community: "1"
         requests:
-          instrumentation.odigos.io/go-ebpf-community: "1"
+          instrumentation.codekarma.tech/go-ebpf-community: "1"
 status:
   containerStatuses:
     - name: membership
@@ -98,9 +98,9 @@ spec:
     - name: pricing
       resources:
         limits:
-          instrumentation.odigos.io/dotnet-native-community: "1"
+          instrumentation.codekarma.tech/dotnet-native-community: "1"
         requests:
-          instrumentation.odigos.io/dotnet-native-community: "1"
+          instrumentation.codekarma.tech/dotnet-native-community: "1"
 status:
   containerStatuses:
     - name: pricing
@@ -127,7 +127,7 @@ status:
     - containerName: coupon
       envVars:
       - name: NODE_OPTIONS
-        value: --require /var/odigos/nodejs/autoinstrumentation.js
+                    value: --require /var/codekarma/nodejs/autoinstrumentation.js
       language: javascript
       runtimeVersion: 18.3.0
 ---
@@ -148,9 +148,9 @@ status:
     - containerName: frontend
       (sort_by(envVars, &name)):
       - name: JAVA_OPTS
-        value: -javaagent:/var/odigos/java/javaagent.jar
+        value: -javaagent:/var/codekarma/java/javaagent.jar
       - name: JAVA_TOOL_OPTIONS
-        value: -javaagent:/var/odigos/java/javaagent.jar
+        value: -javaagent:/var/codekarma/java/javaagent.jar
       language: java
       runtimeVersion: 17.0.11+9
 ---
@@ -172,7 +172,7 @@ status:
       envVars:
       - name: PYTHONPATH
         # The image contains /bar in PYTHONPATH so this is concatenated with odigos value
-        value: /bar:/var/odigos/python:/var/odigos/python/opentelemetry/instrumentation/auto_instrumentation
+        value: /bar:/var/codekarma/python:/var/codekarma/python/opentelemetry/instrumentation/auto_instrumentation
       language: python
       runtimeVersion: 3.11.9
 ---

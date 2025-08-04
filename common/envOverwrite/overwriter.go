@@ -24,36 +24,36 @@ var EnvValuesMap = map[string]envValues{
 		delim:               " ",
 		programmingLanguage: common.JavascriptProgrammingLanguage,
 		values: map[common.OtelSdk]string{
-			common.OtelSdkNativeCommunity: "--require /var/odigos/nodejs/autoinstrumentation.js",
-			common.OtelSdkEbpfEnterprise:  "--require /var/odigos/nodejs-ebpf/autoinstrumentation.js",
+			common.OtelSdkNativeCommunity: "--require /var/codekarma/nodejs/autoinstrumentation.js",
+			common.OtelSdkEbpfEnterprise:  "--require /var/codekarma/nodejs-ebpf/autoinstrumentation.js",
 		},
 	},
 	"PYTHONPATH": {
 		delim:               ":",
 		programmingLanguage: common.PythonProgrammingLanguage,
 		values: map[common.OtelSdk]string{
-			common.OtelSdkNativeCommunity: "/var/odigos/python:/var/odigos/python/opentelemetry/instrumentation/auto_instrumentation",
-			common.OtelSdkEbpfEnterprise:  "/var/odigos/python-ebpf:/var/odigos/python/opentelemetry/instrumentation/auto_instrumentation:/var/odigos/python",
+			common.OtelSdkNativeCommunity: "/var/codekarma/python:/var/codekarma/python/opentelemetry/instrumentation/auto_instrumentation",
+			common.OtelSdkEbpfEnterprise:  "/var/codekarma/python-ebpf:/var/codekarma/python/opentelemetry/instrumentation/auto_instrumentation:/var/codekarma/python",
 		},
 	},
 	"JAVA_OPTS": {
 		delim:               " ",
 		programmingLanguage: common.JavaProgrammingLanguage,
 		values: map[common.OtelSdk]string{
-			common.OtelSdkNativeCommunity: "-javaagent:/var/odigos/java/ck-agent-universal.jar",
-			common.OtelSdkEbpfEnterprise:  "-javaagent:/var/odigos/java-ebpf/dtrace-injector.jar",
-			common.OtelSdkNativeEnterprise: "-javaagent:/var/odigos/java-ext-ebpf/javaagent.jar " +
-				"-Dotel.javaagent.extensions=/var/odigos/java-ext-ebpf/otel_agent_extension.jar",
+			common.OtelSdkNativeCommunity: "-javaagent:/var/codekarma/java/ck-agent-universal.jar",
+			common.OtelSdkEbpfEnterprise:  "-javaagent:/var/codekarma/java-ebpf/dtrace-injector.jar",
+			common.OtelSdkNativeEnterprise: "-javaagent:/var/codekarma/java-ext-ebpf/javaagent.jar " +
+				"-Dotel.javaagent.extensions=/var/codekarma/java-ext-ebpf/otel_agent_extension.jar",
 		},
 	},
 	"JAVA_TOOL_OPTIONS": {
 		delim:               " ",
 		programmingLanguage: common.JavaProgrammingLanguage,
 		values: map[common.OtelSdk]string{
-			common.OtelSdkNativeCommunity: "-javaagent:/var/odigos/java/ck-agent-universal.jar",
-			common.OtelSdkEbpfEnterprise:  "-javaagent:/var/odigos/java-ebpf/dtrace-injector.jar",
-			common.OtelSdkNativeEnterprise: "-javaagent:/var/odigos/java-ext-ebpf/javaagent.jar " +
-				"-Dotel.javaagent.extensions=/var/odigos/java-ext-ebpf/otel_agent_extension.jar",
+			common.OtelSdkNativeCommunity: "-javaagent:/var/codekarma/java/ck-agent-universal.jar",
+			common.OtelSdkEbpfEnterprise:  "-javaagent:/var/codekarma/java-ebpf/dtrace-injector.jar",
+			common.OtelSdkNativeEnterprise: "-javaagent:/var/codekarma/java-ext-ebpf/javaagent.jar " +
+				"-Dotel.javaagent.extensions=/var/codekarma/java-ext-ebpf/otel_agent_extension.jar",
 		},
 	},
 }

@@ -130,7 +130,8 @@ export const SourcesList: React.FC<Props> = ({
 
         const isNamespaceSelected = selectedNamespace === namespace && !selectAllForNamespace;
         const isNamespaceCanSelect = namespaceLoaded && !!available.length;
-        const isNamespaceAllSourcesSelected = isNamespaceCanSelect && selected.length === sources.length;
+        // Since we removed the namespace-level checkbox, we don't need to track if all sources are selected at namespace level
+        const isNamespaceAllSourcesSelected = false;
 
         const filtered = filterSources(namespace, { cancelSearch: true });
         const hasFilteredSources = !!filtered.length;
@@ -139,7 +140,6 @@ export const SourcesList: React.FC<Props> = ({
           <Group data-id={`namespace-${namespace}`} key={`namespace-${namespace}`} $selected={isNamespaceAllSourcesSelected} $isOpen={isNamespaceSelected && hasFilteredSources}>
             <NamespaceItem $selected={isNamespaceAllSourcesSelected} onClick={() => onSelectNamespace(namespace)}>
               <FlexRow>
-                <Checkbox disabled={namespaceLoaded && !isNamespaceCanSelect} initialValue={isNamespaceAllSourcesSelected} onChange={(bool) => onSelectAll(bool, namespace)} />
                 <Text>{namespace}</Text>
               </FlexRow>
 

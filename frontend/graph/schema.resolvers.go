@@ -263,10 +263,14 @@ func (r *mutationResolver) CreateNewDestination(ctx context.Context, destination
 
 // PersistK8sNamespace is the resolver for the persistK8sNamespace field.
 func (r *mutationResolver) PersistK8sNamespace(ctx context.Context, namespace model.PersistNamespaceItemInput) (bool, error) {
-	jsonMergePayload := services.GetJsonMergePatchForInstrumentationLabel(namespace.FutureSelected)
-	_, err := kube.DefaultClient.CoreV1().Namespaces().Patch(ctx, namespace.Name, types.MergePatchType, jsonMergePayload, metav1.PatchOptions{})
-	if err != nil {
-		return false, fmt.Errorf("failed to patch namespace: %v", err)
+
+	// Only patch namespace if futureSelected is true
+	if namespace.FutureSelected != nil && *namespace.FutureSelected {
+		jsonMergePayload := services.GetJsonMergePatchForInstrumentationLabel(namespace.FutureSelected)
+		_, err := kube.DefaultClient.CoreV1().Namespaces().Patch(ctx, namespace.Name, types.MergePatchType, jsonMergePayload, metav1.PatchOptions{})
+		if err != nil {
+			return false, fmt.Errorf("failed to patch namespace: %v", err)
+		}
 	}
 
 	return true, nil

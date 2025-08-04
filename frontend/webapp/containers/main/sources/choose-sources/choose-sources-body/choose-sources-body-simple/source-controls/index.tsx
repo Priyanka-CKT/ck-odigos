@@ -31,8 +31,6 @@ export const SourceControls: React.FC<Props> = ({
 
   searchText,
   setSearchText,
-  selectAll,
-  onSelectAll,
   showSelectedOnly,
   setShowSelectedOnly,
 }) => {
@@ -61,7 +59,6 @@ export const SourceControls: React.FC<Props> = ({
         </FlexContainer>
 
         <ToggleWrapper>
-          <Toggle title='Select all' initialValue={selectAll} onChange={onSelectAll} />
           <Toggle title='Show selected only' initialValue={showSelectedOnly} onChange={setShowSelectedOnly} />
           <Checkbox
             title='Future apps'

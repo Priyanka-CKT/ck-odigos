@@ -112,7 +112,7 @@ package instrumentation
 // 		t.Errorf("ApplyInstrumentationDevicesToPodTemplate() error = %v", err)
 // 	}
 
-// 	assertContainerWithInstrumentationDevice(t, podTemplate, 0, v1.ResourceName("instrumentation.odigos.io/go-ebpf-community"))
+// 	assertContainerWithInstrumentationDevice(t, podTemplate, 0, v1.ResourceName("instrumentation.codekarma.tech/go-ebpf-community"))
 // }
 
 // func TestApplyInstrumentationDevicesToPodTemplate_MissingRuntimeDetails(t *testing.T) {
@@ -231,7 +231,7 @@ package instrumentation
 // 		t.Errorf("ApplyInstrumentationDevicesToPodTemplate() expected no change to number of containers")
 // 	}
 
-// 	instrumentationDeviceName := v1.ResourceName("instrumentation.odigos.io/go-ebpf-community")
+// 	instrumentationDeviceName := v1.ResourceName("instrumentation.codekarma.tech/go-ebpf-community")
 // 	assertContainerWithInstrumentationDevice(t, podTemplate, 0, instrumentationDeviceName)
 // 	assertContainerWithInstrumentationDevice(t, podTemplate, 1, instrumentationDeviceName)
 // }
@@ -283,8 +283,8 @@ package instrumentation
 // 		t.Errorf("ApplyInstrumentationDevicesToPodTemplate() expected no change to number of containers")
 // 	}
 
-// 	assertContainerWithInstrumentationDevice(t, podTemplate, 0, v1.ResourceName("instrumentation.odigos.io/go-ebpf-community"))
-// 	assertContainerWithInstrumentationDevice(t, podTemplate, 1, v1.ResourceName("instrumentation.odigos.io/java-native-community"))
+// 	assertContainerWithInstrumentationDevice(t, podTemplate, 0, v1.ResourceName("instrumentation.codekarma.tech/go-ebpf-community"))
+// 	assertContainerWithInstrumentationDevice(t, podTemplate, 1, v1.ResourceName("instrumentation.codekarma.tech/java-native-community"))
 // }
 
 // func TestApplyInstrumentationDevicesToPodTemplate_MultiplePartialContainers(t *testing.T) {
@@ -328,7 +328,7 @@ package instrumentation
 // 	// container 0 should not be modified because it is not in the runtime details
 // 	assertContainerWithInstrumentationDevice(t, podTemplate, 0, "")
 
-// 	assertContainerWithInstrumentationDevice(t, podTemplate, 1, v1.ResourceName("instrumentation.odigos.io/java-native-community"))
+// 	assertContainerWithInstrumentationDevice(t, podTemplate, 1, v1.ResourceName("instrumentation.codekarma.tech/java-native-community"))
 // }
 
 // func TestApplyInstrumentationDevicesToPodTemplate_AppendExistingLimits(t *testing.T) {
@@ -380,7 +380,7 @@ package instrumentation
 // 		t.Errorf("ApplyInstrumentationDevicesToPodTemplate() expected existing resource limit to be preserved")
 // 	}
 
-// 	if container.Resources.Limits["instrumentation.odigos.io/go-ebpf-community"] != resource.MustParse("1") {
+// 	if container.Resources.Limits["instrumentation.codekarma.tech/go-ebpf-community"] != resource.MustParse("1") {
 // 		t.Errorf("ApplyInstrumentationDevicesToPodTemplate() expected instrumentation device to be added")
 // 	}
 // }
@@ -393,7 +393,7 @@ package instrumentation
 // 					Name: "test",
 // 					Resources: v1.ResourceRequirements{
 // 						Limits: map[v1.ResourceName]resource.Quantity{
-// 							"instrumentation.odigos.io/go-ebpf-community": resource.MustParse("1"),
+// 							"instrumentation.codekarma.tech/go-ebpf-community": resource.MustParse("1"),
 // 						},
 // 					},
 // 				},
@@ -429,11 +429,11 @@ package instrumentation
 // 		t.Errorf("ApplyInstrumentationDevicesToPodTemplate() expected 1 resource limits")
 // 	}
 
-// 	if _, ok := container.Resources.Limits["instrumentation.odigos.io/go-ebpf-community"]; ok {
+// 	if _, ok := container.Resources.Limits["instrumentation.codekarma.tech/go-ebpf-community"]; ok {
 // 		t.Errorf("ApplyInstrumentationDevicesToPodTemplate() expected to remove old existing resource limit for community ")
 // 	}
 
-// 	if container.Resources.Limits["instrumentation.odigos.io/go-ebpf-enterprise"] != resource.MustParse("1") {
+// 	if container.Resources.Limits["instrumentation.codekarma.tech/go-ebpf-enterprise"] != resource.MustParse("1") {
 // 		t.Errorf("ApplyInstrumentationDevicesToPodTemplate() expected instrumentation device to be added")
 // 	}
 // }

@@ -528,7 +528,7 @@ func NewOdigletDaemonSet(ns string, version string, imagePrefix string, imageNam
 							Name: "odigos",
 							VolumeSource: corev1.VolumeSource{
 								HostPath: &corev1.HostPathVolumeSource{
-									Path: "/var/odigos",
+									Path: "/var/codekarma",
 								},
 							},
 						},
@@ -555,7 +555,7 @@ func NewOdigletDaemonSet(ns string, version string, imagePrefix string, imageNam
 							VolumeMounts: []corev1.VolumeMount{
 								{
 									Name:      "odigos",
-									MountPath: "/var/odigos",
+									MountPath: "/var/codekarma",
 								},
 							},
 							ImagePullPolicy: "IfNotPresent",
@@ -621,7 +621,7 @@ func NewOdigletDaemonSet(ns string, version string, imagePrefix string, imageNam
 								},
 								{
 									Name:      "odigos",
-									MountPath: "/var/odigos",
+									MountPath: "/var/codekarma",
 									ReadOnly:  true,
 								},
 								{

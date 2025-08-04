@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	nodeMountPath         = "/var/odigos/nodejs"
+	nodeMountPath         = "/var/codekarma/nodejs"
 	nodeEnvEndpoint       = "OTEL_EXPORTER_OTLP_ENDPOINT"
 	nodeEnvServiceName    = "OTEL_SERVICE_NAME"
 	nodeEnvNodeOptions    = "NODE_OPTIONS"

@@ -50,7 +50,7 @@ spec:
               memory: "256Mi"
           volumeMounts:
             - name: odigos
-              mountPath: /var/odigos
+              mountPath: /var/codekarma
       containers:
         - name: odiglet
           {{- if .Values.imagePrefix }}
@@ -122,7 +122,7 @@ spec:
               mountPath: /var/lib/kubelet/pod-resources
               readOnly: true
             - name: odigos
-              mountPath: /var/odigos
+              mountPath: /var/codekarma
               readOnly: true
             - name: kernel-debug
               mountPath: /sys/kernel/debug
@@ -150,7 +150,7 @@ spec:
             path: /var/lib/kubelet/device-plugins
         - name: odigos
           hostPath:
-            path: /var/odigos
+            path: /var/codekarma
         - name: kernel-debug
           hostPath:
             path: /sys/kernel/debug

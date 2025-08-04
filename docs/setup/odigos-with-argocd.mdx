@@ -20,7 +20,7 @@ data:
     - .metadata.labels."odigos-instrumentation"
     - .metadata.annotations | select(has("odigos.io"))
     - .spec.template.metadata.labels | select(has("odigos.io"))
-    - .spec.template.spec.containers[].resources.limits | select(keys[] | startswith("instrumentation.odigos.io"))
+    - .spec.template.spec.containers[].resources.limits | select(keys[] | startswith("instrumentation.codekarma.tech"))
 ```
 
 These paths specify fields added by Odigos that you want Argo CD to ignore during synchronization.

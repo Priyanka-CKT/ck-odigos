@@ -24,13 +24,13 @@ const otelServiceNameEnvVarName = "OTEL_SERVICE_NAME"
 const otelResourceAttributesEnvVarName = "OTEL_RESOURCE_ATTRIBUTES"
 const ckClusterNameEnvVarName = "CK_CLUSTER_NAME"
 const ckNexusEndpointEnvVarName = "CK_NEXUS_ENDPOINT"
-const ckPgEndpointEnvVarName = "CK_PG_ENDPOINT"
+const ckMetricsEndpointEnvVarName = "CK_METRICS_ENDPOINT"
 const ckAppNameEnvVarName = "CK_APP_NAME"
 const appNameEnvVarName = "APP_NAME"
 
 // Default values if environment variables are not set
 const defaultNexusEndpoint = "https://api.codekarma.tech/nexus/test"
-const defaultPgEndpoint = "https://api.codekarma.tech/prometheus"
+const defaultMetricsEndpoint = "https://api.codekarma.tech/metrics"
 
 type resourceAttribute struct {
 	Key   attribute.Key
@@ -122,8 +122,8 @@ func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, ser
 			Value: getEnvWithDefault(ckNexusEndpointEnvVarName, defaultNexusEndpoint),
 		},
 		{
-			Name:  ckPgEndpointEnvVarName,
-			Value: getEnvWithDefault(ckPgEndpointEnvVarName, defaultPgEndpoint),
+			Name:  ckMetricsEndpointEnvVarName,
+			Value: getEnvWithDefault(ckMetricsEndpointEnvVarName, defaultMetricsEndpoint),
 		},
 	}
 

@@ -92,7 +92,7 @@ func getFiles(dir string, CopyCFiles bool, filesToKeep map[string]struct{}) ([]s
 		}
 		if !d.IsDir() {
 			if !CopyCFiles {
-				if _, found := filesToKeep[strings.Replace(path, "/instrumentations/", "/var/odigos/", 1)]; found {
+				if _, found := filesToKeep[strings.Replace(path, "/instrumentations/", "/var/codekarma/", 1)]; found {
 					log.Logger.V(0).Info("Skipping copying file", "file", path)
 					return nil
 				}

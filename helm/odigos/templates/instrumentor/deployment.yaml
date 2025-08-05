@@ -30,7 +30,7 @@ spec:
         image: "{{ .Values.instrumentor.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         {{- end }}
         ports:
-          - containerPort: 9443
+          - containerPort: 9444
             name: webhook-server
             protocol: TCP
         env:
@@ -72,7 +72,7 @@ spec:
       volumes:
         - name: webhook-cert
           secret:
-            secretName: instrumentor-webhook-cert
+            secretName: codekarma-instrumentor-webhook-cert
             defaultMode: 420
       terminationGracePeriodSeconds: 10
 {{- if .Values.imagePullSecrets }}

@@ -27,7 +27,7 @@ const (
 	InstrumentorDeploymentName    = "karmatap"
 	InstrumentorAppLabelValue     = "karmatap"
 	InstrumentorContainerName     = "manager"
-	InstrumentorWebhookSecretName = "instrumentor-webhook-cert"
+	InstrumentorWebhookSecretName = "codekarma-instrumentor-webhook-cert"
 	InstrumentorWebhookVolumeName = "webhook-cert"
 )
 
@@ -301,8 +301,8 @@ func NewInstrumentorService(ns string) *corev1.Service {
 			Ports: []corev1.ServicePort{
 				{
 					Name:       "webhook-server",
-					Port:       9443,
-					TargetPort: intstr.FromInt(9443),
+					Port:       9444,
+					TargetPort: intstr.FromInt(9444),
 				},
 			},
 			Selector: map[string]string{
@@ -455,7 +455,7 @@ func NewInstrumentorDeployment(ns string, version string, telemetryEnabled bool,
 							Command: []string{
 								"/app",
 							},
-							Args: args,
+							Args: append(args, "--webhook-port=9444"),
 							Env: []corev1.EnvVar{
 								{
 									Name:  "OTEL_SERVICE_NAME",
@@ -490,7 +490,7 @@ func NewInstrumentorDeployment(ns string, version string, telemetryEnabled bool,
 							Ports: []corev1.ContainerPort{
 								{
 									Name:          "webhook-server",
-									ContainerPort: 9443,
+									ContainerPort: 9444,
 									Protocol:      corev1.ProtocolTCP,
 								},
 							},

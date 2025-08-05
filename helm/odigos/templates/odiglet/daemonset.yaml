@@ -100,11 +100,18 @@ spec:
             limits:
               cpu: "1000m"
               memory: "1024Mi"
-          securityContext:
-            privileged: true
+         securityContext:
+            privileged: false
+            runAsUser: 0
+            runAsGroup: 0
             capabilities:
               add:
+          
                 - SYS_PTRACE
+                - SYS_ADMIN
+                
+              drop:
+                - ALL
           volumeMounts:
             - name: run-dir
               mountPath: /run

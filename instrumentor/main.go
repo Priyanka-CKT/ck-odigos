@@ -78,6 +78,7 @@ func main() {
 	var enableLeaderElection bool
 	var probeAddr string
 	var telemetryDisabled bool
+	var webhookPort int
 
 	flag.StringVar(&metricsAddr, "metrics-bind-address", ":8080", "The address the metric endpoint binds to.")
 	flag.StringVar(&probeAddr, "health-probe-bind-address", ":8081", "The address the probe endpoint binds to.")
@@ -90,6 +91,7 @@ func main() {
 		Development: true,
 	}
 	opts.BindFlags(flag.CommandLine)
+	flag.IntVar(&webhookPort, "webhook-port", 9444, "The port the webhook server binds to.")
 	flag.Parse()
 
 	zapLogger := ctrlzap.NewRaw(ctrlzap.UseFlagOptions(&opts))
@@ -104,7 +106,7 @@ func main() {
 		},
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "201bdfa0.odigos.io",
+		LeaderElectionID:       "a1b2c3d4.codekarma.tech",
 		Cache: cache.Options{
 			DefaultTransform: cache.TransformStripManagedFields(),
 			// Store minimum amount of data for every object type.
@@ -117,13 +119,18 @@ func main() {
 		},
 	}
 
-	// Check if the environment variable `LOCAL_WEBHOOK_CERT_DIR` is set.
-	// If defined, add WebhookServer options with the specified certificate directory.
-	// This is used primarily for local development environments to provide a custom path for serving TLS certificates.
+	// Configure webhook server
 	localCertDir := os.Getenv("LOCAL_MUTATING_WEBHOOK_CERT_DIR")
 	if localCertDir != "" {
+		// Local development configuration
 		mgrOptions.WebhookServer = webhook.NewServer(webhook.Options{
 			CertDir: localCertDir,
+		})
+	} else {
+		// Production configuration - use port 9444 to avoid conflicts with Odigos
+		mgrOptions.WebhookServer = webhook.NewServer(webhook.Options{
+			Host: "0.0.0.0",
+			Port: webhookPort,
 		})
 	}
 

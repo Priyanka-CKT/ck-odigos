@@ -6,7 +6,7 @@ metadata:
 spec:
   ports:
     - name: webhook-server
-      port: 9443
-      targetPort: 9443
+      port: 9444
+      targetPort: 9444
   selector:
     app.kubernetes.io/name: karmatap

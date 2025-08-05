@@ -51,27 +51,50 @@ func (w workloadPodTemplatePredicate) Update(e event.UpdateEvent) bool {
 		return false
 	}
 
+	// Check if the change was made by Odigos itself by comparing the inject-instrumentation label
+	oldHasLabel := hasInjectInstrumentationLabel(oldPodSpec)
+	newHasLabel := hasInjectInstrumentationLabel(newPodSpec)
+
+	// If Odigos is adding/removing its own label, don't trigger reconciliation to avoid loops
+	if oldHasLabel != newHasLabel {
+		return false
+	}
+
 	// only handle workloads if any env changed
 	if len(oldPodSpec.Spec.Containers) != len(newPodSpec.Spec.Containers) {
-		return true
+		// Only trigger if Odigos is not the one making the change
+		if !oldHasLabel && !newHasLabel {
+			return true
+		}
 	}
 	for i := range oldPodSpec.Spec.Containers {
 		if len(oldPodSpec.Spec.Containers[i].Env) != len(newPodSpec.Spec.Containers[i].Env) {
-			return true
+			// Only trigger if Odigos is not the one making the change
+			if !oldHasLabel && !newHasLabel {
+				return true
+			}
 		}
 		for j := range oldPodSpec.Spec.Containers[i].Env {
 			prevEnv := &newPodSpec.Spec.Containers[i].Env[j]
 			newEnv := &oldPodSpec.Spec.Containers[i].Env[j]
 			if prevEnv.Name != newEnv.Name || prevEnv.Value != newEnv.Value {
-				return true
+				// Only trigger if Odigos is not the one making the change
+				if !oldHasLabel && !newHasLabel {
+					return true
+				}
 			}
 		}
 
 		// user might apply a change to workload which will overwrite odigos injected resources
+		// but only trigger if the change is not made by Odigos itself
 		prevNumOdigosResources := countOdigosResources(oldPodSpec.Spec.Containers[i].Resources.Limits)
 		newNumOdigosResources := countOdigosResources(newPodSpec.Spec.Containers[i].Resources.Limits)
 		if prevNumOdigosResources != newNumOdigosResources {
-			return true
+			// Only trigger if Odigos is not the one making the change
+			// If Odigos is adding/removing its own resources, don't trigger reconciliation
+			if !oldHasLabel && !newHasLabel {
+				return true
+			}
 		}
 	}
 
@@ -84,6 +107,15 @@ func (w workloadPodTemplatePredicate) Delete(e event.DeleteEvent) bool {
 
 func (w workloadPodTemplatePredicate) Generic(e event.GenericEvent) bool {
 	return false
+}
+
+// Helper function to check if pod template has the inject-instrumentation label
+func hasInjectInstrumentationLabel(podSpec *corev1.PodTemplateSpec) bool {
+	if podSpec.Labels == nil {
+		return false
+	}
+	_, exists := podSpec.Labels["codekarma.tech/inject-instrumentation"]
+	return exists
 }
 
 func SetupWithManager(mgr ctrl.Manager) error {

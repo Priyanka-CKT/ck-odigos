@@ -17,7 +17,9 @@ import (
 	"github.com/odigos-io/odigos/k8sutils/pkg/workload"
 	appsv1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -167,6 +169,73 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 	return nil, devicePartiallyApplied
 }
 
+// validateAndCleanupJavaToolOptionsWhenEmpty validates JAVA_TOOL_OPTIONS even when RuntimeDetails are empty
+func validateAndCleanupJavaToolOptionsWhenEmpty(ctx context.Context, client client.Client, instrumentedApplication *odigosv1.KarmaInstrumentedApplication) error {
+	// Get the workload object
+	workloadName, workloadKind, err := workload.ExtractWorkloadInfoFromRuntimeObjectName(instrumentedApplication.Name)
+	if err != nil {
+		return err
+	}
+
+	workloadObj := workload.ClientObjectFromWorkloadKind(workloadKind)
+	if workloadObj == nil {
+		return fmt.Errorf("unknown workload kind: %s", workloadKind)
+	}
+
+	err = client.Get(ctx, types.NamespacedName{
+		Namespace: instrumentedApplication.Namespace,
+		Name:      workloadName,
+	}, workloadObj)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return err
+	}
+
+	// Get pod template spec
+	podSpec, err := getPodSpecFromObject(workloadObj)
+	if err != nil {
+		return err
+	}
+
+	// Get pod labels for proper validation
+	podLabels := make(map[string]string)
+	if podSpec.Labels != nil {
+		podLabels = podSpec.Labels
+	}
+
+	// Validate JAVA_TOOL_OPTIONS for each container
+	changed := false
+	for i, container := range podSpec.Spec.Containers {
+		for j, envVar := range container.Env {
+			if envVar.Name == "JAVA_TOOL_OPTIONS" {
+				// Use label-aware validation for proper cleanup
+				validatedValue := validateAllJavaAgents(envVar.Value, podLabels)
+				if validatedValue != envVar.Value {
+					podSpec.Spec.Containers[i].Env[j].Value = validatedValue
+					changed = true
+					log.FromContext(ctx).Info(
+						"Cleaned up JAVA_TOOL_OPTIONS when RuntimeDetails are empty",
+						"container", container.Name,
+						"original", envVar.Value,
+						"validated", validatedValue,
+						"podLabels", podLabels,
+					)
+				}
+				break
+			}
+		}
+	}
+
+	// Update the workload if changes were made
+	if changed {
+		return client.Update(ctx, workloadObj)
+	}
+
+	return nil
+}
+
 func removeInstrumentationDeviceFromWorkload(ctx context.Context, kubeClient client.Client, namespace string, workloadKind workload.WorkloadKind, workloadName string, uninstrumentReason ApplyInstrumentationDeviceReason) error {
 
 	workloadObj := workload.ClientObjectFromWorkloadKind(workloadKind)
@@ -257,6 +326,18 @@ func isSupportedLanguage(language common.ProgrammingLanguage) bool {
 	}
 }
 
+// validateAllJavaAgentsFileOnly keeps all agents (no file existence check)
+// Used when pod labels are not available (e.g., in reconciliation logic)
+// File existence check is removed because files are only available inside containers at runtime
+func validateAllJavaAgentsFileOnly(javaToolOptions string) string {
+	if javaToolOptions == "" {
+		return ""
+	}
+
+	// Keep all agents - let the JVM handle missing files at runtime
+	return javaToolOptions
+}
+
 // reconciles a single workload, which might be triggered by a change in multiple resources.
 // each time a relevant resource changes, this function is called to reconcile the workload
 // and always writes the status into the KarmaInstrumentedApplication CR
@@ -279,7 +360,14 @@ func reconcileSingleWorkload(ctx context.Context, kubeClient client.Client, inst
 	}
 
 	if len(instrumentedApplication.Spec.RuntimeDetails) == 0 {
-		err := removeInstrumentationDeviceFromWorkload(ctx, kubeClient, instrumentedApplication.Namespace, workloadKind, workloadName, ApplyInstrumentationDeviceReasonNoRuntimeDetails)
+		// Before removing instrumentation, try to validate and cleanup JAVA_TOOL_OPTIONS
+		// This handles the case where RuntimeDetails are empty but we still need to clean up
+		err := validateAndCleanupJavaToolOptionsWhenEmpty(ctx, kubeClient, instrumentedApplication)
+		if err != nil {
+			log.FromContext(ctx).Error(err, "Failed to validate JAVA_TOOL_OPTIONS when RuntimeDetails are empty")
+		}
+
+		err = removeInstrumentationDeviceFromWorkload(ctx, kubeClient, instrumentedApplication.Namespace, workloadKind, workloadName, ApplyInstrumentationDeviceReasonNoRuntimeDetails)
 		if err == nil {
 			conditions.UpdateStatusConditions(ctx, kubeClient, instrumentedApplication, &instrumentedApplication.Status.Conditions, metav1.ConditionFalse, appliedInstrumentationDeviceType, string(ApplyInstrumentationDeviceReasonNoRuntimeDetails), "No runtime details found")
 		} else {

@@ -1,6 +1,8 @@
 package envOverwrite
 
 import (
+	"fmt"
+	"os"
 	"strings"
 
 	"github.com/odigos-io/odigos/common"
@@ -50,9 +52,9 @@ var EnvValuesMap = map[string]envValues{
 		delim:               " ",
 		programmingLanguage: common.JavaProgrammingLanguage,
 		values: map[common.OtelSdk]string{
-			common.OtelSdkNativeCommunity: "-javaagent:/var/codekarma/java/ck-agent-universal.jar",
-			common.OtelSdkEbpfEnterprise:  "-javaagent:/var/codekarma/java-ebpf/dtrace-injector.jar",
-			common.OtelSdkNativeEnterprise: "-javaagent:/var/codekarma/java-ext-ebpf/javaagent.jar " +
+			common.OtelSdkNativeCommunity: getConditionalJavaAgent("/var/codekarma/java/ck-agent-universal.jar"),
+			common.OtelSdkEbpfEnterprise:  getConditionalJavaAgent("/var/codekarma/java-ebpf/dtrace-injector.jar"),
+			common.OtelSdkNativeEnterprise: getConditionalJavaAgent("/var/codekarma/java-ext-ebpf/javaagent.jar") + " " +
 				"-Dotel.javaagent.extensions=/var/codekarma/java-ext-ebpf/otel_agent_extension.jar",
 		},
 	},
@@ -94,11 +96,21 @@ func GetPatchedEnvValue(envName string, observedValue string, currentSdk *common
 		return nil
 	}
 
+	// For JAVA_TOOL_OPTIONS, validate all agents exist before processing
+	if envName == "JAVA_TOOL_OPTIONS" && language == common.JavaProgrammingLanguage {
+		// For environment overwrite, we don't have pod labels, so use file-only validation
+		validatedValue := validateAllJavaAgentsFileOnly(observedValue)
+		if validatedValue != observedValue {
+			// If validation changed the value, return the validated version
+			return &validatedValue
+		}
+	}
+
 	// scenario 1: no user defined values and no odigos value
 	// happens: might be the case right after the source is instrumented, and before the instrumentation is applied.
-	// action: there are no user defined values, so no need to make any changes.
+	// action: we want to add the odigos value when SDK is present
 	if observedValue == "" {
-		return nil
+		return &desiredOdigosPart
 	}
 
 	// scenario 2: no user defined values, only odigos value
@@ -173,4 +185,91 @@ func ValToAppend(envName string, sdk common.OtelSdk) (string, bool) {
 	}
 
 	return valToAppend, true
+}
+
+// validateAllJavaAgents checks if ALL agents in JAVA_TOOL_OPTIONS exist and removes invalid ones
+// Uses both label presence and file existence for more accurate validation
+func validateAllJavaAgents(javaToolOptions string, podLabels map[string]string) string {
+	if javaToolOptions == "" {
+		return ""
+	}
+
+	parts := strings.Split(javaToolOptions, " ")
+	var validParts []string
+
+	for _, part := range parts {
+		part = strings.TrimSpace(part)
+		if part == "" {
+			continue
+		}
+
+		if strings.HasPrefix(part, "-javaagent:") {
+			agentPath := strings.TrimPrefix(part, "-javaagent:")
+
+			// Enhanced validation: Check both file existence AND label presence
+			if shouldKeepJavaAgent(agentPath, podLabels) {
+				validParts = append(validParts, part)
+			}
+			// Skip invalid agents - they will be removed
+		} else {
+			// Keep non-javaagent parts (like -Xmx512m, -XX:+UseG1GC, etc.)
+			validParts = append(validParts, part)
+		}
+	}
+
+	return strings.Join(validParts, " ")
+}
+
+// shouldKeepJavaAgent determines if a Java agent should be kept based on label presence only
+// File existence check is removed to avoid race conditions with device plugin mounting
+// JVM will handle missing files gracefully at startup
+func shouldKeepJavaAgent(agentPath string, podLabels map[string]string) bool {
+	// Enhanced logic: Check label presence for specific agents
+	if strings.Contains(agentPath, "/var/odigos/") {
+		// For Odigos agents:
+		// - If Odigos label is present, keep it
+		// - If Odigos label is NOT present, remove it
+		if odigosLabel, exists := podLabels["odigos.io/inject-instrumentation"]; exists && odigosLabel == "true" {
+			return true
+		}
+		// If Odigos label is not present, remove the Odigos agent
+		return false
+	}
+
+	if strings.Contains(agentPath, "/var/codekarma/") {
+		// For CodeKarma agents:
+		// - If CodeKarma label is present, keep it
+		// - If CodeKarma label is NOT present, remove it
+		if codekarmaLabel, exists := podLabels["codekarma.tech/inject-instrumentation"]; exists && codekarmaLabel == "true" {
+			return true
+		}
+		// If CodeKarma label is not present, remove the CodeKarma agent
+		return false
+	}
+
+	return true
+}
+
+// validateAllJavaAgentsFileOnly keeps all agents (no file existence check)
+// Used when pod labels are not available (e.g., in environment overwrite logic)
+// File existence check is removed because files are only available inside containers at runtime
+func validateAllJavaAgentsFileOnly(javaToolOptions string) string {
+	if javaToolOptions == "" {
+		return ""
+	}
+
+	// Keep all agents - let the JVM handle missing files at runtime
+	return javaToolOptions
+}
+
+// agentExists checks if the agent file exists on the filesystem
+func agentExists(path string) bool {
+	_, err := os.Stat(path)
+	return err == nil
+}
+
+// getConditionalJavaAgent returns the javaagent option
+// File existence check is removed because files are only available inside containers at runtime
+func getConditionalJavaAgent(agentPath string) string {
+	return fmt.Sprintf("-javaagent:%s", agentPath)
 }

@@ -51,37 +51,49 @@ func (w workloadPodTemplatePredicate) Update(e event.UpdateEvent) bool {
 		return false
 	}
 
-	// Check if the change was made by Odigos itself by comparing the inject-instrumentation label
-	oldHasLabel := hasInjectInstrumentationLabel(oldPodSpec)
-	newHasLabel := hasInjectInstrumentationLabel(newPodSpec)
+	// Check if the change was made by CodeKarma itself by comparing the inject-instrumentation label
+	oldHasCodeKarmaLabel := hasCodeKarmaInjectInstrumentationLabel(oldPodSpec)
+	newHasCodeKarmaLabel := hasCodeKarmaInjectInstrumentationLabel(newPodSpec)
 
-	// If Odigos is adding/removing its own label, don't trigger reconciliation to avoid loops
-	if oldHasLabel != newHasLabel {
+	// Check if the change was made by Odigos itself by comparing the inject-instrumentation label
+	oldHasOdigosLabel := hasOdigosInjectInstrumentationLabel(oldPodSpec)
+	newHasOdigosLabel := hasOdigosInjectInstrumentationLabel(newPodSpec)
+
+	// Allow reconciliation when ANY labels change (both addition and removal)
+	// This enables proper setup when labels are added and cleanup when labels are removed
+	if oldHasCodeKarmaLabel != newHasCodeKarmaLabel || oldHasOdigosLabel != newHasOdigosLabel {
+		return true
+	}
+
+	// Prevent double reconciliation when CodeKarma is making changes
+	// Only trigger reconciliation for environment changes if CodeKarma is not present
+	// BUT: Allow reconciliation for label changes even when CodeKarma is present
+	if oldHasCodeKarmaLabel || newHasCodeKarmaLabel {
+		// CodeKarma is present, don't trigger on env changes to avoid double reconciliation
+		// BUT: Label changes are already handled above, so this only affects env changes
 		return false
 	}
 
-	// only handle workloads if any env changed
+	// only handle workloads if any env changed (only when CodeKarma is not present)
 	if len(oldPodSpec.Spec.Containers) != len(newPodSpec.Spec.Containers) {
-		// Only trigger if Odigos is not the one making the change
-		if !oldHasLabel && !newHasLabel {
-			return true
-		}
+		return true
 	}
 	for i := range oldPodSpec.Spec.Containers {
 		if len(oldPodSpec.Spec.Containers[i].Env) != len(newPodSpec.Spec.Containers[i].Env) {
-			// Only trigger if Odigos is not the one making the change
-			if !oldHasLabel && !newHasLabel {
-				return true
-			}
+			return true
 		}
-		for j := range oldPodSpec.Spec.Containers[i].Env {
+
+		// Use the minimum length to avoid index out of range
+		minEnvLen := len(oldPodSpec.Spec.Containers[i].Env)
+		if len(newPodSpec.Spec.Containers[i].Env) < minEnvLen {
+			minEnvLen = len(newPodSpec.Spec.Containers[i].Env)
+		}
+
+		for j := 0; j < minEnvLen; j++ {
 			prevEnv := &newPodSpec.Spec.Containers[i].Env[j]
 			newEnv := &oldPodSpec.Spec.Containers[i].Env[j]
 			if prevEnv.Name != newEnv.Name || prevEnv.Value != newEnv.Value {
-				// Only trigger if Odigos is not the one making the change
-				if !oldHasLabel && !newHasLabel {
-					return true
-				}
+				return true
 			}
 		}
 
@@ -90,11 +102,7 @@ func (w workloadPodTemplatePredicate) Update(e event.UpdateEvent) bool {
 		prevNumOdigosResources := countOdigosResources(oldPodSpec.Spec.Containers[i].Resources.Limits)
 		newNumOdigosResources := countOdigosResources(newPodSpec.Spec.Containers[i].Resources.Limits)
 		if prevNumOdigosResources != newNumOdigosResources {
-			// Only trigger if Odigos is not the one making the change
-			// If Odigos is adding/removing its own resources, don't trigger reconciliation
-			if !oldHasLabel && !newHasLabel {
-				return true
-			}
+			return true
 		}
 	}
 
@@ -109,12 +117,21 @@ func (w workloadPodTemplatePredicate) Generic(e event.GenericEvent) bool {
 	return false
 }
 
-// Helper function to check if pod template has the inject-instrumentation label
-func hasInjectInstrumentationLabel(podSpec *corev1.PodTemplateSpec) bool {
+// Helper function to check if pod template has the CodeKarma inject-instrumentation label
+func hasCodeKarmaInjectInstrumentationLabel(podSpec *corev1.PodTemplateSpec) bool {
 	if podSpec.Labels == nil {
 		return false
 	}
 	_, exists := podSpec.Labels["codekarma.tech/inject-instrumentation"]
+	return exists
+}
+
+// Helper function to check if pod template has the Odigos inject-instrumentation label
+func hasOdigosInjectInstrumentationLabel(podSpec *corev1.PodTemplateSpec) bool {
+	if podSpec.Labels == nil {
+		return false
+	}
+	_, exists := podSpec.Labels["odigos.io/inject-instrumentation"]
 	return exists
 }
 

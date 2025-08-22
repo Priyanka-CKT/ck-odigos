@@ -5,6 +5,7 @@ import { type NodePositions } from './get-node-positions';
 import { getMainContainerLanguage } from '@/utils/constants/programming-languages';
 import { getEntityIcon, getEntityLabel, getHealthStatus, getProgrammingLanguageIcon } from '@/utils';
 import { NODE_TYPES, OVERVIEW_ENTITY_TYPES, OVERVIEW_NODE_TYPES, STATUSES, type ComputePlatformMapped } from '@/types';
+import { useAgentStatusStore } from '@/store/useAgentStatusStore';
 
 interface Params {
   loading: boolean;
@@ -18,6 +19,14 @@ interface Params {
 const { nodeWidth, nodeHeight, framePadding } = nodeConfig;
 
 const mapToNodeData = (entity: Params['entities'][0]) => {
+  const { statuses } = useAgentStatusStore.getState();
+  const agentStatus = statuses[entity.name];
+  const isDisabled = agentStatus === 'disabled';
+  
+  // Service is active if agent status is not 'disabled'
+  // 'enabled' and 'unknown' both count as active
+  const isActive = agentStatus !== 'disabled';
+  
   return {
     nodeWidth,
     nodeHeight,
@@ -32,6 +41,8 @@ const mapToNodeData = (entity: Params['entities'][0]) => {
     title: getEntityLabel(entity, OVERVIEW_ENTITY_TYPES.SOURCE, { extended: true }),
     subTitle: entity.kind,
     iconSrc: getProgrammingLanguageIcon(getMainContainerLanguage(entity)),
+    isActive,
+    isDisabled,
     raw: entity,
   };
 };

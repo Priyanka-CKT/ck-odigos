@@ -14,6 +14,7 @@ interface Props {
   monitorsWithLabels?: boolean;
   isActive?: boolean;
   isError?: boolean;
+  isDisabled?: boolean;
   withExtend?: boolean;
   isExtended?: boolean;
   renderExtended?: () => JSX.Element;
@@ -25,7 +26,7 @@ const ControlledVisibility = styled.div`
   visibility: hidden;
 `;
 
-const Container = styled.div<{ $withClick: boolean; $isError: Props['isError'] }>`
+const Container = styled.div<{ $withClick: boolean; $isError: Props['isError']; $isDisabled: boolean }>`
   display: flex;
   flex-direction: column;
   align-self: stretch;
@@ -33,6 +34,7 @@ const Container = styled.div<{ $withClick: boolean; $isError: Props['isError'] }
   width: calc(100% - 32px);
   border-radius: 16px;
   background-color: ${({ $isError, theme }) => ($isError ? '#281515' : theme.colors.white_opacity['004'])};
+  opacity: ${({ $isDisabled }) => ($isDisabled ? 0.5 : 1)};
 
   ${({ $withClick, $isError, theme }) =>
     $withClick &&
@@ -93,6 +95,7 @@ export const DataTab: React.FC<Props> = ({
   monitorsWithLabels,
   isActive,
   isError,
+  isDisabled,
   withExtend,
   isExtended,
   renderExtended,
@@ -131,7 +134,7 @@ export const DataTab: React.FC<Props> = ({
   );
 
   return (
-    <Container $isError={isError} $withClick={!!onClick} onClick={onClick} {...props}>
+    <Container $isError={isError} $withClick={!!onClick} $isDisabled={!!isDisabled} onClick={onClick} {...props}>
       <FlexRow $gap={8}>
         <IconWrapped icon={icon} src={iconSrc} isError={isError} />
 

@@ -16,9 +16,8 @@ import (
 	"github.com/odigos-io/odigos/frontend/graph/model"
 	"github.com/odigos-io/odigos/frontend/kube"
 	"github.com/odigos-io/odigos/frontend/services"
-	actionservices "github.com/odigos-io/odigos/frontend/services/actions"
-	odigos_describe "github.com/odigos-io/odigos/frontend/services/describe/odigos_describe"
-	source_describe "github.com/odigos-io/odigos/frontend/services/describe/source_describe"
+	"github.com/odigos-io/odigos/frontend/services/describe/odigos_describe"
+	describe "github.com/odigos-io/odigos/frontend/services/describe/source_describe"
 	testconnection "github.com/odigos-io/odigos/frontend/services/test_connection"
 	"github.com/odigos-io/odigos/k8sutils/pkg/workload"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -141,9 +140,10 @@ func (r *computePlatformResolver) Actions(ctx context.Context, obj *model.Comput
 	return response, nil
 }
 
-// KarmaInstrumentationRules is the resolver for the instrumentationRules field.
-func (r *computePlatformResolver) KarmaInstrumentationRules(ctx context.Context, obj *model.ComputePlatform) ([]*model.KarmaInstrumentationRule, error) {
-	return services.ListKarmaInstrumentationRules(ctx)
+// InstrumentationRules is the resolver for the instrumentationRules field.
+func (r *computePlatformResolver) InstrumentationRules(ctx context.Context, obj *model.ComputePlatform) ([]*model.InstrumentationRule, error) {
+	// TODO: Implement this properly when InstrumentationRule is defined
+	return []*model.InstrumentationRule{}, nil
 }
 
 // Type is the resolver for the type field.
@@ -263,7 +263,6 @@ func (r *mutationResolver) CreateNewDestination(ctx context.Context, destination
 
 // PersistK8sNamespace is the resolver for the persistK8sNamespace field.
 func (r *mutationResolver) PersistK8sNamespace(ctx context.Context, namespace model.PersistNamespaceItemInput) (bool, error) {
-
 	// Only patch namespace if futureSelected is true
 	if namespace.FutureSelected != nil && *namespace.FutureSelected {
 		jsonMergePayload := services.GetJsonMergePatchForInstrumentationLabel(namespace.FutureSelected)
@@ -466,115 +465,29 @@ func (r *mutationResolver) DeleteDestination(ctx context.Context, id string) (bo
 	return true, nil
 }
 
-// CreateAction is the resolver for the createAction field.
-func (r *mutationResolver) CreateAction(ctx context.Context, action model.ActionInput) (model.Action, error) {
-	switch action.Type {
-	case actionservices.ActionTypeAddClusterInfo:
-		return actionservices.CreateAddClusterInfo(ctx, action)
-	case actionservices.ActionTypeDeleteAttribute:
-		return actionservices.CreateDeleteAttribute(ctx, action)
-	case actionservices.ActionTypePiiMasking:
-		return actionservices.CreatePiiMasking(ctx, action)
-	case actionservices.ActionTypeErrorSampler:
-		return actionservices.CreateErrorSampler(ctx, action)
-	case actionservices.ActionTypeLatencySampler:
-		return actionservices.CreateLatencySampler(ctx, action)
-	case actionservices.ActionTypeProbabilisticSampler:
-		return actionservices.CreateProbabilisticSampler(ctx, action)
-	case actionservices.ActionTypeRenameAttribute:
-		return actionservices.CreateRenameAttribute(ctx, action)
-	default:
-		return nil, fmt.Errorf("unsupported action type: %s", action.Type)
-	}
+// CreateInstrumentationRule is the resolver for the createInstrumentationRule field.
+func (r *mutationResolver) CreateInstrumentationRule(ctx context.Context, instrumentationRule model.InstrumentationRuleInput) (*model.InstrumentationRule, error) {
+	panic(fmt.Errorf("not implemented: CreateInstrumentationRule - createInstrumentationRule"))
 }
 
-// UpdateAction is the resolver for the updateAction field.
-func (r *mutationResolver) UpdateAction(ctx context.Context, id string, action model.ActionInput) (model.Action, error) {
-	switch action.Type {
-	case actionservices.ActionTypeAddClusterInfo:
-		return actionservices.UpdateAddClusterInfo(ctx, id, action)
-	case actionservices.ActionTypeDeleteAttribute:
-		return actionservices.UpdateDeleteAttribute(ctx, id, action)
-	case actionservices.ActionTypePiiMasking:
-		return actionservices.UpdatePiiMasking(ctx, id, action)
-	case actionservices.ActionTypeErrorSampler:
-		return actionservices.UpdateErrorSampler(ctx, id, action)
-	case actionservices.ActionTypeLatencySampler:
-		return actionservices.UpdateLatencySampler(ctx, id, action)
-	case actionservices.ActionTypeProbabilisticSampler:
-		return actionservices.UpdateProbabilisticSampler(ctx, id, action)
-	case actionservices.ActionTypeRenameAttribute:
-		return actionservices.UpdateRenameAttribute(ctx, id, action)
-	default:
-		return nil, fmt.Errorf("unsupported action type: %s", action.Type)
-	}
+// UpdateInstrumentationRule is the resolver for the updateInstrumentationRule field.
+func (r *mutationResolver) UpdateInstrumentationRule(ctx context.Context, ruleID string, instrumentationRule model.InstrumentationRuleInput) (*model.InstrumentationRule, error) {
+	panic(fmt.Errorf("not implemented: UpdateInstrumentationRule - updateInstrumentationRule"))
 }
 
-// DeleteAction is the resolver for the deleteAction field.
-func (r *mutationResolver) DeleteAction(ctx context.Context, id string, actionType string) (bool, error) {
-	switch actionType {
-	case actionservices.ActionTypeAddClusterInfo:
-		err := actionservices.DeleteAddClusterInfo(ctx, id)
-		if err != nil {
-			return false, fmt.Errorf("failed to delete AddClusterInfo: %v", err)
-		}
-
-	case actionservices.ActionTypeDeleteAttribute:
-		err := actionservices.DeleteDeleteAttribute(ctx, id)
-		if err != nil {
-			return false, fmt.Errorf("failed to delete DeleteAttribute: %v", err)
-		}
-	case actionservices.ActionTypePiiMasking:
-		err := actionservices.DeletePiiMasking(ctx, id)
-		if err != nil {
-			return false, fmt.Errorf("failed to delete PiiMasking: %v", err)
-		}
-	case actionservices.ActionTypeErrorSampler:
-		err := actionservices.DeleteErrorSampler(ctx, id)
-		if err != nil {
-			return false, fmt.Errorf("failed to delete ErrorSampler: %v", err)
-		}
-	case actionservices.ActionTypeLatencySampler:
-		err := actionservices.DeleteLatencySampler(ctx, id)
-		if err != nil {
-			return false, fmt.Errorf("failed to delete LatencySampler: %v", err)
-		}
-	case actionservices.ActionTypeProbabilisticSampler:
-		err := actionservices.DeleteProbabilisticSampler(ctx, id)
-		if err != nil {
-			return false, fmt.Errorf("failed to delete ProbabilisticSampler: %v", err)
-		}
-	case actionservices.ActionTypeRenameAttribute:
-		err := actionservices.DeleteRenameAttribute(ctx, id)
-		if err != nil {
-			return false, fmt.Errorf("failed to delete RenameAttribute: %v", err)
-		}
-	default:
-		return false, fmt.Errorf("unsupported action type: %s", actionType)
-	}
-
-	// Return true if the deletion was successful
-	return true, nil
+// DeleteInstrumentationRule is the resolver for the deleteInstrumentationRule field.
+func (r *mutationResolver) DeleteInstrumentationRule(ctx context.Context, ruleID string) (bool, error) {
+	panic(fmt.Errorf("not implemented: DeleteInstrumentationRule - deleteInstrumentationRule"))
 }
 
-// CreateKarmaInstrumentationRule is the resolver for the createKarmaInstrumentationRule field.
-func (r *mutationResolver) CreateKarmaInstrumentationRule(ctx context.Context, instrumentationRule model.KarmaInstrumentationRuleInput) (*model.KarmaInstrumentationRule, error) {
-	return services.CreateKarmaInstrumentationRule(ctx, instrumentationRule)
+// DisableAgentStatus is the resolver for the disableAgentStatus field.
+func (r *mutationResolver) DisableAgentStatus(ctx context.Context, serviceName string, podID *string) (bool, error) {
+	return services.DisableAgentStatus(ctx, serviceName, podID)
 }
 
-// UpdateKarmaInstrumentationRule is the resolver for the updateKarmaInstrumentationRule field.
-func (r *mutationResolver) UpdateKarmaInstrumentationRule(ctx context.Context, ruleID string, instrumentationRule model.KarmaInstrumentationRuleInput) (*model.KarmaInstrumentationRule, error) {
-	return services.UpdateKarmaInstrumentationRule(ctx, ruleID, instrumentationRule)
-}
-
-// DeleteKarmaInstrumentationRule is the resolver for the deleteKarmaInstrumentationRule field.
-func (r *mutationResolver) DeleteKarmaInstrumentationRule(ctx context.Context, ruleID string) (bool, error) {
-	_, err := services.DeleteKarmaInstrumentationRule(ctx, ruleID)
-	if err != nil {
-		return false, err
-	}
-
-	return true, nil
+// EnableAgentStatus is the resolver for the enableAgentStatus field.
+func (r *mutationResolver) EnableAgentStatus(ctx context.Context, serviceName string, podID *string) (bool, error) {
+	return services.EnableAgentStatus(ctx, serviceName, podID)
 }
 
 // ComputePlatform is the resolver for the computePlatform field.
@@ -589,7 +502,8 @@ func (r *queryResolver) Config(ctx context.Context) (*model.GetConfigResponse, e
 	response := services.GetConfig(ctx)
 
 	gqlResponse := &model.GetConfigResponse{
-		Installation: model.InstallationStatus(response.Installation),
+		Installation:  model.InstallationStatus(response.Installation),
+		NexusEndpoint: response.NexusEndpoint,
 	}
 
 	return gqlResponse, nil
@@ -697,7 +611,12 @@ func (r *queryResolver) DescribeOdigos(ctx context.Context) (*model.OdigosAnalyz
 
 // DescribeSource is the resolver for the describeSource field.
 func (r *queryResolver) DescribeSource(ctx context.Context, namespace string, kind string, name string) (*model.SourceAnalyze, error) {
-	return source_describe.GetSourceDescription(ctx, namespace, kind, name)
+	return describe.GetSourceDescription(ctx, namespace, kind, name)
+}
+
+// GetAgentStatus is the resolver for the getAgentStatus field.
+func (r *queryResolver) GetAgentStatus(ctx context.Context, serviceName string) (string, error) {
+	return services.GetAgentStatus(ctx, serviceName)
 }
 
 // ComputePlatform returns ComputePlatformResolver implementation.

@@ -7,6 +7,8 @@ import { MultiSourceControl } from '../multi-source-control';
 import { OverviewActionsMenu } from '../overview-actions-menu';
 import { type Edge, useEdgesState, useNodesState, type Node, applyNodeChanges } from '@xyflow/react';
 import { useComputePlatform, useContainerSize, useMetrics, useNodeDataFlowHandlers } from '@/hooks';
+import { useAgentStatusesGraphQL } from '@/hooks';
+import { useAgentStatusStore } from '@/store/useAgentStatusStore';
 
 import { buildEdges } from './build-edges';
 import { getEntityCounts } from './get-entity-counts';
@@ -36,6 +38,8 @@ export default function OverviewDataFlowContainer() {
 
   const { metrics } = useMetrics();
   const { data, filteredData, loading } = useComputePlatform();
+  const { getStatus } = useAgentStatusesGraphQL();
+  const { statuses } = useAgentStatusStore();
   const unfilteredCounts = useMemo(() => getEntityCounts({ computePlatform: data?.computePlatform }), [data]);
 
   // const ruleNodes = useMemo(
@@ -78,8 +82,18 @@ export default function OverviewDataFlowContainer() {
         containerHeight,
         onScroll: ({ scrollTop }) => setScrollYOffset(scrollTop),
       }),
-    [loading, filteredData?.computePlatform.k8sActualSources, positions, unfilteredCounts, containerHeight],
+    [loading, filteredData?.computePlatform.k8sActualSources, positions, unfilteredCounts, containerHeight, statuses],
   );
+
+  useEffect(() => {
+    // on load, query status for each source
+    const list = filteredData?.computePlatform.k8sActualSources || [];
+    console.log('Loading agent statuses for sources:', list.map(s => s.name));
+    list.forEach((s) => {
+      console.log(`Checking agent status for: ${s.name}`);
+      getStatus(s.name);
+    });
+  }, [filteredData?.computePlatform.k8sActualSources, getStatus]);
 
   // Define empty arrays for the commented out nodes
   const ruleNodes: Node[] = [];

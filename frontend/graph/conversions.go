@@ -83,7 +83,7 @@ func instrumentedApplicationToActualSource(instrumentedApp v1alpha1.KarmaInstrum
 		ServiceName:       &instrumentedApp.Name,
 		NumberOfInstances: nil,
 		AutoInstrumented:  instrumentedApp.Spec.Options != nil,
-		KarmaInstrumentedApplicationDetails: &gqlmodel.KarmaInstrumentedApplicationDetails{
+		InstrumentedApplicationDetails: &gqlmodel.InstrumentedApplicationDetails{
 			Containers: containers,
 			Conditions: conditions,
 		},

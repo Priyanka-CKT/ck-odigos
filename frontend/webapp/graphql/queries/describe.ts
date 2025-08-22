@@ -236,7 +236,7 @@ export const DESCRIBE_SOURCE = gql`
           }
         }
       }
-      instrumentedApplication {
+      karmaInstrumentedApplication {
         created {
           name
           value
@@ -338,7 +338,7 @@ export const DESCRIBE_SOURCE = gql`
             status
             explain
           }
-          instrumentationInstances {
+          karmaInstrumentationInstances {
             healthy {
               name
               value

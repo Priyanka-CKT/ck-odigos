@@ -130,18 +130,18 @@ func convertPodContainersToGQL(containers []source.PodContainerAnalyze) []*model
 	gqlContainers := make([]*model.PodContainerAnalyze, 0, len(containers))
 	for _, container := range containers {
 		gqlContainers = append(gqlContainers, &model.PodContainerAnalyze{
-			ContainerName:                 describe_utils.ConvertEntityPropertyToGQL(&container.ContainerName),
-			ActualDevices:                 describe_utils.ConvertEntityPropertyToGQL(&container.ActualDevices),
+			ContainerName:            describe_utils.ConvertEntityPropertyToGQL(&container.ContainerName),
+			ActualDevices:            describe_utils.ConvertEntityPropertyToGQL(&container.ActualDevices),
 			KarmaInstrumentationInstances: convertKarmaInstrumentationInstancesToGQL(container.KarmaInstrumentationInstances),
 		})
 	}
 	return gqlContainers
 }
 
-func convertKarmaInstrumentationInstancesToGQL(instances []source.KarmaInstrumentationInstanceAnalyze) []*model.KarmaInstrumentationInstanceAnalyze {
-	gqlInstances := make([]*model.KarmaInstrumentationInstanceAnalyze, 0, len(instances))
+func convertInstrumentationInstancesToGQL(instances []source.KarmaInstrumentationInstanceAnalyze) []*model.InstrumentationInstanceAnalyze {
+	gqlInstances := make([]*model.InstrumentationInstanceAnalyze, 0, len(instances))
 	for _, instance := range instances {
-		gqlInstances = append(gqlInstances, &model.KarmaInstrumentationInstanceAnalyze{
+		gqlInstances = append(gqlInstances, &model.InstrumentationInstanceAnalyze{
 			Healthy:               describe_utils.ConvertEntityPropertyToGQL(&instance.Healthy),
 			Message:               describe_utils.ConvertEntityPropertyToGQL(instance.Message),
 			IdentifyingAttributes: convertEntityPropertiesToGQL(instance.IdentifyingAttributes),

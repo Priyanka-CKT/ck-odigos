@@ -35,7 +35,7 @@ type SourceLanguage struct {
 	Language      string `json:"language"`
 }
 
-type KarmaInstrumentedApplicationDetails struct {
+type InstrumentedApplicationDetails struct {
 	Languages  []SourceLanguage   `json:"languages,omitempty"`
 	Conditions []metav1.Condition `json:"conditions,omitempty"`
 }
@@ -59,7 +59,7 @@ type PatchSourceRequest struct {
 type ThinSource struct {
 	SourceID
 	NumberOfRunningInstances int                             `json:"number_of_running_instances"`
-	IaDetails                *KarmaInstrumentedApplicationDetails `json:"instrumented_application_details"`
+	IaDetails                *InstrumentedApplicationDetails `json:"instrumented_application_details"`
 }
 
 func GetWorkload(c context.Context, ns string, kind string, name string) (metav1.Object, int) {
@@ -121,7 +121,7 @@ func AddHealthyKarmaInstrumentationInstancesCondition(ctx context.Context, app *
 
 	message := fmt.Sprintf("%d/%d instances are healthy", healthyInstances, totalInstances)
 	lastTransitionTime := Metav1TimeToString(latestStatusTime)
-	source.KarmaInstrumentedApplicationDetails.Conditions = append(source.KarmaInstrumentedApplicationDetails.Conditions, &model.Condition{
+	source.InstrumentedApplicationDetails.Conditions = append(source.InstrumentedApplicationDetails.Conditions, &model.Condition{
 		Type:               "HealthyKarmaInstrumentationInstances",
 		Status:             status,
 		LastTransitionTime: &lastTransitionTime,
@@ -191,7 +191,7 @@ func getDeployments(ctx context.Context, namespace corev1.Namespace, instrumenta
 				NumberOfInstances:              &numberOfInstances,
 				AutoInstrumented:               autoInstrumented,
 				AutoInstrumentedDecision:       decisionText,
-				KarmaInstrumentedApplicationDetails: nil, // TODO: fill this
+				InstrumentedApplicationDetails: nil, // TODO: fill this
 			})
 		}
 		return nil
@@ -220,7 +220,7 @@ func getDaemonSets(ctx context.Context, namespace corev1.Namespace, instrumentat
 				NumberOfInstances:              &numberOfInstances,
 				AutoInstrumented:               autoInstrumented,
 				AutoInstrumentedDecision:       decisionText,
-				KarmaInstrumentedApplicationDetails: nil, // TODO: fill this
+				InstrumentedApplicationDetails: nil, // TODO: fill this
 			})
 		}
 		return nil
@@ -249,7 +249,7 @@ func getStatefulSets(ctx context.Context, namespace corev1.Namespace, instrument
 				NumberOfInstances:              &numberOfInstances,
 				AutoInstrumented:               autoInstrumented,
 				AutoInstrumentedDecision:       decisionText,
-				KarmaInstrumentedApplicationDetails: nil, // TODO: fill this
+				InstrumentedApplicationDetails: nil, // TODO: fill this
 			})
 		}
 		return nil

@@ -261,6 +261,7 @@ type Destination {
 
 type GetConfigResponse {
   installation: InstallationStatus!
+  nexusEndpoint: String!
 }
 
 type Field {
@@ -391,7 +392,7 @@ type RuntimeInfoAnalyze {
   containers: [ContainerRuntimeInfoAnalyze!]!
 }
 
-type InstrumentedApplicationAnalyze {
+type KarmaInstrumentedApplicationAnalyze {
   created: EntityProperty!
   createTime: EntityProperty
   containers: [ContainerRuntimeInfoAnalyze!]!
@@ -408,7 +409,7 @@ type InstrumentationDeviceAnalyze {
   containers: [ContainerWorkloadManifestAnalyze!]!
 }
 
-type InstrumentationInstanceAnalyze {
+type KarmaInstrumentationInstanceAnalyze {
   healthy: EntityProperty!
   message: EntityProperty
   identifyingAttributes: [EntityProperty!]!
@@ -417,7 +418,7 @@ type InstrumentationInstanceAnalyze {
 type PodContainerAnalyze {
   containerName: EntityProperty!
   actualDevices: EntityProperty!
-  instrumentationInstances: [InstrumentationInstanceAnalyze!]!
+  karmaInstrumentationInstances: [KarmaInstrumentationInstanceAnalyze!]!
 }
 
 type PodAnalyze {
@@ -435,7 +436,7 @@ type SourceAnalyze {
 
   instrumentationConfig: InstrumentationConfigAnalyze!
   runtimeInfo: RuntimeInfoAnalyze
-  instrumentedApplication: InstrumentedApplicationAnalyze!
+  karmaInstrumentedApplication: KarmaInstrumentedApplicationAnalyze!
   instrumentationDevice: InstrumentationDeviceAnalyze!
 
   totalPods: Int!
@@ -492,6 +493,8 @@ type Query {
     kind: String!
     name: String!
   ): SourceAnalyze!
+  # Agent Status Operations
+  getAgentStatus(serviceName: String!): String!
 }
 
 type Mutation {
@@ -520,4 +523,8 @@ type Mutation {
     instrumentationRule: InstrumentationRuleInput!
   ): InstrumentationRule!
   deleteInstrumentationRule(ruleId: ID!): Boolean!
+
+  # Agent Status Operations
+  disableAgentStatus(serviceName: String!, podId: String): Boolean!
+  enableAgentStatus(serviceName: String!, podId: String): Boolean!
 }

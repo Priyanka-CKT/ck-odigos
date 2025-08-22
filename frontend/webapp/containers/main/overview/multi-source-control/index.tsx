@@ -7,6 +7,8 @@ import styled from 'styled-components';
 import { DeleteWarning } from '@/components';
 import { OVERVIEW_ENTITY_TYPES } from '@/types';
 import { useSourceCRUD, useTransition } from '@/hooks';
+import { useAgentStatusesGraphQL } from '@/hooks';
+import { useAgentStatusStore } from '@/store/useAgentStatusStore';
 import { Badge, Button, Divider, Text } from '@/reuseable-components';
 
 const Container = styled.div`
@@ -32,6 +34,8 @@ export const MultiSourceControl = () => {
   });
 
   const { sources, deleteSources } = useSourceCRUD();
+  const { disable, enable } = useAgentStatusesGraphQL();
+  const { statuses } = useAgentStatusStore();
   const { configuredSources, setConfiguredSources } = useAppStore((state) => state);
   const [isWarnModalOpen, setIsWarnModalOpen] = useState(false);
 
@@ -45,6 +49,23 @@ export const MultiSourceControl = () => {
     return num;
   }, [configuredSources]);
 
+  // Determine if any selected service is disabled
+  const selectedServiceNames = useMemo(() => {
+    const names: string[] = [];
+    Object.values(configuredSources).forEach((arr) => {
+      arr.forEach((s) => names.push(s.name));
+    });
+    return names;
+  }, [configuredSources]);
+
+  const hasDisabledServices = useMemo(() => {
+    return selectedServiceNames.some(name => statuses[name] === 'disabled');
+  }, [selectedServiceNames, statuses]);
+
+  const hasEnabledServices = useMemo(() => {
+    return selectedServiceNames.some(name => statuses[name] === 'enabled' || statuses[name] === 'unknown');
+  }, [selectedServiceNames, statuses]);
+
   const onDeselect = () => {
     setConfiguredSources({});
   };
@@ -53,6 +74,40 @@ export const MultiSourceControl = () => {
     deleteSources(configuredSources);
     onDeselect();
     setIsWarnModalOpen(false);
+  };
+
+  const onDisable = async () => {
+    console.log('Starting disable operation for configured sources:', configuredSources);
+    console.log('Services to disable:', selectedServiceNames);
+    
+    try {
+      for (const name of selectedServiceNames) {
+        console.log(`Attempting to disable service: ${name}`);
+        const result = await disable(name);
+        console.log(`Disable result for ${name}: ${result}`);
+      }
+      onDeselect();
+      console.log('Disable operation completed successfully');
+    } catch (error) {
+      console.error('Error during disable operation:', error);
+    }
+  };
+
+  const onEnable = async () => {
+    console.log('Starting enable operation for configured sources:', configuredSources);
+    console.log('Services to enable:', selectedServiceNames);
+    
+    try {
+      for (const name of selectedServiceNames) {
+        console.log(`Attempting to enable service: ${name}`);
+        const result = await enable(name);
+        console.log(`Enable result for ${name}: ${result}`);
+      }
+      onDeselect();
+      console.log('Enable operation completed successfully');
+    } catch (error) {
+      console.error('Error during enable operation:', error);
+    }
   };
 
   return (
@@ -75,6 +130,21 @@ export const MultiSourceControl = () => {
             Uninstrument
           </Text>
         </Button>
+
+        {/* Show ENABLE button if any selected service is disabled, otherwise show DISABLE */}
+        {hasDisabledServices ? (
+          <Button variant='tertiary' onClick={onEnable}>
+            <Text family='secondary' decoration='underline'>
+              Enable
+            </Text>
+          </Button>
+        ) : (
+          <Button variant='tertiary' onClick={onDisable}>
+            <Text family='secondary' decoration='underline'>
+              Disable
+            </Text>
+          </Button>
+        )}
       </Transition>
 
       <DeleteWarning

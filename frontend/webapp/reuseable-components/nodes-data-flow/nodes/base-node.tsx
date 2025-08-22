@@ -2,7 +2,7 @@ import React from 'react';
 import { useAppStore } from '@/store';
 import styled from 'styled-components';
 import { ErrorTriangleIcon, SVG } from '@/assets';
-import { Checkbox, DataTab, WarningIconTooltip } from '@/reuseable-components';
+import { Checkbox, DataTab, Tooltip, WarningIconTooltip } from '@/reuseable-components';
 import { Handle, type Node, type NodeProps, Position } from '@xyflow/react';
 import { type ActionDataParsed, type ActualDestination, type InstrumentationRuleSpec, type K8sActualSource, NODE_TYPES, NOTIFICATION_TYPE, OVERVIEW_ENTITY_TYPES, STATUSES, WorkloadId } from '@/types';
 import { WORKLOAD_PROGRAMMING_LANGUAGES } from '@/utils';
@@ -129,6 +129,7 @@ const BaseNode: React.FC<Props> = ({ id: nodeId, data }) => {
           iconSrc={iconSrc} 
           monitors={monitors} 
           isActive={isActive} 
+          isDisabled={isActive === false}
           isError={displayedAsError} 
           onClick={() => {}} 
           renderActions={renderActions} 

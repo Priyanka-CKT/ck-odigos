@@ -34,6 +34,7 @@ export interface Notification {
 export type Config = {
   config: {
     installation: string;
+    nexusEndpoint: string;
   };
 };
 

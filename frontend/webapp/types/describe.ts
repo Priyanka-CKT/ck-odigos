@@ -29,7 +29,7 @@ interface RuntimeInfoAnalyze {
   containers: ContainerRuntimeInfoAnalyze[];
 }
 
-interface InstrumentedApplicationAnalyze {
+interface KarmaInstrumentedApplicationAnalyze {
   created: EntityProperty;
   createTime?: EntityProperty;
   containers: ContainerRuntimeInfoAnalyze[];
@@ -46,7 +46,7 @@ interface InstrumentationDeviceAnalyze {
   containers: ContainerWorkloadManifestAnalyze[];
 }
 
-interface InstrumentationInstanceAnalyze {
+interface KarmaInstrumentationInstanceAnalyze {
   healthy: EntityProperty;
   message?: EntityProperty;
   identifyingAttributes: EntityProperty[];
@@ -55,7 +55,7 @@ interface InstrumentationInstanceAnalyze {
 interface PodContainerAnalyze {
   containerName: EntityProperty;
   actualDevices: EntityProperty;
-  instrumentationInstances: InstrumentationInstanceAnalyze[];
+  karmaInstrumentationInstances: KarmaInstrumentationInstanceAnalyze[];
 }
 
 interface PodAnalyze {
@@ -73,7 +73,7 @@ interface SourceAnalyze {
 
   instrumentationConfig: InstrumentationConfigAnalyze;
   runtimeInfo?: RuntimeInfoAnalyze;
-  instrumentedApplication: InstrumentedApplicationAnalyze;
+  karmaInstrumentedApplication: KarmaInstrumentedApplicationAnalyze;
   instrumentationDevice: InstrumentationDeviceAnalyze;
 
   totalPods: number;

@@ -60,8 +60,8 @@ export function ChooseSourcesContainer() {
       // Show success notification
       addNotification({
         type: NOTIFICATION_TYPE.SUCCESS,
-        title: 'Sources Created',
-        message: 'Your sources have been successfully created.',
+        title: 'Applications Created',
+        message: 'Your applications have been successfully created.',
       });
       
       // Reset state after successful creation
@@ -75,7 +75,7 @@ export function ChooseSourcesContainer() {
       // Show error notification
       addNotification({
         type: NOTIFICATION_TYPE.ERROR,
-        title: 'Error Creating Sources',
+        title: 'Error Creating Applications',
         message: error instanceof Error ? error.message : 'An unknown error occurred',
       });
       

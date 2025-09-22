@@ -4,7 +4,6 @@ import type { DropdownOption } from '@/types';
 export interface FiltersState {
   namespace: DropdownOption | undefined;
   types: DropdownOption[];
-  monitors: DropdownOption[];
   languages: DropdownOption[];
   errors: DropdownOption[];
   onlyErrors: boolean;
@@ -17,8 +16,6 @@ interface StoreState {
   types: FiltersState['types'];
   setTypes: (types: FiltersState['types']) => void;
 
-  monitors: FiltersState['monitors'];
-  setMonitors: (metrics: FiltersState['monitors']) => void;
 
   languages: FiltersState['languages'];
   setLanguages: (metrics: FiltersState['languages']) => void;
@@ -37,7 +34,6 @@ interface StoreState {
 const getEmptyState = () => ({
   namespace: undefined,
   types: [],
-  monitors: [],
   languages: [],
   errors: [],
   onlyErrors: false,
@@ -50,8 +46,6 @@ export const useFilterStore = create<StoreState>((set) => ({
   types: [],
   setTypes: (types) => set({ types }),
 
-  monitors: [],
-  setMonitors: (monitors) => set({ monitors }),
 
   languages: [],
   setLanguages: (languages) => set({ languages }),

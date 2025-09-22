@@ -79,7 +79,7 @@ export const SideMenu: React.FC<{ data?: StepProps[]; currentStep?: number }> = 
       stepNumber: 1,
     },
     {
-      title: 'SOURCES',
+      title: 'APPLICATIONS',
       state: 'active',
       subtitle: '',
 

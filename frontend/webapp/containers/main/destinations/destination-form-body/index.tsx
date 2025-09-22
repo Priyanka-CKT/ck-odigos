@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { SignalUppercase } from '@/utils';
 import { DestinationDynamicFields } from './dynamic-fields';
 import { type ConnectionStatus, TestConnection } from './test-connection';
-import { Divider, Input, MonitoringCheckboxes, NotificationNote, SectionTitle } from '@/reuseable-components';
+import { Divider, Input, NotificationNote, SectionTitle } from '@/reuseable-components';
 import { NOTIFICATION_TYPE, type DestinationInput, type DestinationTypeItem, type DynamicField } from '@/types';
 
 interface Props {
@@ -103,7 +103,7 @@ export const DestinationFormBody = ({ isUpdate, destination, formData, formError
         <>
           <SectionTitle
             title='Create connection'
-            description={`Connect ${displayName} with Odigos.`}
+            description={`Connect ${displayName} with CodeKarma.`}
             actionButton={
               testConnectionSupported && (
                 <TestConnection
@@ -130,7 +130,7 @@ export const DestinationFormBody = ({ isUpdate, destination, formData, formError
                 <NotificationNote type={NOTIFICATION_TYPE.ERROR} message='Connection failed. Please check your input and try again.' />
               )}
               {testConnectionSupported && connectionStatus === NOTIFICATION_TYPE.SUCCESS && <NotificationNote type={NOTIFICATION_TYPE.SUCCESS} message='Connection succeeded.' />}
-              {autoFilled && <NotificationNote type={NOTIFICATION_TYPE.DEFAULT} message={`Odigos autocompleted ${displayName} connection details.`} />}
+              {autoFilled && <NotificationNote type={NOTIFICATION_TYPE.DEFAULT} message={`CodeKarma autocompleted ${displayName} connection details.`} />}
             </NotesWrapper>
           )}
 
@@ -138,14 +138,6 @@ export const DestinationFormBody = ({ isUpdate, destination, formData, formError
         </>
       )}
 
-      <MonitoringCheckboxes
-        title={isUpdate ? '' : 'This connection will monitor:'}
-        required
-        allowedSignals={supportedMonitors}
-        selectedSignals={selectedMonitors}
-        setSelectedSignals={handleSelectedSignals}
-        errorMessage={formErrors['exportedSignals']}
-      />
 
       {!isUpdate && (
         <Input

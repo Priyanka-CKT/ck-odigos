@@ -32,7 +32,7 @@ export const buildSearchResults = ({
   }[] = [
     {
       category: OVERVIEW_ENTITY_TYPES.SOURCE,
-      label: 'Sources',
+      label: 'Applications',
       count: filteredSources.length,
       entities: [],
     },

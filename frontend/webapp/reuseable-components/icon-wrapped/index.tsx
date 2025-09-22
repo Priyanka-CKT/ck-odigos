@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
 import styled from 'styled-components';
-import { OdigosLogo, type SVG } from '@/assets';
+import { CodeKarmaLogo, type SVG } from '@/assets';
 
 interface Props {
   icon?: SVG;
@@ -32,5 +32,5 @@ export const IconWrapped: React.FC<Props> = ({ icon: Icon, src = '', alt = '', i
     );
   }
 
-  return <Container $isError={isError}>{!!Icon ? <Icon size={20} /> : <OdigosLogo />}</Container>;
+  return <Container $isError={isError}>{!!Icon ? <Icon size={20} /> : <CodeKarmaLogo />}</Container>;
 };

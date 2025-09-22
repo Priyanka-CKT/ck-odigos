@@ -12,7 +12,6 @@ const buildCard = (destination: ActualDestination, destinationTypeDetails?: Dest
 
   const arr: DataCardRow[] = [
     { title: DISPLAY_TITLES.DESTINATION, value: destinationType.displayName },
-    { type: DataCardFieldTypes.MONITORS, title: DISPLAY_TITLES.MONITORS, value: buildMonitorsList(exportedSignals) },
     { type: DataCardFieldTypes.DIVIDER, width: '100%' },
   ];
 

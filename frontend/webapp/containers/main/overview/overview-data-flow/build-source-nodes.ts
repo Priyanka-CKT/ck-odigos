@@ -61,7 +61,7 @@ export const buildSourceNodes = ({ loading, entities, positions, unfilteredCount
     },
     data: {
       nodeWidth,
-      title: 'Sources',
+      title: 'Applications',
       icon: getEntityIcon(OVERVIEW_ENTITY_TYPES.SOURCE),
       tagValue: unfilteredCounts[OVERVIEW_ENTITY_TYPES.SOURCE],
     },
@@ -92,8 +92,8 @@ export const buildSourceNodes = ({ loading, entities, positions, unfilteredCount
         nodeWidth,
         type: OVERVIEW_NODE_TYPES.ADD_SOURCE,
         status: STATUSES.HEALTHY,
-        title: 'ADD SOURCE',
-        subTitle: `Add ${!!unfilteredCount ? 'a new' : 'first'} source to collect OpenTelemetry data`,
+        title: 'ADD APPLICATION',
+        subTitle: `Add ${!!unfilteredCount ? 'a new' : 'first'} application to get insights`,
       },
     });
   } else {

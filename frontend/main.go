@@ -159,7 +159,7 @@ func startHTTPDepServer(flags *Flags, odigosMetrics *collectormetrics.OdigosMetr
 	// Serve React app
 	dist, err := fs.Sub(depUIFS, "webapp/dep-out")
 	if err != nil {
-		return nil, fmt.Errorf("error reading webapp/def-out directory: %s", err)
+		return nil, fmt.Errorf("error reading webapp/dep-out directory: %s", err)
 	}
 
 	// Serve React app if page not found serve index.html

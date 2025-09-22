@@ -61,7 +61,7 @@ const ButtonText = styled(Text)`
 // Default options for the dropdown
 const DEFAULT_OPTIONS: DropdownOption[] = [
   // { id: OVERVIEW_ENTITY_TYPES.RULE, value: 'Instrumentation Rule' },
-  { id: OVERVIEW_ENTITY_TYPES.SOURCE, value: 'Source' },
+  { id: OVERVIEW_ENTITY_TYPES.SOURCE, value: 'Application' },
   // { id: OVERVIEW_ENTITY_TYPES.ACTION, value: 'Action' },
   // { id: OVERVIEW_ENTITY_TYPES.DESTINATION, value: 'Destination' },
 ];

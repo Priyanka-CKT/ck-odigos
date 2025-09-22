@@ -113,7 +113,7 @@ export const MultiSourceControl = () => {
   return (
     <>
       <Transition data-id='multi-source-control' enter={!!totalSelected}>
-        <Text>Selected sources</Text>
+        <Text>Selected Applications</Text>
         <Badge label={totalSelected} filled />
 
         <Divider orientation='vertical' length='16px' />
@@ -149,7 +149,7 @@ export const MultiSourceControl = () => {
 
       <DeleteWarning
         isOpen={isWarnModalOpen}
-        name={`${totalSelected} sources`}
+        name={`${totalSelected} applications`}
         type={OVERVIEW_ENTITY_TYPES.SOURCE}
         isLastItem={totalSelected === sources.length}
         onApprove={onDelete}

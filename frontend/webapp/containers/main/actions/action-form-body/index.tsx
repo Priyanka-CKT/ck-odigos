@@ -3,7 +3,7 @@ import styled from 'styled-components';
 import { type ActionInput } from '@/types';
 import ActionCustomFields from './custom-fields';
 import { type ActionOption } from '../action-modal/action-options';
-import { DocsButton, Input, Text, TextArea, MonitoringCheckboxes, SectionTitle, ToggleButtons } from '@/reuseable-components';
+import { DocsButton, Input, Text, TextArea, SectionTitle, ToggleButtons } from '@/reuseable-components';
 
 interface Props {
   isUpdate?: boolean;
@@ -36,14 +36,6 @@ export const ActionFormBody: React.FC<Props> = ({ isUpdate, action, formData, fo
 
       {!isUpdate && <SectionTitle title='' description={action.docsDescription as string} actionButton={<DocsButton endpoint={action.docsEndpoint} />} />}
 
-      <MonitoringCheckboxes
-        title='Signals for Processing'
-        required
-        allowedSignals={action.allowedSignals}
-        selectedSignals={formData['signals']}
-        setSelectedSignals={(value) => handleFormChange('signals', value)}
-        errorMessage={formErrors['signals']}
-      />
 
       {!isUpdate && (
         <Input

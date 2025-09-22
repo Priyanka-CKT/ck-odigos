@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components';
-import { OdigosLogoText } from '@/assets';
+import { CodeKarmaLogoText } from '@/assets';
 import { NavigationButtonProps, NavigationButtons, Text } from '@/reuseable-components';
 
 interface Props {
@@ -26,7 +26,7 @@ const Title = styled(Text)`
 export const SetupHeader: React.FC<Props> = ({ navigationButtons }) => {
   return (
     <Container>
-      <OdigosLogoText size={80} />
+      <CodeKarmaLogoText size={80} />
       <Title family='secondary'>START WITH CODEKARMA</Title>
       <NavigationButtons buttons={navigationButtons} />
     </Container>

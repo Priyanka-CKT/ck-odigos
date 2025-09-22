@@ -40,7 +40,7 @@ const ActionsWrapper = styled.div`
 
 const HeaderNode: React.FC<Props> = ({ data }) => {
   const { nodeWidth, title, icon: Icon, tagValue } = data;
-  const isSources = title === 'Sources';
+  const isSources = title === 'Applications';
 
   const { configuredSources, setConfiguredSources } = useAppStore((state) => state);
   const { sources } = useSourceCRUD();

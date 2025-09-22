@@ -75,10 +75,6 @@ export const useComputePlatform = (): UseComputePlatformHook => {
         (source) => !!filters.languages.find((language) => !!source.instrumentedApplicationDetails?.containers?.find((cont) => cont.language === language.id)),
       );
     }
-    if (!!filters.monitors.length) {
-      destinations = destinations.filter((destination) => !!filters.monitors.find((metric) => destination.exportedSignals[metric.id]));
-      actions = actions.filter((action) => !!filters.monitors.find((metric) => action.spec.signals.find((str) => str.toLowerCase() === metric.id)));
-    }
 
     return {
       computePlatform: {

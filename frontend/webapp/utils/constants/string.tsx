@@ -1,10 +1,4 @@
-export const SETUP = {
-  MONITORS: {
-    LOGS: 'Logs',
-    METRICS: 'Metrics',
-    TRACES: 'Traces',
-  },
-};
+export const SETUP = {};
 
 export const INPUT_TYPES = {
   INPUT: 'input',
@@ -52,10 +46,10 @@ export const DATA_CARDS = {
   ACTION_DETAILS: 'Action Details',
   RULE_DETAILS: 'Instrumentation Rule Details',
   DESTINATION_DETAILS: 'Destination Details',
-  SOURCE_DETAILS: 'Source Details',
+  SOURCE_DETAILS: 'Application Details',
   DETECTED_CONTAINERS: 'Detected Containers',
   DETECTED_CONTAINERS_DESCRIPTION: 'The system automatically instruments the containers it detects with a supported programming language.',
-  DESCRIBE_SOURCE: 'Describe Source',
+  DESCRIBE_SOURCE: 'Describe Application',
   DESCRIBE_CK: 'Describe CodeKarma',
 };
 
@@ -66,8 +60,8 @@ export const DISPLAY_TITLES = {
   INSTRUMENTATION_RULES: 'Instrumentation Rules',
   DESTINATION: 'Destination',
   DESTINATIONS: 'Destinations',
-  SOURCE: 'Source',
-  SOURCES: 'Sources',
+  SOURCE: 'Application',
+  SOURCES: 'Applications',
 
   NAMESPACE: 'Namespace',
   CONTAINER_NAME: 'Container Name',
@@ -77,6 +71,5 @@ export const DISPLAY_TITLES = {
   NOTES: 'Notes',
   STATUS: 'Status',
   LANGUAGE: 'Language',
-  MONITORS: 'Monitors',
   SIGNALS_FOR_PROCESSING: 'Signals for Processing',
 };

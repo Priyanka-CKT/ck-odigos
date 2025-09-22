@@ -38,10 +38,10 @@ export const SourceControls: React.FC<Props> = ({
 
   return (
     <>
-      <SectionTitle title='Choose sources' description="Apps will be automatically instrumented, and data will be sent to the relevant APM's destinations." />
+      <SectionTitle title='Choose Applications' description="Apps will be automatically instrumented, and data will be sent to the relevant APM's destinations." />
 
       <FlexContainer style={{ marginTop: 24 }}>
-        <Input placeholder='Search for sources' icon={SearchIcon} value={searchText} onChange={(e) => setSearchText(e.target.value.toLowerCase())} />
+        <Input placeholder='Search for Applications' icon={SearchIcon} value={searchText} onChange={(e) => setSearchText(e.target.value.toLowerCase())} />
         <NamespaceDropdown
           title=''
           value={selectedNamespace ? { value: selectedNamespace, id: selectedNamespace } : undefined}

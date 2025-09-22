@@ -2,7 +2,7 @@ import React, { Fragment, useCallback, useState } from 'react';
 import { SVG } from '@/assets';
 import { FlexColumn, FlexRow } from '@/styles';
 import styled, { css } from 'styled-components';
-import { ActiveStatus, Divider, ExtendIcon, IconButton, IconWrapped, MonitorsIcons, Text } from '@/reuseable-components';
+import { ActiveStatus, Divider, ExtendIcon, IconButton, IconWrapped, Text } from '@/reuseable-components';
 
 interface Props {
   title: string;
@@ -10,8 +10,6 @@ interface Props {
   icon?: SVG;
   iconSrc?: string;
   hoverText?: string;
-  monitors?: string[];
-  monitorsWithLabels?: boolean;
   isActive?: boolean;
   isError?: boolean;
   isDisabled?: boolean;
@@ -91,8 +89,6 @@ export const DataTab: React.FC<Props> = ({
   icon,
   iconSrc,
   hoverText,
-  monitors,
-  monitorsWithLabels,
   isActive,
   isError,
   isDisabled,
@@ -105,19 +101,6 @@ export const DataTab: React.FC<Props> = ({
 }) => {
   const [extend, setExtend] = useState(isExtended || false);
 
-  const renderMonitors = useCallback(
-    (withSeperator: boolean) => {
-      if (!monitors || !monitors.length) return null;
-
-      return (
-        <>
-          {withSeperator && <SubTitle>{'•'}</SubTitle>}
-          <MonitorsIcons monitors={monitors} withLabels={monitorsWithLabels} size={10} />
-        </>
-      );
-    },
-    [monitors],
-  );
 
   const renderActiveStatus = useCallback(
     (withSeperator: boolean) => {
@@ -142,8 +125,7 @@ export const DataTab: React.FC<Props> = ({
           <Title>{title}</Title>
           <SubTitleWrapper>
             {subTitle && <SubTitle>{subTitle}</SubTitle>}
-            {renderMonitors(!!subTitle)}
-            {renderActiveStatus(!!monitors?.length)}
+            {renderActiveStatus(!!subTitle)}
           </SubTitleWrapper>
         </FlexColumn>
 

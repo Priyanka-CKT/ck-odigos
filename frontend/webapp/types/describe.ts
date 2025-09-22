@@ -107,7 +107,7 @@ interface NodeCollectorAnalyze {
   availableNodes?: EntityProperty;
 }
 
-interface OdigosAnalyze {
+interface CodeKarmaAnalyze {
   odigosVersion: EntityProperty;
   numberOfDestinations: number;
   numberOfSources: number;
@@ -121,6 +121,6 @@ export interface DescribeSource {
   describeSource: SourceAnalyze;
 }
 
-export interface DescribeOdigos {
-  describeOdigos: OdigosAnalyze;
+export interface DescribeCodeKarma {
+  describeCodeKarma: CodeKarmaAnalyze;
 }

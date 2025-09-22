@@ -2,7 +2,7 @@ import { type Node } from '@xyflow/react';
 import nodeConfig from './node-config.json';
 import { type EntityCounts } from './get-entity-counts';
 import { type NodePositions } from './get-node-positions';
-import { extractMonitors, getEntityIcon, getEntityLabel, getHealthStatus } from '@/utils';
+import { getEntityIcon, getEntityLabel, getHealthStatus } from '@/utils';
 import { NODE_TYPES, OVERVIEW_ENTITY_TYPES, OVERVIEW_NODE_TYPES, STATUSES, type ComputePlatformMapped } from '@/types';
 
 interface Params {

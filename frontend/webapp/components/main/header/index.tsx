@@ -1,11 +1,11 @@
 import React from 'react';
 import { FlexRow } from '@/styles';
-import { SLACK_LINK } from '@/utils';
+// import { SLACK_LINK } from '@/utils';
 import styled from 'styled-components';
 import { PlatformTypes } from '@/types';
 import { PlatformTitle } from './cp-title';
 import { NotificationManager } from '@/components';
-import { OdigosLogo, OdigosLogoText } from '@/assets';
+import { CodeKarmaLogo, CodeKarmaLogoText } from '@/assets';
 import { ConnectionStatus, IconButton } from '@/reuseable-components';
 import { DRAWER_OTHER_TYPES, useConnectionStore, useDrawerStore } from '@/store';
 
@@ -39,7 +39,7 @@ export const MainHeader: React.FC<MainHeaderProps> = () => {
   return (
     <HeaderContainer>
       <AlignLeft>
-        <OdigosLogoText size={80} />
+        <CodeKarmaLogoText size={80} />
         <PlatformTitle type={PlatformTypes.K8S} />
         {!connecting && <ConnectionStatus title={title} subtitle={message} isActive={active} />}
       </AlignLeft>
@@ -47,7 +47,7 @@ export const MainHeader: React.FC<MainHeaderProps> = () => {
       <AlignRight>
         <NotificationManager />
         {/* <IconButton onClick={handleClickDescribe} tooltip='Describe CodeKarma'>
-          <OdigosLogo />
+          <CodeKarmaLogo />
         </IconButton> */}
       </AlignRight>
     </HeaderContainer>

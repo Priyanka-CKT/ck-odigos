@@ -95,9 +95,9 @@ export function AddDestinationContainer() {
           <NotificationNoteWrapper>
             <NotificationNote
               type={NOTIFICATION_TYPE.WARNING}
-              message='No sources selected. Please go back to select sources.'
+              message='No applications selected. Please go back to select applications.'
               action={{
-                label: 'Select sources',
+                label: 'Select applications',
                 onClick: () => router.push(ROUTES.CHOOSE_SOURCES),
               }}
             />

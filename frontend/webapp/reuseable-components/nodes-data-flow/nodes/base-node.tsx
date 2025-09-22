@@ -43,7 +43,7 @@ const UnsupportedLanguageWrapper = styled.div<{ $isUnsupported: boolean }>`
 `;
 
 const BaseNode: React.FC<Props> = ({ id: nodeId, data }) => {
-  const { nodeWidth, type, status, title, subTitle, icon, iconSrc, monitors, isActive, raw } = data;
+  const { nodeWidth, type, status, title, subTitle, icon, iconSrc, isActive, raw } = data;
   
   // We'll handle unsupported languages separately from other errors
   const isOtherError = status === STATUSES.UNHEALTHY;
@@ -127,7 +127,6 @@ const BaseNode: React.FC<Props> = ({ id: nodeId, data }) => {
           subTitle={subTitle} 
           icon={icon} 
           iconSrc={iconSrc} 
-          monitors={monitors} 
           isActive={isActive} 
           isDisabled={isActive === false}
           isError={displayedAsError} 

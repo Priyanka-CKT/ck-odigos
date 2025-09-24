@@ -1,6 +1,6 @@
-TAG ?= v1.0.144
-ODIGOS_CLI_VERSION ?= v1.0.144
-ORG ?= ghcr.io/sabareesh-ckt/codekarma
+TAG ?= v1.0.160
+ODIGOS_CLI_VERSION ?= v1.0.160
+ORG ?= ghcr.io/ckgitrepouser/codekarma/prod
 -include .env
 
 # Define GITHUB_TOKEN with a default empty value

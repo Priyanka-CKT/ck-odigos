@@ -116,8 +116,8 @@ RUN chmod 644 /instrumentations/java/ck-agent-universal.jar
 # ADD https://ckn-agents.s3.us-east-1.amazonaws.com/agents/ck-agent-java-17.jar /instrumentations/java/ck-agent-java-17.jar
 # RUN chmod 644 /instrumentations/java/ck-agent-java-17.jar
 
-# COPY agents/java/agent-1.0-SNAPSHOT-all.jar /instrumentations/java/javaagent.jar
-# RUN chmod 644 /instrumentations/java/javaagent.jar
+# COPY agents/java/agent-universal.jar /instrumentations/java/ck-agent-universal.jar
+# RUN chmod 644 /instrumentations/java/ck-agent-universal.jar
 
 # Python
 COPY --from=python-builder /python-instrumentation/workspace /instrumentations/python

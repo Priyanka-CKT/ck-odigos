@@ -25,6 +25,8 @@ const otelResourceAttributesEnvVarName = "OTEL_RESOURCE_ATTRIBUTES"
 const ckClusterNameEnvVarName = "CK_CLUSTER_NAME"
 const ckNexusEndpointEnvVarName = "CK_NEXUS_ENDPOINT"
 const ckMetricsEndpointEnvVarName = "CK_METRICS_ENDPOINT"
+const ckEndpointEnvVarName = "CK_ENDPOINT"
+const ckApiKeyEnvVarName = "CK_API_KEY"
 const ckAppNameEnvVarName = "CK_APP_NAME"
 const appNameEnvVarName = "APP_NAME"
 
@@ -202,6 +204,24 @@ func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, ser
 		commonEnvVars = append(commonEnvVars, corev1.EnvVar{
 			Name:  ckClusterNameEnvVarName,
 			Value: clusterName,
+		})
+	}
+
+	// Add CK_ENDPOINT if it's available and not empty
+	ckEndpoint := os.Getenv(ckEndpointEnvVarName)
+	if ckEndpoint != "" {
+		commonEnvVars = append(commonEnvVars, corev1.EnvVar{
+			Name:  ckEndpointEnvVarName,
+			Value: ckEndpoint,
+		})
+	}
+
+	// Add CK_API_KEY if it's available and not empty
+	ckApiKey := os.Getenv(ckApiKeyEnvVarName)
+	if ckApiKey != "" {
+		commonEnvVars = append(commonEnvVars, corev1.EnvVar{
+			Name:  ckApiKeyEnvVarName,
+			Value: ckApiKey,
 		})
 	}
 

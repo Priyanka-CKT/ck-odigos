@@ -163,13 +163,19 @@ func GetPatchedEnvValue(envName string, observedValue string, currentSdk *common
 
 	// Scenario 4: only user defined values are present
 	// happens: when the user set some values to this env (either via manifest or dockerfile) and odigos instrumentation not yet applied.
-	// action: we want to keep the user defined values and append the odigos value.
+	// action: we want to keep the user defined values and prepend the odigos value for JAVA_TOOL_OPTIONS.
 	if observedValue == "" {
 		return &desiredOdigosPart
 	} else {
-		// no user defined values, just append the odigos value
-		mergedEnvValue := observedValue + envMetadata.delim + desiredOdigosPart
-		return &mergedEnvValue
+		// For JAVA_TOOL_OPTIONS, prepend the CodeKarma agent first, then add other values
+		if envName == "JAVA_TOOL_OPTIONS" {
+			mergedEnvValue := desiredOdigosPart + envMetadata.delim + observedValue
+			return &mergedEnvValue
+		} else {
+			// For other environment variables, append the odigos value
+			mergedEnvValue := observedValue + envMetadata.delim + desiredOdigosPart
+			return &mergedEnvValue
+		}
 	}
 }
 

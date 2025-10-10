@@ -98,15 +98,48 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 
 			programLanguageDetails := common.ProgramLanguageDetails{Language: common.UnknownProgrammingLanguage}
 			var inspectProc *procdiscovery.Details
-			var detectErr error
 
+			// First, track any unsupported language as fallback (for UI display)
+			var fallbackLanguageDetails *common.ProgramLanguageDetails
+			var fallbackProc *procdiscovery.Details
+
+			// Iterate through all processes and find supported languages (Java or Go)
+			// If no supported language found, we'll use an unsupported one for UI display
 			for _, proc := range processes {
 				containerURL := kubeutils.GetPodExternalURL(pod.Status.PodIP, container.Ports)
-				programLanguageDetails, detectErr = inspectors.DetectLanguage(proc, containerURL)
-				if detectErr == nil && programLanguageDetails.Language != common.UnknownProgrammingLanguage {
-					inspectProc = &proc
-					break
+				detectedLang, err := inspectors.DetectLanguage(proc, containerURL)
+				if err == nil && detectedLang.Language != common.UnknownProgrammingLanguage {
+					// Check if this is a supported language (Java or Go)
+					if isSupportedLanguage(detectedLang.Language) {
+						// Found a supported language - use it immediately
+						programLanguageDetails = detectedLang
+						inspectProc = &proc
+						break
+					} else if fallbackLanguageDetails == nil {
+						// Store first unsupported language as fallback (e.g., Python, Node.js)
+						// This will be used if no Java/Go is found, so UI can show "detected but not supported"
+						fallbackLanguageDetails = &detectedLang
+						fallbackProc = &proc
+						log.Logger.V(3).Info("detected unsupported language, will use as fallback if no supported language found", 
+							"pod", pod.Name, 
+							"container", container.Name, 
+							"namespace", pod.Namespace, 
+							"language", detectedLang.Language,
+							"processID", proc.ProcessID)
+					}
 				}
+			}
+
+			// If no supported language was found but we have a fallback unsupported language,
+			// use it so the UI can display "language not supported" instead of "unknown"
+			if inspectProc == nil && fallbackLanguageDetails != nil {
+				programLanguageDetails = *fallbackLanguageDetails
+				inspectProc = fallbackProc
+				log.Logger.V(0).Info("no supported language found, using unsupported language for UI display", 
+					"pod", pod.Name, 
+					"container", container.Name, 
+					"namespace", pod.Namespace, 
+					"language", programLanguageDetails.Language)
 			}
 
 			envs := make([]odigosv1.EnvVar, 0)
@@ -114,11 +147,11 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 			var libcType *common.LibCType
 
 			if inspectProc == nil {
-				log.Logger.V(0).Info("unable to detect language for any process", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
+				log.Logger.V(0).Info("unable to detect supported language (Java or Go) for any process", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace, "totalProcesses", len(processes))
 				programLanguageDetails.Language = common.UnknownProgrammingLanguage
 			} else {
 				if len(processes) > 1 {
-					log.Logger.V(0).Info("multiple processes found in pod container, only taking the first one with detected language into account", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
+					log.Logger.V(0).Info("multiple processes found in pod container, detected supported language", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace, "totalProcesses", len(processes), "detectedLanguage", programLanguageDetails.Language)
 				}
 
 				// Convert map to slice for k8s format

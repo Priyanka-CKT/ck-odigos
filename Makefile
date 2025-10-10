@@ -1,6 +1,6 @@
-TAG ?= v1.0.176
-ODIGOS_CLI_VERSION ?= v1.0.176
-ORG ?= ghcr.io/ckgitrepouser/codekarma/prod
+TAG ?= v1.0.177	
+ODIGOS_CLI_VERSION ?= v1.0.177
+ORG ?= ghcr.io/ckgitrepouser/ckqa/prod
 -include .env
 
 # Define GITHUB_TOKEN with a default empty value
@@ -107,30 +107,30 @@ load-to-kind:
 
 .PHONY: restart-karmadash
 restart-karmadash:
-	kubectl rollout restart deployment karmadash -n codekarma
+	kubectl rollout restart deployment karmadash -n ckqa
 
 .PHONY: restart-karmaset
 restart-karmaset:
-	kubectl rollout restart daemonset karmaset -n codekarma
+	kubectl rollout restart daemonset karmaset -n ckqa
 
 # .PHONY: restart-autoscaler
 # restart-autoscaler:
-# 	kubectl rollout restart deployment odigos-autoscaler -n codekarma
+# 	kubectl rollout restart deployment odigos-autoscaler -n ckqa
 
 .PHONY: restart-karmatap
 restart-karmatap:
-	kubectl rollout restart deployment karmatap -n codekarma
+	kubectl rollout restart deployment karmatap -n ckqa
 
 # .PHONY: restart-scheduler
 # restart-scheduler:
-# 	kubectl rollout restart deployment odigos-scheduler -n codekarma
+# 	kubectl rollout restart deployment odigos-scheduler -n ckqa
 
 
 # .PHONY: restart-collector
 # restart-collector:
-# 	kubectl rollout restart deployment odigos-gateway -n codekarma
+# 	kubectl rollout restart deployment odigos-gateway -n ckqa
 # 	# DaemonSets don't directly support the rollout restart command in the same way Deployments do. However, you can achieve the same result by updating an environment variable or any other field in the DaemonSet's pod template, triggering a rolling update of the pods managed by the DaemonSet
-# 	kubectl -n codekarma patch daemonset odigos-data-collection -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$(date +%Y-%m-%dT%H:%M:%S%z)\"}}}}}"
+# 	kubectl -n ckqa patch daemonset odigos-data-collection -p "{\"spec\":{\"template\":{\"metadata\":{\"annotations\":{\"kubectl.kubernetes.io/restartedAt\":\"$(date +%Y-%m-%dT%H:%M:%S%z)\"}}}}}"
 
 .PHONY: deploy-karmaset
 deploy-karmaset:
@@ -169,9 +169,9 @@ debug-karmaset:
 	docker build -t $(ORG)/karmaset:$(TAG) --build-arg GITHUB_TOKEN=${GITHUB_TOKEN}  -f odiglet/debug.Dockerfile .
 	# docker build -t $(ORG)/karmaset:$(TAG)  . -f odiglet/debug.Dockerfile
 	kind load docker-image $(ORG)/karmaset:$(TAG)
-	kubectl delete pod -n codekarma -l app.kubernetes.io/name=karmaset
-	kubectl wait --for=condition=ready pod -n codekarma -l app.kubernetes.io/name=karmaset --timeout=180s
-	kubectl port-forward -n codekarma daemonset/karmaset 2345:2345
+	kubectl delete pod -n ckqa -l app.kubernetes.io/name=karmaset
+	kubectl wait --for=condition=ready pod -n ckqa -l app.kubernetes.io/name=karmaset --timeout=180s
+	kubectl port-forward -n ckqa daemonset/karmaset 2345:2345
 
 .PHONY: deploy
 deploy: deploy-karmaset deploy-autoscaler deploy-collector deploy-karmatap deploy-scheduler

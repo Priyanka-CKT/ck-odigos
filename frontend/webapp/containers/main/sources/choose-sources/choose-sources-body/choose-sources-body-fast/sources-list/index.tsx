@@ -144,7 +144,7 @@ export const SourcesList: React.FC<Props> = ({
               </FlexRow>
 
               <FlexRow>
-                <Toggle title='Include Future Applications' initialValue={futureApps} onChange={(bool) => onSelectFutureApps(bool, namespace)} />
+                <Toggle title='Include Future Applications' initialValue={futureApps} onChange={(bool) => onSelectFutureApps(bool, namespace)} disabled={true} />
                 <Divider orientation='vertical' length='12px' margin='0' />
                 <SelectionCount size={10} color={theme.text.grey}>
                   {namespaceLoaded ? `${selected.length}/${sources.length}` : null}

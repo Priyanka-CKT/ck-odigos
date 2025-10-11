@@ -86,15 +86,25 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 				continue
 			}
 
-			processes, err := process.FindAllInContainer(string(pod.UID), container.Name)
-			if err != nil {
-				log.Logger.Error(err, "failed to find processes in pod container", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
-				return nil, err
+		processes, err := process.FindAllInContainer(string(pod.UID), container.Name)
+		if err != nil {
+			log.Logger.Error(err, "failed to find processes in pod container", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
+			return nil, err
+		}
+		
+		log.Logger.V(0).Info("DEBUG INSPECTION: Found processes in pod container", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace, "totalProcesses", len(processes))
+		for i, proc := range processes {
+			cmdLinePreview := proc.CmdLine
+			if len(cmdLinePreview) > 100 {
+				cmdLinePreview = cmdLinePreview[:100] + "..."
 			}
-			if len(processes) == 0 {
-				log.Logger.V(0).Info("no processes found in pod container", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
-				continue
-			}
+			log.Logger.V(0).Info("DEBUG INSPECTION: Process details", "pod", pod.Name, "index", i, "pid", proc.ProcessID, "exeName", proc.ExeName, "cmdLine", cmdLinePreview)
+		}
+		
+		if len(processes) == 0 {
+			log.Logger.V(0).Info("no processes found in pod container", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
+			continue
+		}
 
 			programLanguageDetails := common.ProgramLanguageDetails{Language: common.UnknownProgrammingLanguage}
 			var inspectProc *procdiscovery.Details
@@ -105,41 +115,53 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 
 			// Iterate through all processes and find supported languages (Java or Go)
 			// If no supported language found, we'll use an unsupported one for UI display
-			for _, proc := range processes {
+			log.Logger.V(0).Info("DEBUG INSPECTION: Starting language detection loop", "pod", pod.Name, "container", container.Name, "processCount", len(processes))
+			for i, proc := range processes {
 				containerURL := kubeutils.GetPodExternalURL(pod.Status.PodIP, container.Ports)
 				detectedLang, err := inspectors.DetectLanguage(proc, containerURL)
+				
+				if err != nil {
+					log.Logger.V(0).Info("DEBUG INSPECTION: Language detection error", "pod", pod.Name, "index", i, "pid", proc.ProcessID, "error", err.Error())
+					continue
+				}
+				
+				log.Logger.V(0).Info("DEBUG INSPECTION: Process language detected", "pod", pod.Name, "index", i, "pid", proc.ProcessID, "language", detectedLang.Language)
+				
 				if err == nil && detectedLang.Language != common.UnknownProgrammingLanguage {
 					// Check if this is a supported language (Java or Go)
 					if isSupportedLanguage(detectedLang.Language) {
+						log.Logger.V(0).Info("DEBUG INSPECTION: ✅ Found SUPPORTED language - will use this!", "pod", pod.Name, "container", container.Name, "language", detectedLang.Language, "pid", proc.ProcessID)
 						// Found a supported language - use it immediately
 						programLanguageDetails = detectedLang
 						inspectProc = &proc
 						break
 					} else if fallbackLanguageDetails == nil {
+						log.Logger.V(0).Info("DEBUG INSPECTION: ⚠️ Found UNSUPPORTED language - saving as fallback", "pod", pod.Name, "container", container.Name, "language", detectedLang.Language, "pid", proc.ProcessID)
 						// Store first unsupported language as fallback (e.g., Python, Node.js)
 						// This will be used if no Java/Go is found, so UI can show "detected but not supported"
 						fallbackLanguageDetails = &detectedLang
 						fallbackProc = &proc
-						log.Logger.V(3).Info("detected unsupported language, will use as fallback if no supported language found", 
-							"pod", pod.Name, 
-							"container", container.Name, 
-							"namespace", pod.Namespace, 
-							"language", detectedLang.Language,
-							"processID", proc.ProcessID)
 					}
 				}
 			}
+			
+			log.Logger.V(0).Info("DEBUG INSPECTION: Language detection loop completed", "pod", pod.Name, "foundSupported", inspectProc != nil, "haveFallback", fallbackLanguageDetails != nil)
 
 			// If no supported language was found but we have a fallback unsupported language,
 			// use it so the UI can display "language not supported" instead of "unknown"
 			if inspectProc == nil && fallbackLanguageDetails != nil {
+				log.Logger.V(0).Info("DEBUG INSPECTION: Using fallback unsupported language", "pod", pod.Name, "container", container.Name, "language", fallbackLanguageDetails.Language)
 				programLanguageDetails = *fallbackLanguageDetails
 				inspectProc = fallbackProc
-				log.Logger.V(0).Info("no supported language found, using unsupported language for UI display", 
+				log.Logger.V(0).Info("⚠️ no supported language found, using unsupported language for UI display", 
 					"pod", pod.Name, 
 					"container", container.Name, 
 					"namespace", pod.Namespace, 
 					"language", programLanguageDetails.Language)
+			} else if inspectProc != nil {
+				log.Logger.V(0).Info("DEBUG INSPECTION: ✅ Final result - using supported language", "pod", pod.Name, "container", container.Name, "language", programLanguageDetails.Language)
+			} else {
+				log.Logger.V(0).Info("DEBUG INSPECTION: ❌ Final result - no language detected at all", "pod", pod.Name, "container", container.Name)
 			}
 
 			envs := make([]odigosv1.EnvVar, 0)
@@ -260,10 +282,30 @@ func persistRuntimeResults(ctx context.Context, results []odigosv1.RuntimeDetail
 		return err
 	}
 
-	operationResult, err := controllerutil.CreateOrPatch(ctx, kubeClient, updatedIa, func() error {
-		updatedIa.Spec.RuntimeDetails = results
-		return nil
-	})
+	// Check if we should delay updating KarmaInstrumentedApplication Spec
+	// If we only detected unsupported languages, we might be in a pod restart scenario
+	// where Java hasn't started yet - delay the update to prevent wrong Spec
+	shouldDelayUpdate := false
+	for _, result := range results {
+		if !isSupportedLanguage(result.Language) && result.Language != common.UnknownProgrammingLanguage {
+			shouldDelayUpdate = true
+			log.Logger.V(0).Info("DEBUG INSPECTION: Detected unsupported language, will delay KarmaInstrumentedApplication update to prevent wrong Spec", 
+				"language", result.Language, "workload", owner.GetName(), "container", result.ContainerName)
+			break
+		}
+	}
+	
+	var operationResult controllerutil.OperationResult
+	if shouldDelayUpdate {
+		log.Logger.V(0).Info("DEBUG INSPECTION: Skipping KarmaInstrumentedApplication Spec update - will retry later", 
+			"workload", owner.GetName(), "reason", "unsupported language detected, likely pod restart")
+		operationResult = controllerutil.OperationResultNone
+	} else {
+		operationResult, err = controllerutil.CreateOrPatch(ctx, kubeClient, updatedIa, func() error {
+			updatedIa.Spec.RuntimeDetails = results
+			return nil
+		})
+	}
 
 	if err != nil {
 		log.Logger.Error(err, "Failed to update runtime info", "name", owner.GetName(), "kind",

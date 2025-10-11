@@ -65,12 +65,57 @@ func (w workloadPodTemplatePredicate) Update(e event.UpdateEvent) bool {
 		return true
 	}
 
-	// Prevent double reconciliation when CodeKarma is making changes
-	// Only trigger reconciliation for environment changes if CodeKarma is not present
-	// BUT: Allow reconciliation for label changes even when CodeKarma is present
-	if oldHasCodeKarmaLabel || newHasCodeKarmaLabel {
-		// CodeKarma is present, don't trigger on env changes to avoid double reconciliation
-		// BUT: Label changes are already handled above, so this only affects env changes
+	// CRITICAL FIX: Allow reconciliation when BOTH labels are present AND env/resources changed
+	// This handles helm upgrade scenario where helm reverts env vars
+	// We detect this by checking if CodeKarma was already instrumenting (both have label)
+	// but env vars or resources changed (external change like Helm)
+	if oldHasCodeKarmaLabel && newHasCodeKarmaLabel {
+		// Both have label - CodeKarma was already instrumenting
+		// Check if env vars or resources changed (external change detection)
+		envChanged := false
+		resourcesChanged := false
+		
+		if len(oldPodSpec.Spec.Containers) == len(newPodSpec.Spec.Containers) {
+			for i := range oldPodSpec.Spec.Containers {
+				// Check env changes
+				if len(oldPodSpec.Spec.Containers[i].Env) != len(newPodSpec.Spec.Containers[i].Env) {
+					envChanged = true
+					break
+				}
+				
+				minEnvLen := len(oldPodSpec.Spec.Containers[i].Env)
+				if len(newPodSpec.Spec.Containers[i].Env) < minEnvLen {
+					minEnvLen = len(newPodSpec.Spec.Containers[i].Env)
+				}
+				
+				for j := 0; j < minEnvLen; j++ {
+					oldEnv := &oldPodSpec.Spec.Containers[i].Env[j]
+					newEnv := &newPodSpec.Spec.Containers[i].Env[j]
+					if oldEnv.Name != newEnv.Name || oldEnv.Value != newEnv.Value {
+						envChanged = true
+						break
+					}
+				}
+				
+				// Check resource changes
+				prevNumResources := countOdigosResources(oldPodSpec.Spec.Containers[i].Resources.Limits)
+				newNumResources := countOdigosResources(newPodSpec.Spec.Containers[i].Resources.Limits)
+				if prevNumResources != newNumResources {
+					resourcesChanged = true
+				}
+				
+				if envChanged || resourcesChanged {
+					break
+				}
+			}
+		}
+		
+		// If env or resources changed, it's an external change (like Helm) - RECONCILE!
+		if envChanged || resourcesChanged {
+			return true
+		}
+		
+		// No changes detected, skip reconciliation to avoid loops
 		return false
 	}
 

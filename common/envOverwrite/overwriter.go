@@ -87,13 +87,23 @@ func GetPatchedEnvValue(envName string, observedValue string, currentSdk *common
 
 	if currentSdk == nil {
 		// When we have no sdk injected, we should not inject any odigos values.
+		if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
+			fmt.Printf("DEBUG GetPatchedEnvValue: SDK is nil, returning nil for %s\n", envName)
+		}
 		return nil
 	}
 
 	desiredOdigosPart, ok := envMetadata.values[*currentSdk]
 	if !ok {
 		// No specific overwrite is required for this SDK
+		if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
+			fmt.Printf("DEBUG GetPatchedEnvValue: No value for SDK %v, returning nil for %s\n", *currentSdk, envName)
+		}
 		return nil
+	}
+	
+	if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
+		fmt.Printf("DEBUG GetPatchedEnvValue: Processing %s - observed='%s', desired='%s', sdk=%v, language=%v\n", envName, observedValue, desiredOdigosPart, *currentSdk, language)
 	}
 
 	// For JAVA_TOOL_OPTIONS, validate all agents exist before processing
@@ -108,9 +118,13 @@ func GetPatchedEnvValue(envName string, observedValue string, currentSdk *common
 
 	// scenario 1: no user defined values and no odigos value
 	// happens: might be the case right after the source is instrumented, and before the instrumentation is applied.
-	// action: we want to add the odigos value when SDK is present
+	// action: there are no user defined values, so no need to make any changes.
+	// CRITICAL FIX: Return nil to avoid overwriting existing manifest values during helm upgrade
 	if observedValue == "" {
-		return &desiredOdigosPart
+		if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
+			fmt.Printf("DEBUG GetPatchedEnvValue: Scenario 1 - empty observed, returning nil (no overwrite)\n")
+		}
+		return nil
 	}
 
 	// scenario 2: no user defined values, only odigos value
@@ -140,40 +154,57 @@ func GetPatchedEnvValue(envName string, observedValue string, currentSdk *common
 	}
 	observedValue = strings.Join(newValues, envMetadata.delim)
 
-	// Scenario 3: both odigos and user defined values are present
-	// happens: when the user set some values to this env (either via manifest or dockerfile) and odigos instrumentation is applied.
-	// action: we want to keep the user defined values and upsert the odigos value.
-	for _, sdkEnvValue := range envMetadata.values {
-		if strings.Contains(observedValue, sdkEnvValue) {
-			if sdkEnvValue == desiredOdigosPart {
-				// shortcut, the value is already patched
-				// both the odigos part equals to the new value, and the user part we want to keep
-				// Exception: for a value that is injected by a webhook, we don't want to add it to
-				// the deployment, as the webhook will manage when it is needed.
-				return &observedValue
-			} else {
-				// The environment variable is patched by some other odigos sdk.
-				// replace just the odigos part with the new desired value.
-				// this can happen when moving between SDKs.
-				patchedEvnValue := strings.ReplaceAll(observedValue, sdkEnvValue, desiredOdigosPart)
-				return &patchedEvnValue
-			}
+	// Scenario 3: Check if our DESIRED SDK value is already present
+	// If it is, return as-is. If not, we need to add/replace it.
+	if strings.Contains(observedValue, desiredOdigosPart) {
+		// Our desired value is already present, no need to patch
+		if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
+			fmt.Printf("DEBUG GetPatchedEnvValue: Scenario 3 - desired already present, returning observed='%s'\n", observedValue)
 		}
+		return &observedValue
+	}
+	
+	if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
+		fmt.Printf("DEBUG GetPatchedEnvValue: Scenario 3 - desired NOT present, checking for other SDK values to replace\n")
+	}
+	
+	// Scenario 3b: Check if OTHER SDK values are present that need to be replaced
+	// This happens when switching between SDKs (e.g., from Odigos to CodeKarma)
+	for _, sdkEnvValue := range envMetadata.values {
+		if sdkEnvValue != desiredOdigosPart && strings.Contains(observedValue, sdkEnvValue) {
+			// Replace the other SDK's value with our desired value
+			patchedEvnValue := strings.ReplaceAll(observedValue, sdkEnvValue, desiredOdigosPart)
+			if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
+				fmt.Printf("DEBUG GetPatchedEnvValue: Scenario 3b - found other SDK value='%s', replacing with desired='%s', result='%s'\n", sdkEnvValue, desiredOdigosPart, patchedEvnValue)
+			}
+			return &patchedEvnValue
+		}
+	}
+	
+	if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
+		fmt.Printf("DEBUG GetPatchedEnvValue: No other SDK values found, falling to Scenario 4\n")
 	}
 
 	// Scenario 4: only user defined values are present
 	// happens: when the user set some values to this env (either via manifest or dockerfile) and odigos instrumentation not yet applied.
 	// action: we want to keep the user defined values and prepend the odigos value for JAVA_TOOL_OPTIONS.
 	if observedValue == "" {
+		if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
+			fmt.Printf("DEBUG GetPatchedEnvValue: Scenario 4 - observed empty (unexpected), returning desired='%s'\n", desiredOdigosPart)
+		}
 		return &desiredOdigosPart
 	} else {
 		// For JAVA_TOOL_OPTIONS, prepend the CodeKarma agent first, then add other values
 		if envName == "JAVA_TOOL_OPTIONS" {
 			mergedEnvValue := desiredOdigosPart + envMetadata.delim + observedValue
+			fmt.Printf("DEBUG GetPatchedEnvValue: Scenario 4 - JAVA_TOOL_OPTIONS prepending, result='%s'\n", mergedEnvValue)
 			return &mergedEnvValue
 		} else {
 			// For other environment variables, append the odigos value
 			mergedEnvValue := observedValue + envMetadata.delim + desiredOdigosPart
+			if envName == "JAVA_OPTS" {
+				fmt.Printf("DEBUG GetPatchedEnvValue: Scenario 4 - JAVA_OPTS appending, result='%s'\n", mergedEnvValue)
+			}
 			return &mergedEnvValue
 		}
 	}

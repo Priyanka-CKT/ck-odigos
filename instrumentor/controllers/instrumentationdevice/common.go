@@ -78,7 +78,7 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 		return err, false
 	}
 
-	workload := workload.PodWorkload{
+	podWorkload := workload.PodWorkload{
 		Name:      obj.GetName(),
 		Namespace: obj.GetNamespace(),
 		Kind:      workload.WorkloadKind(obj.GetObjectKind().GroupVersionKind().Kind),
@@ -102,7 +102,7 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 			continue
 		}
 
-		participating := utils.IsWorkloadParticipatingInRule(workload, instrumentationRule)
+		participating := utils.IsWorkloadParticipatingInRule(podWorkload, instrumentationRule)
 		if !participating {
 			// filter rules that do not apply to the workload
 			continue

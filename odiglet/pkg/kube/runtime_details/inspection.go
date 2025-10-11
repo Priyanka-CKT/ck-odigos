@@ -176,12 +176,19 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 					log.Logger.V(0).Info("multiple processes found in pod container, detected supported language", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace, "totalProcesses", len(processes), "detectedLanguage", programLanguageDetails.Language)
 				}
 
-				// Convert map to slice for k8s format
-				envs = make([]odigosv1.EnvVar, 0, len(inspectProc.Environments.DetailedEnvs))
+			// Convert map to slice for k8s format
+			envs = make([]odigosv1.EnvVar, 0, len(inspectProc.Environments.DetailedEnvs))
 
-				for envName, envValue := range inspectProc.Environments.OverwriteEnvs {
-					envs = append(envs, odigosv1.EnvVar{Name: envName, Value: envValue})
-				}
+			// CRITICAL: For env vars, we get the values from OverwriteEnvs which come from KarmaInstrumentedApplication.Spec
+			// These are the ORIGINAL values (without any patching by instrumentor).
+			// During helm upgrade, we want to PRESERVE any previously patched values (e.g., with ck-agent-universal.jar).
+			// So we store these original values here - they will be used by the instrumentor to determine what to patch.
+			for envName, envValue := range inspectProc.Environments.OverwriteEnvs {
+				envs = append(envs, odigosv1.EnvVar{Name: envName, Value: envValue})
+			}
+			
+			log.Logger.V(0).Info("DEBUG INSPECTION: Collected env vars from process", 
+				"pod", pod.Name, "container", container.Name, "envCount", len(envs))
 
 				// Languages that can be detected using environment variables, e.g Python<>newrelic
 				for envName := range inspectProc.Environments.DetailedEnvs {

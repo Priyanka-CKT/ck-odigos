@@ -91,7 +91,7 @@ func main() {
 		Development: true,
 	}
 	opts.BindFlags(flag.CommandLine)
-	flag.IntVar(&webhookPort, "webhook-port", 9444, "The port the webhook server binds to.")
+	flag.IntVar(&webhookPort, "webhook-port", 9443, "The port the webhook server binds to.")
 	flag.Parse()
 
 	zapLogger := ctrlzap.NewRaw(ctrlzap.UseFlagOptions(&opts))

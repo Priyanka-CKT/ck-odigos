@@ -55,9 +55,9 @@ func ApplyInstrumentationDevicesToPodTemplate(original *corev1.PodTemplateSpec, 
 		}
 		// handle containers with unknown language or ignored language
 		if containerLanguage == common.UnknownProgrammingLanguage || containerLanguage == common.IgnoredProgrammingLanguage || containerLanguage == common.NginxProgrammingLanguage {
-		// always patch the env vars, even if the language is unknown or ignored.
-		// this is necessary to sync the existing envs with the missing language if changed for any reason.
-		err = patchEnvVarsForContainer(runtimeDetails, &container, nil, containerLanguage, manifestEnvOriginal, logger)
+			// always patch the env vars, even if the language is unknown or ignored.
+			// this is necessary to sync the existing envs with the missing language if changed for any reason.
+			err = patchEnvVarsForContainer(runtimeDetails, &container, nil, containerLanguage, manifestEnvOriginal, logger)
 			if err != nil {
 				return fmt.Errorf("%w: %v", ErrPatchEnvVars, err), deviceApplied, deviceSkippedDueToOtherAgent
 			}
@@ -209,14 +209,14 @@ func patchEnvVarsForContainer(runtimeDetails *odigosv1.KarmaInstrumentedApplicat
 
 	// Get observed env vars from KarmaInstrumentedApplication.Spec (original values)
 	observedEnvs := getEnvVarsOfContainer(runtimeDetails, container.Name)
-	
-	logger.V(0).Info("DEBUG ENV PATCH: Using env vars from KarmaInstrumentedApplication.Spec (original values)", 
+
+	logger.V(0).Info("DEBUG ENV PATCH: Using env vars from KarmaInstrumentedApplication.Spec (original values)",
 		"container", container.Name, "envCount", len(observedEnvs))
 
 	// Step 1: check existing environment on the manifest and update them if needed
 	newEnvs := make([]corev1.EnvVar, 0, len(container.Env))
 	logger.V(0).Info("DEBUG ENV PATCH: Starting env patching for container", "container", container.Name, "totalEnvVars", len(container.Env), "language", programmingLanguage, "sdk", sdk)
-	
+
 	for _, envVar := range container.Env {
 
 		// extract the observed value for this env var, which might be empty if not currently exists
@@ -227,7 +227,7 @@ func patchEnvVarsForContainer(runtimeDetails *odigosv1.KarmaInstrumentedApplicat
 		}
 
 		desiredEnvValue := envOverwrite.GetPatchedEnvValue(envVar.Name, observedEnvValue, sdk, programmingLanguage)
-		
+
 		if envVar.Name == "JAVA_TOOL_OPTIONS" || envVar.Name == "JAVA_OPTS" {
 			if desiredEnvValue != nil {
 				logger.V(0).Info("DEBUG ENV PATCH: GetPatchedEnvValue returned value", "name", envVar.Name, "desiredValue", *desiredEnvValue)
@@ -238,7 +238,7 @@ func patchEnvVarsForContainer(runtimeDetails *odigosv1.KarmaInstrumentedApplicat
 
 		if desiredEnvValue == nil {
 			// no need to patch this env var, so make sure it is reverted to its original value
-			
+
 			// CRITICAL FIX: Don't remove env vars that contain our CodeKarma agent!
 			// This happens during helm upgrade when SDK might be nil temporarily.
 			// If the manifest value contains our agent, we want to keep it.
@@ -248,13 +248,13 @@ func patchEnvVarsForContainer(runtimeDetails *odigosv1.KarmaInstrumentedApplicat
 				delete(observedEnvs, envVar.Name)
 				continue
 			}
-			
+
 			origValue, found := manifestEnvOriginal.RemoveOriginalValue(container.Name, envVar.Name)
-			
+
 			if envVar.Name == "JAVA_TOOL_OPTIONS" || envVar.Name == "JAVA_OPTS" {
 				logger.V(0).Info("DEBUG ENV PATCH: desiredEnvValue is nil, checking original", "name", envVar.Name, "found", found, "origValue", origValue, "manifestValue", envVar.Value)
 			}
-			
+
 			if !found {
 				newEnvs = append(newEnvs, envVar)
 				if envVar.Name == "JAVA_TOOL_OPTIONS" || envVar.Name == "JAVA_OPTS" {
@@ -287,9 +287,9 @@ func patchEnvVarsForContainer(runtimeDetails *odigosv1.KarmaInstrumentedApplicat
 				Name:  envVar.Name,
 				Value: *desiredEnvValue,
 			})
-			
+
 			if envVar.Name == "JAVA_TOOL_OPTIONS" || envVar.Name == "JAVA_OPTS" {
-				logger.V(0).Info("✅ DEBUG ENV PATCH: Applied desired value to manifest", 
+				logger.V(0).Info("✅ DEBUG ENV PATCH: Applied desired value to manifest",
 					"name", envVar.Name, "value", *desiredEnvValue)
 			}
 		}
@@ -305,9 +305,9 @@ func patchEnvVarsForContainer(runtimeDetails *odigosv1.KarmaInstrumentedApplicat
 			if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
 				logger.V(0).Info("DEBUG ENV PATCH: Step 2 - Processing Java env from observed", "name", envName, "observedValue", envValue)
 			}
-			
+
 			desiredEnvValue := envOverwrite.GetPatchedEnvValue(envName, envValue, sdk, programmingLanguage)
-			
+
 			if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
 				if desiredEnvValue != nil {
 					logger.V(0).Info("DEBUG ENV PATCH: Step 2 - GetPatchedEnvValue returned value", "name", envName, "desiredValue", *desiredEnvValue)
@@ -315,7 +315,7 @@ func patchEnvVarsForContainer(runtimeDetails *odigosv1.KarmaInstrumentedApplicat
 					logger.V(0).Info("DEBUG ENV PATCH: Step 2 - GetPatchedEnvValue returned nil", "name", envName)
 				}
 			}
-			
+
 			if desiredEnvValue != nil {
 				// store that it was empty to begin with
 				manifestEnvOriginal.InsertOriginalValue(container.Name, envName, nil)

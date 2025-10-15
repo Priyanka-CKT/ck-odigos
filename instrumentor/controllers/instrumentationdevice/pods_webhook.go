@@ -46,10 +46,24 @@ type PodsWebhook struct {
 var _ webhook.CustomDefaulter = &PodsWebhook{}
 
 func (p *PodsWebhook) Default(ctx context.Context, obj runtime.Object) error {
+	logger := log.FromContext(ctx)
+
+	logger.Info("🚀 WEBHOOK TRIGGERED: Starting webhook processing")
+
 	pod, ok := obj.(*corev1.Pod)
 	if !ok {
+		logger.Error(fmt.Errorf("expected a Pod but got a %T", obj), "Invalid object type")
 		return fmt.Errorf("expected a Pod but got a %T", obj)
 	}
+
+	logger.Info("🔍 WEBHOOK DEBUG: Pod details",
+		"pod", pod.Name,
+		"namespace", pod.Namespace,
+		"hasLabels", pod.Labels != nil,
+		"labelCount", len(pod.Labels),
+		"instrumentationLabel", pod.Labels["codekarma.tech/inject-instrumentation"],
+		"containerCount", len(pod.Spec.Containers),
+	)
 
 	if pod.Annotations == nil {
 		pod.Annotations = map[string]string{}
@@ -57,8 +71,20 @@ func (p *PodsWebhook) Default(ctx context.Context, obj runtime.Object) error {
 
 	serviceName, podWorkload := p.getServiceNameForEnv(ctx, pod)
 
+	logger.Info("🔍 WEBHOOK DEBUG: Service name and workload",
+		"pod", pod.Name,
+		"namespace", pod.Namespace,
+		"serviceName", serviceName,
+		"podWorkload", podWorkload,
+	)
+
 	// Inject ODIGOS environment variables into all containers
 	injectOdigosEnvVars(pod, podWorkload, serviceName)
+
+	logger.Info("✅ WEBHOOK COMPLETED: Finished processing pod",
+		"pod", pod.Name,
+		"namespace", pod.Namespace,
+	)
 
 	return nil
 }
@@ -71,6 +97,12 @@ func (p *PodsWebhook) getServiceNameForEnv(ctx context.Context, pod *corev1.Pod)
 	podWorkload, err := workload.PodWorkloadObject(ctx, pod)
 	if err != nil {
 		logger.Error(err, "failed to extract pod workload details from pod. skipping OTEL_SERVICE_NAME injection")
+		return nil, nil
+	}
+
+	// CRITICAL FIX: Check if podWorkload is nil before using it
+	if podWorkload == nil {
+		logger.Error(fmt.Errorf("podWorkload is nil"), "podWorkload is nil, cannot proceed")
 		return nil, nil
 	}
 
@@ -153,6 +185,25 @@ func agentExists(path string) bool {
 }
 
 func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, serviceName *string) {
+	logger := log.FromContext(context.Background())
+
+	logger.Info("🚀 DEBUG WEBHOOK: Starting env var injection",
+		"pod", pod.Name,
+		"namespace", pod.Namespace,
+		"hasLabels", pod.Labels != nil,
+		"instrumentationLabel", pod.Labels["codekarma.tech/inject-instrumentation"],
+		"podWorkload", podWorkload,
+		"serviceName", serviceName,
+	)
+
+	// CRITICAL FIX: Handle nil podWorkload
+	if podWorkload == nil {
+		logger.Info("⚠️ DEBUG WEBHOOK: podWorkload is nil, skipping env var injection",
+			"pod", pod.Name,
+			"namespace", pod.Namespace,
+		)
+		return
+	}
 
 	// Common environment variables that do not change across containers
 	commonEnvVars := []corev1.EnvVar{
@@ -225,6 +276,18 @@ func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, ser
 		})
 	}
 
+	// Log the final commonEnvVars that will be checked/injected
+	commonEnvVarNames := []string{}
+	for _, env := range commonEnvVars {
+		commonEnvVarNames = append(commonEnvVarNames, env.Name)
+	}
+	logger.Info("🔍 DEBUG WEBHOOK: Built commonEnvVars",
+		"pod", pod.Name,
+		"namespace", pod.Namespace,
+		"count", len(commonEnvVars),
+		"varNames", commonEnvVarNames,
+	)
+
 	var serviceNameEnv *corev1.EnvVar
 	if serviceName != nil {
 		serviceNameEnv = &corev1.EnvVar{
@@ -233,41 +296,95 @@ func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, ser
 		}
 	}
 
+	logger.Info("🔍 DEBUG WEBHOOK: Processing containers",
+		"pod", pod.Name,
+		"namespace", pod.Namespace,
+		"containerCount", len(pod.Spec.Containers),
+	)
+
 	for i := range pod.Spec.Containers {
 		container := &pod.Spec.Containers[i]
 
+		logger.Info("🔍 DEBUG WEBHOOK: Processing container",
+			"pod", pod.Name,
+			"namespace", pod.Namespace,
+			"container", container.Name,
+			"containerIndex", i,
+			"hasResources", container.Resources.Limits != nil,
+			"resourceCount", len(container.Resources.Limits),
+		)
+
 		pl, otelsdk, found := containerutils.GetLanguageAndOtelSdk(container)
 		if !found {
+			logger.Info("⚠️ DEBUG WEBHOOK: Device not found, skipping container",
+				"pod", pod.Name,
+				"namespace", pod.Namespace,
+				"container", container.Name,
+				"reason", "No device resources found",
+			)
 			continue
 		}
 
+		logger.Info("✅ DEBUG WEBHOOK: Device found, checking env vars",
+			"pod", pod.Name,
+			"namespace", pod.Namespace,
+			"container", container.Name,
+			"language", pl,
+			"sdk", otelsdk,
+			"commonEnvVarsCount", len(commonEnvVars),
+		)
+
 		// Check if the environment variables are already present, if so skip inject them again.
 		if envVarsExist(container.Env, commonEnvVars) {
+			logger.Info("⏭️ DEBUG WEBHOOK: All common env vars already exist, skipping injection",
+				"pod", pod.Name,
+				"namespace", pod.Namespace,
+				"container", container.Name,
+				"existingEnvCount", len(container.Env),
+			)
 			continue
 		}
+
+		logger.Info("✅ DEBUG WEBHOOK: Will inject env vars",
+			"pod", pod.Name,
+			"namespace", pod.Namespace,
+			"container", container.Name,
+			"commonEnvVarsCount", len(commonEnvVars),
+			"existingEnvCount", len(container.Env),
+		)
 
 		containerNameEnv := corev1.EnvVar{
 			Name:  k8sconsts.OdigosEnvVarContainerName,
 			Value: container.Name,
 		}
 
-		// Set CK_APP_NAME based on APP_NAME or deployment name
+		resourceAttributes := getResourceAttributes(podWorkload, container.Name)
+		resourceAttributesEnvValue := getResourceAttributesEnvVarValue(resourceAttributes)
+
+		// Inject common env vars first
+		container.Env = append(container.Env, append(commonEnvVars, containerNameEnv)...)
+
+		logger.Info("✅ DEBUG WEBHOOK: Injected common env vars",
+			"pod", pod.Name,
+			"namespace", pod.Namespace,
+			"container", container.Name,
+			"injectedCount", len(commonEnvVars)+1,
+			"totalEnvCount", len(container.Env),
+		)
+
+		// Set CK_APP_NAME based on APP_NAME or deployment name (after common vars)
 		appNameEnv := getAppNameEnv(container.Env, podWorkload)
 		if appNameEnv != nil {
 			container.Env = append(container.Env, *appNameEnv)
 		}
 		// Log APP_NAME environment variable details
-		log.FromContext(context.Background()).Info(
-			"APP_NAME environment variable details",
+		logger.Info("🔍 DEBUG WEBHOOK: APP_NAME environment variable details",
+			"pod", pod.Name,
+			"namespace", pod.Namespace,
 			"container", container.Name,
 			"appNameEnv", appNameEnv,
-			"existingEnv", container.Env,
+			"totalEnvCount", len(container.Env),
 		)
-
-		resourceAttributes := getResourceAttributes(podWorkload, container.Name)
-		resourceAttributesEnvValue := getResourceAttributesEnvVarValue(resourceAttributes)
-
-		container.Env = append(container.Env, append(commonEnvVars, containerNameEnv)...)
 
 		// Validate and clean up JAVA_TOOL_OPTIONS for Java containers
 		if pl == common.JavaProgrammingLanguage {
@@ -282,8 +399,9 @@ func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, ser
 					validatedValue := validateAllJavaAgents(envVar.Value, podLabels)
 					if validatedValue != envVar.Value {
 						container.Env[i].Value = validatedValue
-						log.FromContext(context.Background()).Info(
-							"Cleaned up JAVA_TOOL_OPTIONS",
+						logger.Info("🔧 DEBUG WEBHOOK: Cleaned up JAVA_TOOL_OPTIONS",
+							"pod", pod.Name,
+							"namespace", pod.Namespace,
 							"container", container.Name,
 							"original", envVar.Value,
 							"validated", validatedValue,
@@ -312,12 +430,14 @@ func envVarsExist(containerEnv []corev1.EnvVar, commonEnvVars []corev1.EnvVar) b
 		envMap[envVar.Name] = struct{}{} // Inserting empty struct as value
 	}
 
+	// Check if ALL common env vars exist, not just ANY one
+	// This ensures we don't skip injection if only some vars are present
 	for _, commonEnvVar := range commonEnvVars {
-		if _, exists := envMap[commonEnvVar.Name]; exists { // Checking if key exists
-			return true
+		if _, exists := envMap[commonEnvVar.Name]; !exists {
+			return false // At least one var is missing, need to inject
 		}
 	}
-	return false
+	return true // All common vars already exist, skip injection
 }
 
 func getWorkloadKindAttributeKey(podWorkload *workload.PodWorkload) attribute.Key {

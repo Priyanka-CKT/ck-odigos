@@ -74,7 +74,7 @@ func (w workloadPodTemplatePredicate) Update(e event.UpdateEvent) bool {
 		// Check if env vars or resources changed (external change detection)
 		envChanged := false
 		resourcesChanged := false
-		
+
 		if len(oldPodSpec.Spec.Containers) == len(newPodSpec.Spec.Containers) {
 			for i := range oldPodSpec.Spec.Containers {
 				// Check env changes
@@ -82,12 +82,12 @@ func (w workloadPodTemplatePredicate) Update(e event.UpdateEvent) bool {
 					envChanged = true
 					break
 				}
-				
+
 				minEnvLen := len(oldPodSpec.Spec.Containers[i].Env)
 				if len(newPodSpec.Spec.Containers[i].Env) < minEnvLen {
 					minEnvLen = len(newPodSpec.Spec.Containers[i].Env)
 				}
-				
+
 				for j := 0; j < minEnvLen; j++ {
 					oldEnv := &oldPodSpec.Spec.Containers[i].Env[j]
 					newEnv := &newPodSpec.Spec.Containers[i].Env[j]
@@ -96,25 +96,25 @@ func (w workloadPodTemplatePredicate) Update(e event.UpdateEvent) bool {
 						break
 					}
 				}
-				
+
 				// Check resource changes
 				prevNumResources := countOdigosResources(oldPodSpec.Spec.Containers[i].Resources.Limits)
 				newNumResources := countOdigosResources(newPodSpec.Spec.Containers[i].Resources.Limits)
 				if prevNumResources != newNumResources {
 					resourcesChanged = true
 				}
-				
+
 				if envChanged || resourcesChanged {
 					break
 				}
 			}
 		}
-		
+
 		// If env or resources changed, it's an external change (like Helm) - RECONCILE!
 		if envChanged || resourcesChanged {
 			return true
 		}
-		
+
 		// No changes detected, skip reconciliation to avoid loops
 		return false
 	}

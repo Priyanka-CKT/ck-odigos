@@ -301,8 +301,8 @@ func NewInstrumentorService(ns string) *corev1.Service {
 			Ports: []corev1.ServicePort{
 				{
 					Name:       "webhook-server",
-					Port:       9444,
-					TargetPort: intstr.FromInt(9444),
+					Port:       9443,
+					TargetPort: intstr.FromInt(9443),
 				},
 			},
 			Selector: map[string]string{

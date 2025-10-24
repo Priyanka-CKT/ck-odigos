@@ -28,6 +28,7 @@ const ckMetricsEndpointEnvVarName = "CK_METRICS_ENDPOINT"
 const ckEndpointEnvVarName = "CK_ENDPOINT"
 const ckApiKeyEnvVarName = "CK_API_KEY"
 const ckAppNameEnvVarName = "CK_APP_NAME"
+const ckInstPackagesEnvVarName = "CK_INST_PACKAGES"
 const appNameEnvVarName = "APP_NAME"
 
 // Default values if environment variables are not set
@@ -267,6 +268,14 @@ func injectOdigosEnvVars(pod *corev1.Pod, podWorkload *workload.PodWorkload, ser
 		})
 	}
 
+	// Add CK_INST_PACKAGES if it's available and not empty
+	ckInstPackages := os.Getenv(ckInstPackagesEnvVarName)
+	if ckInstPackages != "" {
+		commonEnvVars = append(commonEnvVars, corev1.EnvVar{
+			Name:  ckInstPackagesEnvVarName,
+			Value: ckInstPackages,
+		})
+	}
 	// Add CK_API_KEY if it's available and not empty
 	ckApiKey := os.Getenv(ckApiKeyEnvVarName)
 	if ckApiKey != "" {

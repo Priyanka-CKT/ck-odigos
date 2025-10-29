@@ -68,7 +68,11 @@ func ApplyInstrumentationDevicesToPodTemplate(original *corev1.PodTemplateSpec, 
 		// Find and apply the appropriate SDK for the container language.
 		otelSdk, found := defaultSdks[containerLanguage]
 		if !found {
-			return fmt.Errorf("%w for language: %s, container:%s", ErrNoDefaultSDK, containerLanguage, container.Name), deviceApplied, deviceSkippedDueToOtherAgent
+			// No SDK found for this language (e.g., Python, Node.js) - skip this container
+			logger.V(0).Info("No SDK found for language, skipping device for container",
+				"language", containerLanguage, "container", container.Name)
+			modifiedContainers = append(modifiedContainers, container)
+			continue // Skip this container but continue with others
 		}
 
 		instrumentationDeviceName := common.InstrumentationDeviceName(containerLanguage, otelSdk, libcType)

@@ -376,20 +376,30 @@ func reconcileSingleWorkload(ctx context.Context, kubeClient client.Client, inst
 		return err
 	}
 
-	// Check if there are any unsupported languages
+	// Check if there are ANY supported languages in any container
+	// Only skip instrumentation if NO containers have supported languages
+	hasSupportedLanguage := false
 	for _, containerDetails := range instrumentedApplication.Spec.RuntimeDetails {
-		if !isSupportedLanguage(containerDetails.Language) {
-			// Unsupported language detected
-			errRemove := removeInstrumentationDeviceFromWorkload(ctx, kubeClient, instrumentedApplication.Namespace, workloadKind, workloadName, ApplyInstrumentationDeviceReasonUnsupportedLanguage)
-			if errRemove == nil {
-				conditions.UpdateStatusConditions(ctx, kubeClient, instrumentedApplication, &instrumentedApplication.Status.Conditions, metav1.ConditionFalse, appliedInstrumentationDeviceType, string(ApplyInstrumentationDeviceReasonUnsupportedLanguage),
-					"Unsupported language detected. Only Java and Go are currently supported for instrumentation.")
-			} else {
-				conditions.UpdateStatusConditions(ctx, kubeClient, instrumentedApplication, &instrumentedApplication.Status.Conditions, metav1.ConditionFalse, appliedInstrumentationDeviceType, string(ApplyInstrumentationDeviceReasonErrRemoving), errRemove.Error())
-			}
-			return nil
+		if isSupportedLanguage(containerDetails.Language) {
+			hasSupportedLanguage = true
+			break
 		}
 	}
+
+	// If NO supported languages found, remove instrumentation devices
+	if !hasSupportedLanguage {
+		log.FromContext(ctx).V(0).Info("No supported languages detected in any container, removing instrumentation devices")
+		errRemove := removeInstrumentationDeviceFromWorkload(ctx, kubeClient, instrumentedApplication.Namespace, workloadKind, workloadName, ApplyInstrumentationDeviceReasonUnsupportedLanguage)
+		if errRemove == nil {
+			conditions.UpdateStatusConditions(ctx, kubeClient, instrumentedApplication, &instrumentedApplication.Status.Conditions, metav1.ConditionFalse, appliedInstrumentationDeviceType, string(ApplyInstrumentationDeviceReasonUnsupportedLanguage),
+				"No supported languages detected. Only Java and Go are currently supported for instrumentation.")
+		} else {
+			conditions.UpdateStatusConditions(ctx, kubeClient, instrumentedApplication, &instrumentedApplication.Status.Conditions, metav1.ConditionFalse, appliedInstrumentationDeviceType, string(ApplyInstrumentationDeviceReasonErrRemoving), errRemove.Error())
+		}
+		return nil
+	}
+
+	log.FromContext(ctx).V(0).Info("Supported language detected, will apply instrumentation to supported containers only")
 
 	runtimeVersionSupport, err := versionsupport.IsRuntimeVersionSupported(ctx, instrumentedApplication.Spec.RuntimeDetails)
 	if !runtimeVersionSupport {

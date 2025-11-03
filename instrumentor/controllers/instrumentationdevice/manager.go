@@ -51,7 +51,75 @@ func (w workloadPodTemplatePredicate) Update(e event.UpdateEvent) bool {
 		return false
 	}
 
-	// only handle workloads if any env changed
+	// Check if the change was made by CodeKarma itself by comparing the inject-instrumentation label
+	oldHasCodeKarmaLabel := hasCodeKarmaInjectInstrumentationLabel(oldPodSpec)
+	newHasCodeKarmaLabel := hasCodeKarmaInjectInstrumentationLabel(newPodSpec)
+
+	// Check if the change was made by Odigos itself by comparing the inject-instrumentation label
+	oldHasOdigosLabel := hasOdigosInjectInstrumentationLabel(oldPodSpec)
+	newHasOdigosLabel := hasOdigosInjectInstrumentationLabel(newPodSpec)
+
+	// Allow reconciliation when ANY labels change (both addition and removal)
+	// This enables proper setup when labels are added and cleanup when labels are removed
+	if oldHasCodeKarmaLabel != newHasCodeKarmaLabel || oldHasOdigosLabel != newHasOdigosLabel {
+		return true
+	}
+
+	// CRITICAL FIX: Allow reconciliation when BOTH labels are present AND env/resources changed
+	// This handles helm upgrade scenario where helm reverts env vars
+	// We detect this by checking if CodeKarma was already instrumenting (both have label)
+	// but env vars or resources changed (external change like Helm)
+	if oldHasCodeKarmaLabel && newHasCodeKarmaLabel {
+		// Both have label - CodeKarma was already instrumenting
+		// Check if env vars or resources changed (external change detection)
+		envChanged := false
+		resourcesChanged := false
+
+		if len(oldPodSpec.Spec.Containers) == len(newPodSpec.Spec.Containers) {
+			for i := range oldPodSpec.Spec.Containers {
+				// Check env changes
+				if len(oldPodSpec.Spec.Containers[i].Env) != len(newPodSpec.Spec.Containers[i].Env) {
+					envChanged = true
+					break
+				}
+
+				minEnvLen := len(oldPodSpec.Spec.Containers[i].Env)
+				if len(newPodSpec.Spec.Containers[i].Env) < minEnvLen {
+					minEnvLen = len(newPodSpec.Spec.Containers[i].Env)
+				}
+
+				for j := 0; j < minEnvLen; j++ {
+					oldEnv := &oldPodSpec.Spec.Containers[i].Env[j]
+					newEnv := &newPodSpec.Spec.Containers[i].Env[j]
+					if oldEnv.Name != newEnv.Name || oldEnv.Value != newEnv.Value {
+						envChanged = true
+						break
+					}
+				}
+
+				// Check resource changes
+				prevNumResources := countOdigosResources(oldPodSpec.Spec.Containers[i].Resources.Limits)
+				newNumResources := countOdigosResources(newPodSpec.Spec.Containers[i].Resources.Limits)
+				if prevNumResources != newNumResources {
+					resourcesChanged = true
+				}
+
+				if envChanged || resourcesChanged {
+					break
+				}
+			}
+		}
+
+		// If env or resources changed, it's an external change (like Helm) - RECONCILE!
+		if envChanged || resourcesChanged {
+			return true
+		}
+
+		// No changes detected, skip reconciliation to avoid loops
+		return false
+	}
+
+	// only handle workloads if any env changed (only when CodeKarma is not present)
 	if len(oldPodSpec.Spec.Containers) != len(newPodSpec.Spec.Containers) {
 		return true
 	}
@@ -59,7 +127,14 @@ func (w workloadPodTemplatePredicate) Update(e event.UpdateEvent) bool {
 		if len(oldPodSpec.Spec.Containers[i].Env) != len(newPodSpec.Spec.Containers[i].Env) {
 			return true
 		}
-		for j := range oldPodSpec.Spec.Containers[i].Env {
+
+		// Use the minimum length to avoid index out of range
+		minEnvLen := len(oldPodSpec.Spec.Containers[i].Env)
+		if len(newPodSpec.Spec.Containers[i].Env) < minEnvLen {
+			minEnvLen = len(newPodSpec.Spec.Containers[i].Env)
+		}
+
+		for j := 0; j < minEnvLen; j++ {
 			prevEnv := &newPodSpec.Spec.Containers[i].Env[j]
 			newEnv := &oldPodSpec.Spec.Containers[i].Env[j]
 			if prevEnv.Name != newEnv.Name || prevEnv.Value != newEnv.Value {
@@ -68,6 +143,7 @@ func (w workloadPodTemplatePredicate) Update(e event.UpdateEvent) bool {
 		}
 
 		// user might apply a change to workload which will overwrite odigos injected resources
+		// but only trigger if the change is not made by Odigos itself
 		prevNumOdigosResources := countOdigosResources(oldPodSpec.Spec.Containers[i].Resources.Limits)
 		newNumOdigosResources := countOdigosResources(newPodSpec.Spec.Containers[i].Resources.Limits)
 		if prevNumOdigosResources != newNumOdigosResources {
@@ -84,6 +160,24 @@ func (w workloadPodTemplatePredicate) Delete(e event.DeleteEvent) bool {
 
 func (w workloadPodTemplatePredicate) Generic(e event.GenericEvent) bool {
 	return false
+}
+
+// Helper function to check if pod template has the CodeKarma inject-instrumentation label
+func hasCodeKarmaInjectInstrumentationLabel(podSpec *corev1.PodTemplateSpec) bool {
+	if podSpec.Labels == nil {
+		return false
+	}
+	_, exists := podSpec.Labels["codekarma.tech/inject-instrumentation"]
+	return exists
+}
+
+// Helper function to check if pod template has the Odigos inject-instrumentation label
+func hasOdigosInjectInstrumentationLabel(podSpec *corev1.PodTemplateSpec) bool {
+	if podSpec.Labels == nil {
+		return false
+	}
+	_, exists := podSpec.Labels["odigos.io/inject-instrumentation"]
+	return exists
 }
 
 func SetupWithManager(mgr ctrl.Manager) error {
@@ -103,9 +197,9 @@ func SetupWithManager(mgr ctrl.Manager) error {
 	err = builder.
 		ControllerManagedBy(mgr).
 		Named("instrumentationdevice-instrumentedapplication").
-		For(&odigosv1.InstrumentedApplication{}).
+		For(&odigosv1.KarmaInstrumentedApplication{}).
 		WithEventFilter(&predicate.GenerationChangedPredicate{}).
-		Complete(&InstrumentedApplicationReconciler{
+		Complete(&KarmaInstrumentedApplicationReconciler{
 			Client: mgr.GetClient(),
 			Scheme: mgr.GetScheme(),
 		})
@@ -151,9 +245,9 @@ func SetupWithManager(mgr ctrl.Manager) error {
 	err = builder.
 		ControllerManagedBy(mgr).
 		Named("instrumentationdevice-instrumentationrules").
-		For(&odigosv1.InstrumentationRule{}).
-		WithEventFilter(&utils.OtelSdkInstrumentationRulePredicate{}).
-		Complete(&InstrumentationRuleReconciler{
+		For(&odigosv1.KarmaInstrumentationRule{}).
+		WithEventFilter(&utils.OtelSdkKarmaInstrumentationRulePredicate{}).
+		Complete(&KarmaInstrumentationRuleReconciler{
 			Client: mgr.GetClient(),
 		})
 	if err != nil {

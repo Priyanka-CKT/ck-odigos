@@ -3,6 +3,7 @@ package runtime_details
 import (
 	"context"
 	"fmt"
+	"time"
 
 	odigosv1 "github.com/odigos-io/odigos/api/odigos/v1alpha1"
 	k8sutils "github.com/odigos-io/odigos/k8sutils/pkg/utils"
@@ -32,6 +33,8 @@ func (p *instrumentationConfigPredicate) Create(e event.CreateEvent) bool {
 }
 
 func (p *instrumentationConfigPredicate) Update(e event.UpdateEvent) bool {
+	// Don't retry on Update events - this prevents race conditions in multi-node setups
+	// The pods_controller handles retries more reliably since it gets pod-level events
 	return false
 }
 
@@ -113,6 +116,26 @@ func (r *InstrumentationConfigReconciler) Reconcile(ctx context.Context, request
 	runtimeResults, err := runtimeInspection([]corev1.Pod{*selectedPodForInspection}, odigosConfig.IgnoredContainers)
 	if err != nil {
 		return reconcile.Result{}, err
+	}
+
+	// Check if we only detected unsupported languages - if so, retry after delay to catch Java startup
+	hasSupportedLanguage := false
+	for _, containerDetails := range runtimeResults {
+		if isSupportedLanguage(containerDetails.Language) {
+			hasSupportedLanguage = true
+			break
+		}
+	}
+	
+	if !hasSupportedLanguage && len(runtimeResults) > 0 {
+		// Only retry if this is a new pod generation (pod restart scenario)
+		if selectedPodGeneration > instrumentationConfig.Status.ObservedWorkloadGeneration {
+			logger.V(0).Info("🔄 InstrumentationConfig: Only unsupported language detected, retrying after delay to catch Java startup", 
+				"namespace", request.Namespace, "name", request.Name,
+				"podGeneration", selectedPodGeneration, "observedGeneration", instrumentationConfig.Status.ObservedWorkloadGeneration,
+				"detectedLanguage", runtimeResults[0].Language)
+			return reconcile.Result{RequeueAfter: 10 * time.Second}, nil
+		}
 	}
 
 	err = persistRuntimeDetailsToInstrumentationConfig(ctx, r.Client, &instrumentationConfig, odigosv1.InstrumentationConfigStatus{

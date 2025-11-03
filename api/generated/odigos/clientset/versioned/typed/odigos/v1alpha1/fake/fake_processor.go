@@ -33,7 +33,7 @@ import (
 
 // FakeProcessors implements ProcessorInterface
 type FakeProcessors struct {
-	Fake *FakeOdigosV1alpha1
+	Fake *FakeCodekarmaV1alpha1
 	ns   string
 }
 

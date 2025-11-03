@@ -253,9 +253,9 @@ type SharedInformerFactory interface {
 	// client.
 	InformerFor(obj runtime.Object, newFunc internalinterfaces.NewInformerFunc) cache.SharedIndexInformer
 
-	Odigos() odigos.Interface
+	Codekarma() odigos.Interface
 }
 
-func (f *sharedInformerFactory) Odigos() odigos.Interface {
+func (f *sharedInformerFactory) Codekarma() odigos.Interface {
 	return odigos.New(f, f.namespace, f.tweakListOptions)
 }

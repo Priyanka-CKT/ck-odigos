@@ -34,6 +34,7 @@ export interface Notification {
 export type Config = {
   config: {
     installation: string;
+    nexusEndpoint: string;
   };
 };
 
@@ -50,17 +51,17 @@ export interface StepProps {
 }
 
 export enum OVERVIEW_ENTITY_TYPES {
-  RULE = 'rule',
+  // RULE = 'rule',
   SOURCE = 'source',
-  ACTION = 'action',
-  DESTINATION = 'destination',
+  // ACTION = 'action',
+  // DESTINATION = 'destination',
 }
 
 export enum OVERVIEW_NODE_TYPES {
-  ADD_RULE = 'addRule',
+  // ADD_RULE = 'addRule',
   ADD_SOURCE = 'addSource',
-  ADD_ACTION = 'addAction',
-  ADD_DESTIONATION = 'addDestination',
+  // ADD_ACTION = 'addAction',
+  // ADD_DESTIONATION = 'addDestination',
 }
 
 export enum STATUSES {

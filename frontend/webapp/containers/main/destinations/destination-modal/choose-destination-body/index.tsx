@@ -5,7 +5,7 @@ import { SignalUppercase } from '@/utils';
 import { useDestinationTypes } from '@/hooks';
 import type { DestinationTypeItem } from '@/types';
 import { DestinationsList } from './destinations-list';
-import { Divider, Dropdown, Input, MonitoringCheckboxes, SectionTitle } from '@/reuseable-components';
+import { Divider, Dropdown, Input, SectionTitle } from '@/reuseable-components';
 
 interface Props {
   onSelect: (item: DestinationTypeItem) => void;
@@ -65,7 +65,7 @@ export const ChooseDestinationBody: React.FC<Props> = ({ onSelect, hidden }) => 
 
   return (
     <Container>
-      <SectionTitle title='Choose destination' description='Add backend destination you want to connect with Odigos.' />
+      <SectionTitle title='Choose destination' description='Add backend destination you want to connect with KarmaControl.' />
 
       <Filters>
         <WidthConstraint>
@@ -74,7 +74,6 @@ export const ChooseDestinationBody: React.FC<Props> = ({ onSelect, hidden }) => 
         <WidthConstraint>
           <Dropdown options={DROPDOWN_OPTIONS} value={selectedCategory} onSelect={(opt) => setSelectedCategory(opt)} onDeselect={() => {}} />
         </WidthConstraint>
-        <MonitoringCheckboxes title='' selectedSignals={selectedMonitors} setSelectedSignals={setSelectedMonitors} />
       </Filters>
 
       <Divider />

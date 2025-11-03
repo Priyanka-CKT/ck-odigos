@@ -15,14 +15,14 @@ import (
 )
 
 type OdigosSourceResources struct {
-	Namespace                *corev1.Namespace
-	InstrumentationConfig    *odigosv1.InstrumentationConfig
-	InstrumentedApplication  *odigosv1.InstrumentedApplication
-	InstrumentationInstances *odigosv1.InstrumentationInstanceList
-	Pods                     *corev1.PodList
+	Namespace                     *corev1.Namespace
+	InstrumentationConfig         *odigosv1.KarmaInstrumentationConfig
+	KarmaInstrumentedApplication  *odigosv1.KarmaInstrumentedApplication
+	KarmaInstrumentationInstances *odigosv1.KarmaInstrumentationInstanceList
+	Pods                          *corev1.PodList
 }
 
-func GetRelevantSourceResources(ctx context.Context, kubeClient kubernetes.Interface, odigosClient odigosclientset.OdigosV1alpha1Interface, workloadObj *K8sSourceObject) (*OdigosSourceResources, error) {
+func GetRelevantSourceResources(ctx context.Context, kubeClient kubernetes.Interface, codekarmaClient odigosclientset.CodekarmaV1alpha1Interface, workloadObj *K8sSourceObject) (*OdigosSourceResources, error) {
 
 	sourceResources := OdigosSourceResources{}
 
@@ -36,16 +36,16 @@ func GetRelevantSourceResources(ctx context.Context, kubeClient kubernetes.Inter
 	}
 
 	runtimeObjectName := workload.CalculateWorkloadRuntimeObjectName(workloadObj.GetName(), workloadObj.Kind)
-	ic, err := odigosClient.InstrumentationConfigs(workloadNs).Get(ctx, runtimeObjectName, metav1.GetOptions{})
+	ic, err := codekarmaClient.KarmaInstrumentationConfigs(workloadNs).Get(ctx, runtimeObjectName, metav1.GetOptions{})
 	if err == nil {
 		sourceResources.InstrumentationConfig = ic
 	} else if !apierrors.IsNotFound(err) {
 		return nil, err
 	}
 
-	ia, err := odigosClient.InstrumentedApplications(workloadNs).Get(ctx, runtimeObjectName, metav1.GetOptions{})
+	ia, err := codekarmaClient.KarmaInstrumentedApplications(workloadNs).Get(ctx, runtimeObjectName, metav1.GetOptions{})
 	if err == nil {
-		sourceResources.InstrumentedApplication = ia
+		sourceResources.KarmaInstrumentedApplication = ia
 	} else if !apierrors.IsNotFound(err) {
 		return nil, err
 	}
@@ -53,9 +53,9 @@ func GetRelevantSourceResources(ctx context.Context, kubeClient kubernetes.Inter
 	instrumentedAppSelector := labels.SelectorFromSet(labels.Set{
 		"instrumented-app": runtimeObjectName,
 	})
-	iis, err := odigosClient.InstrumentationInstances(workloadNs).List(ctx, metav1.ListOptions{LabelSelector: instrumentedAppSelector.String()})
+	iis, err := codekarmaClient.KarmaInstrumentationInstances(workloadNs).List(ctx, metav1.ListOptions{LabelSelector: instrumentedAppSelector.String()})
 	if err == nil {
-		sourceResources.InstrumentationInstances = iis
+		sourceResources.KarmaInstrumentationInstances = iis
 	} else {
 		return nil, err
 	}

@@ -47,7 +47,7 @@ export const DestinationDrawer: React.FC<Props> = () => {
       } else {
         const { item } = selectedItem as { item: ActualDestination };
         const { id } = item;
-        setSelectedItem({ id, type: OVERVIEW_ENTITY_TYPES.DESTINATION, item: buildDrawerItem(id, formData, item) });
+        setSelectedItem({ id, type: 'destination' as any, item: buildDrawerItem(id, formData, item) });
       }
     },
   });
@@ -116,20 +116,17 @@ export const DestinationDrawer: React.FC<Props> = () => {
       {isEditing ? (
         <FormContainer>
           <DestinationFormBody
-            isUpdate
+            isUpdate={isEditing}
             destination={thisDestinationType}
             formData={formData}
             formErrors={formErrors}
-            validateForm={validateForm}
+            validateForm={() => validateForm().isValid}
             handleFormChange={(...params) => {
               setIsFormDirty(true);
               handleFormChange(...params);
             }}
             dynamicFields={dynamicFields}
-            setDynamicFields={(...params) => {
-              setIsFormDirty(true);
-              setDynamicFields(...params);
-            }}
+            setDynamicFields={() => {}}
           />
         </FormContainer>
       ) : (

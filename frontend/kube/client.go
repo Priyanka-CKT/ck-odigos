@@ -27,9 +27,9 @@ const (
 
 type Client struct {
 	kubernetes.Interface
-	OdigosClient   odigosv1alpha1.OdigosV1alpha1Interface
-	ActionsClient  actionsv1alpha1.ActionsV1alpha1Interface
-	MetadataClient metadata.Interface
+	CodekarmaClient odigosv1alpha1.CodekarmaV1alpha1Interface
+	ActionsClient   actionsv1alpha1.ActionsV1alpha1Interface
+	MetadataClient  metadata.Interface
 }
 
 func CreateClient(kubeConfig string, kContext string) (*Client, error) {
@@ -62,9 +62,9 @@ func CreateClient(kubeConfig string, kContext string) (*Client, error) {
 	}
 
 	return &Client{
-		Interface:      clientset,
-		OdigosClient:   odigosClient,
-		ActionsClient:  actionsClient,
-		MetadataClient: metadataClient,
+		Interface:       clientset,
+		CodekarmaClient: odigosClient,
+		ActionsClient:   actionsClient,
+		MetadataClient:  metadataClient,
 	}, nil
 }

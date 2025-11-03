@@ -12,7 +12,7 @@ import (
 
 var (
 	ErrUnmatchedMsgType            = errors.New("message type does not match the one configured for the batcher")
-	DefaultBatchDuration           = 2 * time.Second
+	DefaultBatchDuration           = 5000 * time.Millisecond
 	DefaultMinBatchSize            = 4
 	DefaultFailureBatchMessageFunc = func(batchSize int, crd string) string {
 		return fmt.Sprintf("%s: %d failed", crd, batchSize)

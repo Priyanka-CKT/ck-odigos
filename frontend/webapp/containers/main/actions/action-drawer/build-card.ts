@@ -27,7 +27,6 @@ const buildCard = (action: ActionDataParsed) => {
     { title: DISPLAY_TITLES.NAME, value: actionName },
     { title: DISPLAY_TITLES.NOTES, value: notes },
     { type: DataCardFieldTypes.DIVIDER, width: '100%' },
-    { type: DataCardFieldTypes.MONITORS, title: DISPLAY_TITLES.SIGNALS_FOR_PROCESSING, value: signals.map((str) => str.toLowerCase()).join(', ') },
   ];
 
   if (clusterAttributes) {

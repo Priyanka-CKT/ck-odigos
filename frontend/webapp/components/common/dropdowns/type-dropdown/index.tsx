@@ -19,11 +19,13 @@ export const TypeDropdown: React.FC<Props> = ({ title = 'Type', value, onSelect,
   const options = useMemo(() => {
     const payload: DropdownOption[] = [];
 
-    sources.forEach(({ kind: id }) => {
-      if (!payload.find((opt) => opt.id === id)) {
-        payload.push({ id, value: id });
-      }
-    });
+    if (sources && Array.isArray(sources)) {
+      sources.forEach(({ kind: id }) => {
+        if (!payload.find((opt) => opt.id === id)) {
+          payload.push({ id, value: id });
+        }
+      });
+    }
 
     return payload;
   }, [sources]);

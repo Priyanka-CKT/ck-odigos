@@ -34,7 +34,7 @@ const ToastList: React.FC = () => {
 const Toast: React.FC<Notification> = (props) => {
   const { id, type, title, message, crdType, target } = props;
   const { markAsDismissed, markAsSeen } = useNotificationStore();
-  const clickNotif = useClickNotif();
+  const { clickNotif } = useClickNotif();
 
   const onClose = ({ asSeen }) => {
     markAsDismissed(id);

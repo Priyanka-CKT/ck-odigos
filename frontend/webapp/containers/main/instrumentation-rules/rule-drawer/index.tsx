@@ -36,7 +36,7 @@ export const RuleDrawer: React.FC<Props> = () => {
       } else {
         const { item } = selectedItem as { item: InstrumentationRuleSpecMapped };
         const { ruleId: id } = item;
-        setSelectedItem({ id, type: OVERVIEW_ENTITY_TYPES.RULE, item: buildDrawerItem(id, formData, item) });
+        setSelectedItem({ id, type: 'rule' as any, item: buildDrawerItem(id, formData, item) });
       }
     },
   });
@@ -72,7 +72,7 @@ export const RuleDrawer: React.FC<Props> = () => {
 
   const handleEdit = (bool?: boolean) => {
     if (item.type === InstrumentationRuleType.UNKNOWN_TYPE) {
-      addNotification({ type: NOTIFICATION_TYPE.WARNING, title: FORM_ALERTS.FORBIDDEN, message: FORM_ALERTS.CANNOT_EDIT_RULE, crdType: OVERVIEW_ENTITY_TYPES.RULE, target: id });
+      addNotification({ type: NOTIFICATION_TYPE.WARNING, title: FORM_ALERTS.FORBIDDEN, message: FORM_ALERTS.CANNOT_EDIT_RULE, crdType: 'rule' as any, target: id });
     } else {
       setIsEditing(typeof bool === 'boolean' ? bool : true);
     }
@@ -84,14 +84,14 @@ export const RuleDrawer: React.FC<Props> = () => {
   };
 
   const handleDelete = async () => {
-    await deleteInstrumentationRule(id);
+    await deleteInstrumentationRule();
   };
 
   const handleSave = async (newTitle: string) => {
     if (validateForm({ withAlert: true, alertTitle: ACTION.UPDATE })) {
       const title = newTitle !== item.type ? newTitle : '';
       handleFormChange('ruleName', title);
-      await updateInstrumentationRule(id, { ...formData, ruleName: title });
+      await updateInstrumentationRule();
     }
   };
 

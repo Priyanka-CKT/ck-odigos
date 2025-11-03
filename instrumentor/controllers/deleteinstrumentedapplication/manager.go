@@ -65,8 +65,8 @@ func SetupWithManager(mgr ctrl.Manager) error {
 	err = builder.
 		ControllerManagedBy(mgr).
 		Named("deleteinstrumentedapplication-instrumentedapplication").
-		For(&odigosv1.InstrumentedApplication{}).
-		Complete(&InstrumentedApplicationReconciler{
+		For(&odigosv1.KarmaInstrumentedApplication{}).
+		Complete(&KarmaInstrumentedApplicationReconciler{
 			Client: mgr.GetClient(),
 			Scheme: mgr.GetScheme(),
 		})

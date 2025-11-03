@@ -57,24 +57,24 @@ func getObjectByOwnerReference(ctx context.Context, k8sClient client.Client, own
 	return nil, fmt.Errorf("unsupported owner kind %s", ownerRef.Kind)
 }
 
-type InstrumentedApplicationReconciler struct {
+type KarmaInstrumentedApplicationReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *KarmaInstrumentedApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 
-	var instrumentedApplication odigosv1.InstrumentedApplication
+	var instrumentedApplication odigosv1.KarmaInstrumentedApplication
 	err := r.Client.Get(ctx, req.NamespacedName, &instrumentedApplication)
 	if err != nil {
 		return ctrl.Result{}, client.IgnoreNotFound(err)
 	}
 
-	// find the workload object which is the owner of the InstrumentedApplication
+	// find the workload object which is the owner of the KarmaInstrumentedApplication
 	ownerReferences := instrumentedApplication.GetOwnerReferences()
 	if len(ownerReferences) != 1 {
-		logger.Info("InstrumentedApplication should have exactly one owner reference")
+		logger.Info("KarmaInstrumentedApplication should have exactly one owner reference")
 		return ctrl.Result{}, nil
 	}
 	workloadObject, err := getObjectByOwnerReference(ctx, r.Client, ownerReferences[0], req.Namespace)

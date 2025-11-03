@@ -24,10 +24,10 @@ import (
 
 const (
 	InstrumentorServiceName       = "instrumentor"
-	InstrumentorDeploymentName    = "odigos-instrumentor"
-	InstrumentorAppLabelValue     = "odigos-instrumentor"
+	InstrumentorDeploymentName    = "karmatap"
+	InstrumentorAppLabelValue     = "karmatap"
 	InstrumentorContainerName     = "manager"
-	InstrumentorWebhookSecretName = "instrumentor-webhook-cert"
+	InstrumentorWebhookSecretName = "codekarma-instrumentor-webhook-cert"
 	InstrumentorWebhookVolumeName = "webhook-cert"
 )
 
@@ -51,19 +51,19 @@ func NewInstrumentorLeaderElectionRoleBinding(ns string) *rbacv1.RoleBinding {
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "odigos-instrumentor-leader-election",
+			Name:      "karmatap-leader-election",
 			Namespace: ns,
 		},
 		Subjects: []rbacv1.Subject{
 			{
 				Kind: "ServiceAccount",
-				Name: "odigos-instrumentor",
+				Name: "karmatap",
 			},
 		},
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "Role",
-			Name:     "odigos-leader-election-role",
+			Name:     "codekarma-leader-election-role",
 		},
 	}
 }
@@ -75,7 +75,7 @@ func NewInstrumentorClusterRole() *rbacv1.ClusterRole {
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "odigos-instrumentor",
+			Name: "karmatap",
 		},
 		Rules: []rbacv1.PolicyRule{
 			{
@@ -139,7 +139,7 @@ func NewInstrumentorClusterRole() *rbacv1.ClusterRole {
 				Verbs:     []string{"get"},
 			},
 			{
-				APIGroups: []string{"odigos.io"},
+				APIGroups: []string{"codekarma.tech"},
 				Resources: []string{"collectorsgroups"},
 				Verbs:     []string{"create", "delete", "get", "list", "patch", "update", "watch"},
 			},
@@ -149,47 +149,47 @@ func NewInstrumentorClusterRole() *rbacv1.ClusterRole {
 				Verbs:     []string{"update"},
 			},
 			{
-				APIGroups: []string{"odigos.io"},
+				APIGroups: []string{"codekarma.tech"},
 				Resources: []string{"collectorsgroups/status"},
 				Verbs:     []string{"get", "patch", "update"},
 			},
 			{
-				APIGroups: []string{"odigos.io"},
+				APIGroups: []string{"codekarma.tech"},
 				Resources: []string{"instrumentedapplications"},
 				Verbs:     []string{"create", "delete", "get", "list", "patch", "update", "watch"},
 			},
 			{
-				APIGroups: []string{"odigos.io"},
+				APIGroups: []string{"codekarma.tech"},
 				Resources: []string{"instrumentedapplications/finalizers"},
 				Verbs:     []string{"update"},
 			},
 			{
-				APIGroups: []string{"odigos.io"},
+				APIGroups: []string{"codekarma.tech"},
 				Resources: []string{"instrumentedapplications/status"},
 				Verbs:     []string{"get", "patch", "update"},
 			},
 			{
-				APIGroups: []string{"odigos.io"},
+				APIGroups: []string{"codekarma.tech"},
 				Resources: []string{"destinations"},
 				Verbs:     []string{"create", "delete", "get", "list", "patch", "update", "watch"},
 			},
 			{
-				APIGroups: []string{"odigos.io"},
+				APIGroups: []string{"codekarma.tech"},
 				Resources: []string{"destinations/finalizers"},
 				Verbs:     []string{"update"},
 			},
 			{
-				APIGroups: []string{"odigos.io"},
+				APIGroups: []string{"codekarma.tech"},
 				Resources: []string{"destinations/status"},
 				Verbs:     []string{"get", "patch", "update"},
 			},
 			{
-				APIGroups: []string{"odigos.io"},
+				APIGroups: []string{"codekarma.tech"},
 				Resources: []string{"instrumentationconfigs"},
 				Verbs:     []string{"create", "delete", "get", "list", "patch", "update", "watch"},
 			},
 			{
-				APIGroups: []string{"odigos.io"},
+				APIGroups: []string{"codekarma.tech"},
 				Resources: []string{"instrumentationrules"},
 				Verbs:     []string{"get", "list", "watch"},
 			},
@@ -204,19 +204,19 @@ func NewInstrumentorClusterRoleBinding(ns string) *rbacv1.ClusterRoleBinding {
 			APIVersion: "rbac.authorization.k8s.io/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name: "odigos-instrumentor",
+			Name: "karmatap",
 		},
 		Subjects: []rbacv1.Subject{
 			{
 				Kind:      "ServiceAccount",
-				Name:      "odigos-instrumentor",
+				Name:      "karmatap",
 				Namespace: ns,
 			},
 		},
 		RoleRef: rbacv1.RoleRef{
 			APIGroup: "rbac.authorization.k8s.io",
 			Kind:     "ClusterRole",
-			Name:     "odigos-instrumentor",
+			Name:     "karmatap",
 		},
 	}
 }
@@ -245,7 +245,7 @@ func NewInstrumentorIssuer(ns string) *certv1.Issuer {
 				"app.kubernetes.io/instance":   "selfsigned-issuer",
 				"app.kubernetes.io/component":  "certificate",
 				"app.kubernetes.io/created-by": "instrumentor",
-				"app.kubernetes.io/part-of":    "odigos",
+				"app.kubernetes.io/part-of":    "codekarma",
 			},
 		},
 		Spec: certv1.IssuerSpec{
@@ -270,13 +270,13 @@ func NewInstrumentorCertificate(ns string) *certv1.Certificate {
 				"app.kubernetes.io/instance":   "instrumentor-cert",
 				"app.kubernetes.io/component":  "certificate",
 				"app.kubernetes.io/created-by": "instrumentor",
-				"app.kubernetes.io/part-of":    "odigos",
+				"app.kubernetes.io/part-of":    "codekarma",
 			},
 		},
 		Spec: certv1.CertificateSpec{
 			DNSNames: []string{
-				fmt.Sprintf("odigos-instrumentor.%s.svc", ns),
-				fmt.Sprintf("odigos-instrumentor.%s.svc.cluster.local", ns),
+				fmt.Sprintf("karmatap.%s.svc", ns),
+				fmt.Sprintf("karmatap.%s.svc.cluster.local", ns),
 			},
 			IssuerRef: cmmeta.ObjectReference{
 				Kind: "Issuer",
@@ -294,7 +294,7 @@ func NewInstrumentorService(ns string) *corev1.Service {
 			APIVersion: "v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "odigos-instrumentor",
+			Name:      "karmatap",
 			Namespace: ns,
 		},
 		Spec: corev1.ServiceSpec{
@@ -325,15 +325,15 @@ func NewMutatingWebhookConfiguration(ns string, caBundle []byte) *admissionregis
 				"app.kubernetes.io/instance":   "mutating-webhook-configuration",
 				"app.kubernetes.io/component":  "webhook",
 				"app.kubernetes.io/created-by": "instrumentor",
-				"app.kubernetes.io/part-of":    "odigos",
+				"app.kubernetes.io/part-of":    "codekarma",
 			},
 		},
 		Webhooks: []admissionregistrationv1.MutatingWebhook{
 			{
-				Name: "pod-mutating-webhook.odigos.io",
+				Name: "pod-mutating-webhook.codekarma.tech",
 				ClientConfig: admissionregistrationv1.WebhookClientConfig{
 					Service: &admissionregistrationv1.ServiceReference{
-						Name:      "odigos-instrumentor",
+						Name:      "karmatap",
 						Namespace: ns,
 						Path:      ptrString("/mutate--v1-pod"),
 						Port:      intPtr(9443),
@@ -359,7 +359,7 @@ func NewMutatingWebhookConfiguration(ns string, caBundle []byte) *admissionregis
 				TimeoutSeconds:     intPtr(10),
 				ObjectSelector: &metav1.LabelSelector{
 					MatchLabels: map[string]string{
-						"odigos.io/inject-instrumentation": "true",
+						"codekarma.tech/inject-instrumentation": "true",
 					},
 				},
 				AdmissionReviewVersions: []string{
@@ -394,7 +394,7 @@ func NewInstrumentorTLSSecret(ns string, cert *crypto.Certificate) *corev1.Secre
 				"app.kubernetes.io/instance":   "instrumentor-cert",
 				"app.kubernetes.io/component":  "certificate",
 				"app.kubernetes.io/created-by": "instrumentor",
-				"app.kubernetes.io/part-of":    "odigos",
+				"app.kubernetes.io/part-of":    "codekarma",
 			},
 			Annotations: map[string]string{
 				"helm.sh/hook":               "pre-install,pre-upgrade",
@@ -425,7 +425,7 @@ func NewInstrumentorDeployment(ns string, version string, telemetryEnabled bool,
 			APIVersion: "apps/v1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "odigos-instrumentor",
+			Name:      "karmatap",
 			Namespace: ns,
 			Labels: map[string]string{
 				"app.kubernetes.io/name": InstrumentorAppLabelValue,
@@ -455,7 +455,7 @@ func NewInstrumentorDeployment(ns string, version string, telemetryEnabled bool,
 							Command: []string{
 								"/app",
 							},
-							Args: args,
+							Args: append(args, "--webhook-port=9444"),
 							Env: []corev1.EnvVar{
 								{
 									Name:  "OTEL_SERVICE_NAME",
@@ -490,7 +490,7 @@ func NewInstrumentorDeployment(ns string, version string, telemetryEnabled bool,
 							Ports: []corev1.ContainerPort{
 								{
 									Name:          "webhook-server",
-									ContainerPort: 9443,
+									ContainerPort: 9444,
 									Protocol:      corev1.ProtocolTCP,
 								},
 							},
@@ -531,7 +531,7 @@ func NewInstrumentorDeployment(ns string, version string, telemetryEnabled bool,
 						},
 					},
 					TerminationGracePeriodSeconds: ptrint64(10),
-					ServiceAccountName:            "odigos-instrumentor",
+					ServiceAccountName:            "karmatap",
 					SecurityContext: &corev1.PodSecurityContext{
 						RunAsNonRoot: ptrbool(true),
 					},
@@ -569,18 +569,18 @@ func ptrbool(b bool) *bool {
 }
 
 type instrumentorResourceManager struct {
-	client        *kube.Client
-	ns            string
-	config        *common.OdigosConfiguration
-	odigosVersion string
+	client           *kube.Client
+	ns               string
+	config           *common.CodekarmaConfiguration
+	codekarmaVersion string
 }
 
-func NewInstrumentorResourceManager(client *kube.Client, ns string, config *common.OdigosConfiguration, odigosVersion string) resourcemanager.ResourceManager {
+func NewInstrumentorResourceManager(client *kube.Client, ns string, config *common.CodekarmaConfiguration, codekarmaVersion string) resourcemanager.ResourceManager {
 	return &instrumentorResourceManager{
-		client:        client,
-		ns:            ns,
-		config:        config,
-		odigosVersion: odigosVersion,
+		client:           client,
+		ns:               ns,
+		config:           config,
+		codekarmaVersion: codekarmaVersion,
 	}
 }
 
@@ -593,7 +593,7 @@ func (a *instrumentorResourceManager) InstallFromScratch(ctx context.Context) er
 		NewInstrumentorLeaderElectionRoleBinding(a.ns),
 		NewInstrumentorClusterRole(),
 		NewInstrumentorClusterRoleBinding(a.ns),
-		NewInstrumentorDeployment(a.ns, a.odigosVersion, a.config.TelemetryEnabled, a.config.ImagePrefix, a.config.InstrumentorImage),
+		NewInstrumentorDeployment(a.ns, a.codekarmaVersion, a.config.TelemetryEnabled, a.config.ImagePrefix, a.config.InstrumentorImage),
 		NewInstrumentorService(a.ns),
 	}
 
@@ -604,14 +604,14 @@ func (a *instrumentorResourceManager) InstallFromScratch(ctx context.Context) er
 		},
 			resources...)
 	} else {
-		ca, err := crypto.GenCA("odigos-instrumentor", 365)
+		ca, err := crypto.GenCA("karmatap", 365)
 		if err != nil {
 			return fmt.Errorf("failed to generate CA: %w", err)
 		}
 
 		altNames := []string{
-			fmt.Sprintf("odigos-instrumentor.%s.svc", a.ns),
-			fmt.Sprintf("odigos-instrumentor.%s.svc.cluster.local", a.ns),
+			fmt.Sprintf("karmatap.%s.svc", a.ns),
+			fmt.Sprintf("karmatap.%s.svc.cluster.local", a.ns),
 		}
 
 		cert, err := crypto.GenerateSignedCertificate("serving-cert", nil, altNames, 365, ca)

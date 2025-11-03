@@ -52,7 +52,7 @@ func (c *kubeletClient) GetAllocations() (map[string]*K8sResourceAttributes, err
 		for _, container := range pod.Containers {
 			for _, device := range container.Devices {
 				for _, id := range device.DeviceIds {
-					if strings.Contains(device.GetResourceName(), "odigos.io") {
+					if strings.Contains(device.GetResourceName(), "codekarma.tech") {
 						allocations[id] = c.nameStrategy.GetK8sResourceAttributes(&ContainerDetails{
 							PodName:         pod.Name,
 							PodNamespace:    pod.Namespace,

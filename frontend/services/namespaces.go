@@ -32,7 +32,7 @@ type GetNamespaceItem struct {
 }
 
 const (
-	OdigosSystemNamespace = "odigos-system"
+	OdigosSystemNamespace = "codekarma"
 )
 
 func GetK8SNamespaces(ctx context.Context) GetNamespacesResponse {
@@ -76,21 +76,21 @@ func GetK8SNamespaces(ctx context.Context) GetNamespacesResponse {
 }
 
 // getRelevantNameSpaces returns a list of namespaces that are relevant for instrumentation.
-// Taking into account the ignored namespaces from the OdigosConfiguration.
+// Taking into account the ignored namespaces from the CodekarmaConfiguration.
 func getRelevantNameSpaces(ctx context.Context, odigosns string) ([]v1.Namespace, error) {
 	var (
-		odigosConfig *common.OdigosConfiguration
-		list         *v1.NamespaceList
+		codekarmaConfig *common.CodekarmaConfiguration
+		list            *v1.NamespaceList
 	)
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
 		var err error
-		configMap, err := kube.DefaultClient.CoreV1().ConfigMaps(odigosns).Get(ctx, consts.OdigosConfigurationName, metav1.GetOptions{})
+		configMap, err := kube.DefaultClient.CoreV1().ConfigMaps(odigosns).Get(ctx, consts.CodekarmaConfigurationName, metav1.GetOptions{})
 		if err != nil {
 			return err
 		}
-		if err := yaml.Unmarshal([]byte(configMap.Data[consts.OdigosConfigurationFileName]), &odigosConfig); err != nil {
+		if err := yaml.Unmarshal([]byte(configMap.Data[consts.CodekarmaConfigurationFileName]), &codekarmaConfig); err != nil {
 			return err
 		}
 		return err
@@ -108,7 +108,7 @@ func getRelevantNameSpaces(ctx context.Context, odigosns string) ([]v1.Namespace
 
 	result := []v1.Namespace{}
 	for _, namespace := range list.Items {
-		if utils.IsItemIgnored(namespace.Name, odigosConfig.IgnoredNamespaces) {
+		if !utils.ShouldIncludeNamespace(namespace.Name, codekarmaConfig.IncludeNamespaces, codekarmaConfig.IgnoredNamespaces) {
 			continue
 		}
 

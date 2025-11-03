@@ -6,13 +6,12 @@ import (
 	"fmt"
 
 	odigosv1 "github.com/odigos-io/odigos/api/odigos/v1alpha1"
+	"github.com/odigos-io/odigos/common"
 	"github.com/odigos-io/odigos/instrumentor/controllers/utils"
 	"github.com/odigos-io/odigos/instrumentor/controllers/utils/versionsupport"
 	"github.com/odigos-io/odigos/instrumentor/instrumentation"
 	"github.com/odigos-io/odigos/instrumentor/sdks"
 	"github.com/odigos-io/odigos/k8sutils/pkg/conditions"
-	odigosk8sconsts "github.com/odigos-io/odigos/k8sutils/pkg/consts"
-	"github.com/odigos-io/odigos/k8sutils/pkg/env"
 	k8sprofiles "github.com/odigos-io/odigos/k8sutils/pkg/profiles"
 	k8sutils "github.com/odigos-io/odigos/k8sutils/pkg/utils"
 	"github.com/odigos-io/odigos/k8sutils/pkg/workload"
@@ -20,6 +19,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/types"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 	"sigs.k8s.io/controller-runtime/pkg/controller/controllerutil"
 	"sigs.k8s.io/controller-runtime/pkg/log"
@@ -30,9 +30,10 @@ type ApplyInstrumentationDeviceReason string
 const (
 	ApplyInstrumentationDeviceReasonDataCollectionNotReady     ApplyInstrumentationDeviceReason = "DataCollectionNotReady"
 	ApplyInstrumentationDeviceReasonNoRuntimeDetails           ApplyInstrumentationDeviceReason = "NoRuntimeDetails"
-	ApplyInstrumentationDeviceReasonErrApplying                ApplyInstrumentationDeviceReason = "ErrApplyingInstrumentationDevice"
-	ApplyInstrumentationDeviceReasonErrRemoving                ApplyInstrumentationDeviceReason = "ErrRemovingInstrumentationDevice"
+	ApplyInstrumentationDeviceReasonErrApplying                ApplyInstrumentationDeviceReason = "ErrorApplying"
+	ApplyInstrumentationDeviceReasonErrRemoving                ApplyInstrumentationDeviceReason = "ErrorRemoving"
 	ApplyInstrumentationDeviceReasonRuntimeVersionNotSupported ApplyInstrumentationDeviceReason = "RuntimeVersionNotSupported"
+	ApplyInstrumentationDeviceReasonUnsupportedLanguage        ApplyInstrumentationDeviceReason = "UnsupportedLanguage"
 )
 
 const (
@@ -45,28 +46,28 @@ var (
 )
 
 func isDataCollectionReady(ctx context.Context, c client.Client) bool {
-	logger := log.FromContext(ctx)
+	// logger := log.FromContext(ctx)
 
-	nodeCollectorsGroup := odigosv1.CollectorsGroup{}
-	err := c.Get(ctx, client.ObjectKey{
-		Namespace: env.GetCurrentNamespace(),
-		Name:      odigosk8sconsts.OdigosNodeCollectorCollectorGroupName,
-	}, &nodeCollectorsGroup)
+	// nodeCollectorsGroup := odigosv1.CollectorsGroup{}
+	// err := c.Get(ctx, client.ObjectKey{
+	// 	Namespace: env.GetCurrentNamespace(),
+	// 	Name:      odigosk8sconsts.OdigosNodeCollectorCollectorGroupName,
+	// }, &nodeCollectorsGroup)
 
-	if err != nil {
-		if apierrors.IsNotFound(err) {
-			// if node collector is not yet created, then it is not ready
-			return false
-		} else {
-			logger.Error(err, "error getting node collector group, skipping instrumentation")
-			return false
-		}
-	}
+	// if err != nil {
+	// 	if apierrors.IsNotFound(err) {
+	// 		// if node collector is not yet created, then it is not ready
+	// 		return false
+	// 	} else {
+	// 		logger.Error(err, "error getting node collector group, skipping instrumentation")
+	// 		return false
+	// 	}
+	// }
 
-	return nodeCollectorsGroup.Status.Ready
+	return true
 }
 
-func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.Client, runtimeDetails *odigosv1.InstrumentedApplication) (error, bool) {
+func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.Client, runtimeDetails *odigosv1.KarmaInstrumentedApplication) (error, bool) {
 	// devicePartiallyApplied is used to indicate that the instrumentation device was partially applied for some of the containers.
 	devicePartiallyApplied := false
 	deviceNotAppliedDueToPresenceOfAnotherAgent := false
@@ -77,7 +78,7 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 		return err, false
 	}
 
-	workload := workload.PodWorkload{
+	podWorkload := workload.PodWorkload{
 		Name:      obj.GetName(),
 		Namespace: obj.GetNamespace(),
 		Kind:      workload.WorkloadKind(obj.GetObjectKind().GroupVersionKind().Kind),
@@ -85,7 +86,7 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 
 	// build an otel sdk map from instrumentation rules first, and merge it with the default otel sdk map
 	// this way, we can override the default otel sdk with the instrumentation rules
-	instrumentationRules := odigosv1.InstrumentationRuleList{}
+	instrumentationRules := odigosv1.KarmaInstrumentationRuleList{}
 	err = kubeClient.List(ctx, &instrumentationRules)
 	if err != nil {
 		return err, false
@@ -101,7 +102,7 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 			continue
 		}
 
-		participating := utils.IsWorkloadParticipatingInRule(workload, instrumentationRule)
+		participating := utils.IsWorkloadParticipatingInRule(podWorkload, instrumentationRule)
 		if !participating {
 			// filter rules that do not apply to the workload
 			continue
@@ -122,15 +123,15 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 
 		// get the odigos configuration to check if agents can run concurrently
 		// if the configuration is not found, we assume that agents can't run concurrently [default behavior]
-		odigosConfiguration, err := k8sutils.GetCurrentOdigosConfig(ctx, kubeClient)
+		codekarmaConfiguration, err := k8sutils.GetCurrentCodekarmaConfig(ctx, kubeClient)
 		if err != nil {
 			return err
 		}
 
-		// User input <odigosConfiguration.AllowConcurrentAgents> prefered over the profile configuration
-		agentsCanRunConcurrently := k8sprofiles.AgentsCanRunConcurrently(odigosConfiguration.Profiles)
-		if odigosConfiguration.AllowConcurrentAgents != nil {
-			agentsCanRunConcurrently = *odigosConfiguration.AllowConcurrentAgents
+		// User input <codekarmaConfiguration.AllowConcurrentAgents> prefered over the profile configuration
+		agentsCanRunConcurrently := k8sprofiles.AgentsCanRunConcurrently(codekarmaConfiguration.Profiles)
+		if codekarmaConfiguration.AllowConcurrentAgents != nil {
+			agentsCanRunConcurrently = *codekarmaConfiguration.AllowConcurrentAgents
 		}
 
 		err, deviceApplied, deviceSkippedDueToOtherAgent := instrumentation.ApplyInstrumentationDevicesToPodTemplate(podSpec, runtimeDetails, otelSdkToUse, obj, logger, agentsCanRunConcurrently)
@@ -143,7 +144,7 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 		}
 
 		devicePartiallyApplied = deviceSkippedDueToOtherAgent && deviceApplied
-		// If instrumentation device is applied successfully, add odigos.io/inject-instrumentation label to enable the webhook
+		// If instrumentation device is applied successfully, add codekarma.tech/inject-instrumentation label to enable the webhook
 		if deviceApplied {
 			instrumentation.SetInjectInstrumentationLabel(podSpec)
 		}
@@ -168,6 +169,73 @@ func addInstrumentationDeviceToWorkload(ctx context.Context, kubeClient client.C
 	return nil, devicePartiallyApplied
 }
 
+// validateAndCleanupJavaToolOptionsWhenEmpty validates JAVA_TOOL_OPTIONS even when RuntimeDetails are empty
+func validateAndCleanupJavaToolOptionsWhenEmpty(ctx context.Context, client client.Client, instrumentedApplication *odigosv1.KarmaInstrumentedApplication) error {
+	// Get the workload object
+	workloadName, workloadKind, err := workload.ExtractWorkloadInfoFromRuntimeObjectName(instrumentedApplication.Name)
+	if err != nil {
+		return err
+	}
+
+	workloadObj := workload.ClientObjectFromWorkloadKind(workloadKind)
+	if workloadObj == nil {
+		return fmt.Errorf("unknown workload kind: %s", workloadKind)
+	}
+
+	err = client.Get(ctx, types.NamespacedName{
+		Namespace: instrumentedApplication.Namespace,
+		Name:      workloadName,
+	}, workloadObj)
+	if err != nil {
+		if apierrors.IsNotFound(err) {
+			return nil
+		}
+		return err
+	}
+
+	// Get pod template spec
+	podSpec, err := getPodSpecFromObject(workloadObj)
+	if err != nil {
+		return err
+	}
+
+	// Get pod labels for proper validation
+	podLabels := make(map[string]string)
+	if podSpec.Labels != nil {
+		podLabels = podSpec.Labels
+	}
+
+	// Validate JAVA_TOOL_OPTIONS for each container
+	changed := false
+	for i, container := range podSpec.Spec.Containers {
+		for j, envVar := range container.Env {
+			if envVar.Name == "JAVA_TOOL_OPTIONS" {
+				// Use label-aware validation for proper cleanup
+				validatedValue := validateAllJavaAgents(envVar.Value, podLabels)
+				if validatedValue != envVar.Value {
+					podSpec.Spec.Containers[i].Env[j].Value = validatedValue
+					changed = true
+					log.FromContext(ctx).Info(
+						"Cleaned up JAVA_TOOL_OPTIONS when RuntimeDetails are empty",
+						"container", container.Name,
+						"original", envVar.Value,
+						"validated", validatedValue,
+						"podLabels", podLabels,
+					)
+				}
+				break
+			}
+		}
+	}
+
+	// Update the workload if changes were made
+	if changed {
+		return client.Update(ctx, workloadObj)
+	}
+
+	return nil
+}
+
 func removeInstrumentationDeviceFromWorkload(ctx context.Context, kubeClient client.Client, namespace string, workloadKind workload.WorkloadKind, workloadName string, uninstrumentReason ApplyInstrumentationDeviceReason) error {
 
 	workloadObj := workload.ClientObjectFromWorkloadKind(workloadKind)
@@ -187,7 +255,7 @@ func removeInstrumentationDeviceFromWorkload(ctx context.Context, kubeClient cli
 	if err != nil {
 		return err
 	}
-	// If instrumentation device is removed successfully, remove odigos.io/inject-instrumentation label to disable the webhook
+	// If instrumentation device is removed successfully, remove codekarma.tech/inject-instrumentation label to disable the webhook
 	webhookLabelRemoved := instrumentation.RemoveInjectInstrumentationLabel(podSpec)
 	deviceRemoved := instrumentation.RevertInstrumentationDevices(podSpec)
 	envChanged, err := instrumentation.RevertEnvOverwrites(workloadObj, podSpec)
@@ -213,7 +281,7 @@ func removeInstrumentationDeviceFromWorkload(ctx context.Context, kubeClient cli
 	return nil
 }
 
-func getWorkloadObject(ctx context.Context, kubeClient client.Client, runtimeDetails *odigosv1.InstrumentedApplication) (client.Object, error) {
+func getWorkloadObject(ctx context.Context, kubeClient client.Client, runtimeDetails *odigosv1.KarmaInstrumentedApplication) (client.Object, error) {
 	name, kind, err := workload.ExtractWorkloadInfoFromRuntimeObjectName(runtimeDetails.Name)
 	if err != nil {
 		return nil, err
@@ -248,10 +316,32 @@ func getPodSpecFromObject(obj client.Object) (*corev1.PodTemplateSpec, error) {
 	}
 }
 
+// Add a new function to check if a language is supported
+func isSupportedLanguage(language common.ProgrammingLanguage) bool {
+	switch language {
+	case common.JavaProgrammingLanguage, common.GoProgrammingLanguage:
+		return true
+	default:
+		return false
+	}
+}
+
+// validateAllJavaAgentsFileOnly keeps all agents (no file existence check)
+// Used when pod labels are not available (e.g., in reconciliation logic)
+// File existence check is removed because files are only available inside containers at runtime
+func validateAllJavaAgentsFileOnly(javaToolOptions string) string {
+	if javaToolOptions == "" {
+		return ""
+	}
+
+	// Keep all agents - let the JVM handle missing files at runtime
+	return javaToolOptions
+}
+
 // reconciles a single workload, which might be triggered by a change in multiple resources.
 // each time a relevant resource changes, this function is called to reconcile the workload
-// and always writes the status into the InstrumentedApplication CR
-func reconcileSingleWorkload(ctx context.Context, kubeClient client.Client, instrumentedApplication *odigosv1.InstrumentedApplication, isNodeCollectorReady bool) error {
+// and always writes the status into the KarmaInstrumentedApplication CR
+func reconcileSingleWorkload(ctx context.Context, kubeClient client.Client, instrumentedApplication *odigosv1.KarmaInstrumentedApplication, isNodeCollectorReady bool) error {
 
 	workloadName, workloadKind, err := workload.ExtractWorkloadInfoFromRuntimeObjectName(instrumentedApplication.Name)
 	if err != nil {
@@ -270,7 +360,14 @@ func reconcileSingleWorkload(ctx context.Context, kubeClient client.Client, inst
 	}
 
 	if len(instrumentedApplication.Spec.RuntimeDetails) == 0 {
-		err := removeInstrumentationDeviceFromWorkload(ctx, kubeClient, instrumentedApplication.Namespace, workloadKind, workloadName, ApplyInstrumentationDeviceReasonNoRuntimeDetails)
+		// Before removing instrumentation, try to validate and cleanup JAVA_TOOL_OPTIONS
+		// This handles the case where RuntimeDetails are empty but we still need to clean up
+		err := validateAndCleanupJavaToolOptionsWhenEmpty(ctx, kubeClient, instrumentedApplication)
+		if err != nil {
+			log.FromContext(ctx).Error(err, "Failed to validate JAVA_TOOL_OPTIONS when RuntimeDetails are empty")
+		}
+
+		err = removeInstrumentationDeviceFromWorkload(ctx, kubeClient, instrumentedApplication.Namespace, workloadKind, workloadName, ApplyInstrumentationDeviceReasonNoRuntimeDetails)
 		if err == nil {
 			conditions.UpdateStatusConditions(ctx, kubeClient, instrumentedApplication, &instrumentedApplication.Status.Conditions, metav1.ConditionFalse, appliedInstrumentationDeviceType, string(ApplyInstrumentationDeviceReasonNoRuntimeDetails), "No runtime details found")
 		} else {
@@ -278,6 +375,32 @@ func reconcileSingleWorkload(ctx context.Context, kubeClient client.Client, inst
 		}
 		return err
 	}
+
+	// Check if there are ANY supported languages in any container
+	// Only skip instrumentation if NO containers have supported languages
+	hasSupportedLanguage := false
+	for _, containerDetails := range instrumentedApplication.Spec.RuntimeDetails {
+		if isSupportedLanguage(containerDetails.Language) {
+			hasSupportedLanguage = true
+			break
+		}
+	}
+
+	// If NO supported languages found, remove instrumentation devices
+	if !hasSupportedLanguage {
+		log.FromContext(ctx).V(0).Info("No supported languages detected in any container, removing instrumentation devices")
+		errRemove := removeInstrumentationDeviceFromWorkload(ctx, kubeClient, instrumentedApplication.Namespace, workloadKind, workloadName, ApplyInstrumentationDeviceReasonUnsupportedLanguage)
+		if errRemove == nil {
+			conditions.UpdateStatusConditions(ctx, kubeClient, instrumentedApplication, &instrumentedApplication.Status.Conditions, metav1.ConditionFalse, appliedInstrumentationDeviceType, string(ApplyInstrumentationDeviceReasonUnsupportedLanguage),
+				"No supported languages detected. Only Java and Go are currently supported for instrumentation.")
+		} else {
+			conditions.UpdateStatusConditions(ctx, kubeClient, instrumentedApplication, &instrumentedApplication.Status.Conditions, metav1.ConditionFalse, appliedInstrumentationDeviceType, string(ApplyInstrumentationDeviceReasonErrRemoving), errRemove.Error())
+		}
+		return nil
+	}
+
+	log.FromContext(ctx).V(0).Info("Supported language detected, will apply instrumentation to supported containers only")
+
 	runtimeVersionSupport, err := versionsupport.IsRuntimeVersionSupported(ctx, instrumentedApplication.Spec.RuntimeDetails)
 	if !runtimeVersionSupport {
 		errRemove := removeInstrumentationDeviceFromWorkload(ctx, kubeClient, instrumentedApplication.Namespace, workloadKind, workloadName, ApplyInstrumentationDeviceReasonRuntimeVersionNotSupported)

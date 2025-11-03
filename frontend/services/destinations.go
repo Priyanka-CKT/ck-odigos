@@ -249,7 +249,7 @@ func CreateDestinationSecret(ctx context.Context, destType common.DestinationTyp
 
 func AddDestinationOwnerReferenceToSecret(ctx context.Context, odigosns string, dest *v1alpha1.Destination) error {
 	destOwnerRef := metav1.OwnerReference{
-		APIVersion: "odigos.io/v1alpha1",
+		APIVersion: "codekarma.tech/v1alpha1",
 		Kind:       "Destination",
 		Name:       dest.Name,
 		UID:        dest.UID,
@@ -286,7 +286,7 @@ func PotentialDestinations(ctx context.Context) []destination_recognition.Destin
 	}
 
 	// Existing Destinations
-	existingDestination, err := kube.DefaultClient.OdigosClient.Destinations(odigosns).List(ctx, metav1.ListOptions{})
+	existingDestination, err := kube.DefaultClient.CodekarmaClient.Destinations(odigosns).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil
 	}

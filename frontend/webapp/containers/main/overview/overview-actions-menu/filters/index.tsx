@@ -6,7 +6,7 @@ import { useKeyDown, useOnClickOutside } from '@/hooks';
 import { AbsoluteContainer, RelativeContainer } from '../styled';
 import { Button, SelectionButton, Toggle } from '@/reuseable-components';
 import { type FiltersState, useFilterStore } from '@/store/useFilterStore';
-import { ErrorDropdown, LanguageDropdown, MonitorDropdown, NamespaceDropdown, TypeDropdown } from '@/components';
+import { ErrorDropdown, LanguageDropdown, NamespaceDropdown, TypeDropdown } from '@/components';
 
 const FormWrapper = styled.div`
   display: flex;
@@ -30,7 +30,6 @@ const getFilterCount = (params: FiltersState) => {
   let count = 0;
   if (!!params.namespace) count++;
   count += params.types.length;
-  count += params.monitors.length;
   count += params.languages.length;
   count += params.errors.length;
   if (!!params.onlyErrors) count++;
@@ -38,20 +37,20 @@ const getFilterCount = (params: FiltersState) => {
 };
 
 export const Filters = () => {
-  const { namespace, types, monitors, languages, errors, onlyErrors, setAll, clearAll, getEmptyState } = useFilterStore();
+  const { namespace, types, languages, errors, onlyErrors, setAll, clearAll, getEmptyState } = useFilterStore();
 
-  const [filters, setFilters] = useState<FiltersState>({ namespace, types, monitors, languages, errors, onlyErrors });
+  const [filters, setFilters] = useState<FiltersState>({ namespace, types, languages, errors, onlyErrors });
   const [filterCount, setFilterCount] = useState(getFilterCount(filters));
   const [focused, setFocused] = useState(false);
   const toggleFocused = () => setFocused((prev) => !prev);
 
   useEffect(() => {
     if (!focused) {
-      const payload = { namespace, types, monitors, languages, errors, onlyErrors };
+      const payload = { namespace, types, languages, errors, onlyErrors };
       setFilters(payload);
       setFilterCount(getFilterCount(payload));
     }
-  }, [focused, namespace, types, monitors, errors, onlyErrors]);
+  }, [focused, namespace, types, errors, onlyErrors]);
 
   const onApply = () => {
     setAll(filters);
@@ -96,14 +95,6 @@ export const Filters = () => {
               required
               isMulti
             />
-            <MonitorDropdown
-              value={filters['monitors']}
-              onSelect={(val) => setFilters((prev) => ({ ...prev, monitors: [...prev.monitors, val] }))}
-              onDeselect={(val) => setFilters((prev) => ({ ...prev, monitors: prev.monitors.filter((opt) => opt.id !== val.id) }))}
-              showSearch={false}
-              required
-              isMulti
-            />
             <LanguageDropdown
               value={filters['languages']}
               onSelect={(val) => setFilters((prev) => ({ ...prev, languages: [...prev.languages, val] }))}
@@ -113,7 +104,7 @@ export const Filters = () => {
             />
 
             <ToggleWrapper>
-              <Toggle title='Show only sources with errors' initialValue={filters['onlyErrors']} onChange={(bool) => setFilters((prev) => ({ ...prev, errors: [], onlyErrors: bool }))} />
+              <Toggle title='Show only applications with errors' initialValue={filters['onlyErrors']} onChange={(bool) => setFilters((prev) => ({ ...prev, errors: [], onlyErrors: bool }))} />
             </ToggleWrapper>
 
             {filters['onlyErrors'] && (

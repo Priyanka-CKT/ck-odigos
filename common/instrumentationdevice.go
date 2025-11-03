@@ -8,7 +8,7 @@ type OdigosInstrumentationDevice string
 // from the "github.com/kubevirt/device-plugin-manager" package source:
 // GetResourceNamespace must return namespace (vendor ID) of implemented Lister. e.g. for
 // resources in format "color.example.com/<color>" that would be "color.example.com".
-const OdigosResourceNamespace = "instrumentation.odigos.io"
+const OdigosResourceNamespace = "instrumentation.codekarma.tech"
 
 // The plugin name is also part of the device-plugin-manager.
 // It is used to control which environment variables and fs mounts are available to the pod.

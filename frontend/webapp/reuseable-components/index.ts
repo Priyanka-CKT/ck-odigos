@@ -1,4 +1,3 @@
-export * from './monitors-icons';
 export * from './text';
 export * from './badge';
 export * from './button';
@@ -16,7 +15,6 @@ export * from './modal';
 export * from './modal/warning-modal';
 export * from './navigation-buttons';
 export * from './tag';
-export * from './monitoring-checkboxes';
 export * from './notification-note';
 export * from './fade-loader';
 export * from './textarea';
@@ -39,3 +37,4 @@ export * from './data-tab';
 export * from './code';
 export * from './icon-button';
 export * from './icon-wrapped';
+export * from './warning-icon-tooltip';

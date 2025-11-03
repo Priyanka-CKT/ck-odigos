@@ -8,16 +8,6 @@ import (
 	"strconv"
 )
 
-type Action interface {
-	IsAction()
-	GetID() string
-	GetType() string
-	GetName() *string
-	GetNotes() *string
-	GetDisable() bool
-	GetSignals() []SignalType
-}
-
 type ActionInput struct {
 	Type    string       `json:"type"`
 	Name    *string      `json:"name,omitempty"`
@@ -25,33 +15,6 @@ type ActionInput struct {
 	Disable bool         `json:"disable"`
 	Signals []SignalType `json:"signals"`
 	Details string       `json:"details"`
-}
-
-type AddClusterInfoAction struct {
-	ID      string         `json:"id"`
-	Type    string         `json:"type"`
-	Name    *string        `json:"name,omitempty"`
-	Notes   *string        `json:"notes,omitempty"`
-	Disable bool           `json:"disable"`
-	Signals []SignalType   `json:"signals"`
-	Details []*ClusterInfo `json:"details"`
-}
-
-func (AddClusterInfoAction) IsAction()              {}
-func (this AddClusterInfoAction) GetID() string     { return this.ID }
-func (this AddClusterInfoAction) GetType() string   { return this.Type }
-func (this AddClusterInfoAction) GetName() *string  { return this.Name }
-func (this AddClusterInfoAction) GetNotes() *string { return this.Notes }
-func (this AddClusterInfoAction) GetDisable() bool  { return this.Disable }
-func (this AddClusterInfoAction) GetSignals() []SignalType {
-	if this.Signals == nil {
-		return nil
-	}
-	interfaceSlice := make([]SignalType, 0, len(this.Signals))
-	for _, concrete := range this.Signals {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
 }
 
 type ClusterCollectorAnalyze struct {
@@ -65,11 +28,6 @@ type ClusterCollectorAnalyze struct {
 	HealthyReplicas      *EntityProperty `json:"healthyReplicas,omitempty"`
 	FailedReplicas       *EntityProperty `json:"failedReplicas,omitempty"`
 	FailedReplicasReason *EntityProperty `json:"failedReplicasReason,omitempty"`
-}
-
-type ClusterInfo struct {
-	AttributeName        string  `json:"attributeName"`
-	AttributeStringValue *string `json:"attributeStringValue,omitempty"`
 }
 
 type ComputePlatform struct {
@@ -114,37 +72,6 @@ type DbQueryPayloadCollectionInput struct {
 	DropPartialPayloads *bool `json:"dropPartialPayloads,omitempty"`
 }
 
-type DeleteAttribute struct {
-	AttributeName string `json:"attributeName"`
-}
-
-type DeleteAttributeAction struct {
-	ID      string       `json:"id"`
-	Type    string       `json:"type"`
-	Name    *string      `json:"name,omitempty"`
-	Notes   *string      `json:"notes,omitempty"`
-	Disable bool         `json:"disable"`
-	Signals []SignalType `json:"signals"`
-	Details []string     `json:"details"`
-}
-
-func (DeleteAttributeAction) IsAction()              {}
-func (this DeleteAttributeAction) GetID() string     { return this.ID }
-func (this DeleteAttributeAction) GetType() string   { return this.Type }
-func (this DeleteAttributeAction) GetName() *string  { return this.Name }
-func (this DeleteAttributeAction) GetNotes() *string { return this.Notes }
-func (this DeleteAttributeAction) GetDisable() bool  { return this.Disable }
-func (this DeleteAttributeAction) GetSignals() []SignalType {
-	if this.Signals == nil {
-		return nil
-	}
-	interfaceSlice := make([]SignalType, 0, len(this.Signals))
-	for _, concrete := range this.Signals {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
-}
-
 type DestinationDetails struct {
 	Type      string `json:"type"`
 	URLString string `json:"urlString"`
@@ -163,33 +90,6 @@ type EntityProperty struct {
 	Value   string  `json:"value"`
 	Status  *string `json:"status,omitempty"`
 	Explain *string `json:"explain,omitempty"`
-}
-
-type ErrorSamplerAction struct {
-	ID      string       `json:"id"`
-	Type    string       `json:"type"`
-	Name    *string      `json:"name,omitempty"`
-	Notes   *string      `json:"notes,omitempty"`
-	Disable bool         `json:"disable"`
-	Signals []SignalType `json:"signals"`
-	Details string       `json:"details"`
-}
-
-func (ErrorSamplerAction) IsAction()              {}
-func (this ErrorSamplerAction) GetID() string     { return this.ID }
-func (this ErrorSamplerAction) GetType() string   { return this.Type }
-func (this ErrorSamplerAction) GetName() *string  { return this.Name }
-func (this ErrorSamplerAction) GetNotes() *string { return this.Notes }
-func (this ErrorSamplerAction) GetDisable() bool  { return this.Disable }
-func (this ErrorSamplerAction) GetSignals() []SignalType {
-	if this.Signals == nil {
-		return nil
-	}
-	interfaceSlice := make([]SignalType, 0, len(this.Signals))
-	for _, concrete := range this.Signals {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
 }
 
 type ExportedSignalsInput struct {
@@ -214,7 +114,8 @@ type FieldInput struct {
 }
 
 type GetConfigResponse struct {
-	Installation InstallationStatus `json:"installation"`
+	Installation  InstallationStatus `json:"installation"`
+	NexusEndpoint string             `json:"nexusEndpoint"`
 }
 
 type GetDestinationDetailsResponse struct {
@@ -247,12 +148,6 @@ type InstrumentationConfigAnalyze struct {
 type InstrumentationDeviceAnalyze struct {
 	StatusText *EntityProperty                     `json:"statusText"`
 	Containers []*ContainerWorkloadManifestAnalyze `json:"containers"`
-}
-
-type InstrumentationInstanceAnalyze struct {
-	Healthy               *EntityProperty   `json:"healthy"`
-	Message               *EntityProperty   `json:"message,omitempty"`
-	IdentifyingAttributes []*EntityProperty `json:"identifyingAttributes"`
 }
 
 type InstrumentationLabelsAnalyze struct {
@@ -303,12 +198,6 @@ type InstrumentationRuleInput struct {
 	PayloadCollection        *PayloadCollectionInput                `json:"payloadCollection,omitempty"`
 }
 
-type InstrumentedApplicationAnalyze struct {
-	Created    *EntityProperty                `json:"created"`
-	CreateTime *EntityProperty                `json:"createTime,omitempty"`
-	Containers []*ContainerRuntimeInfoAnalyze `json:"containers"`
-}
-
 type InstrumentedApplicationDetails struct {
 	Containers             []*SourceContainerRuntimeDetails `json:"containers,omitempty"`
 	Conditions             []*Condition                     `json:"conditions,omitempty"`
@@ -352,31 +241,16 @@ type K8sSourceID struct {
 	Name      string          `json:"name"`
 }
 
-type LatencySamplerAction struct {
-	ID      string       `json:"id"`
-	Type    string       `json:"type"`
-	Name    *string      `json:"name,omitempty"`
-	Notes   *string      `json:"notes,omitempty"`
-	Disable bool         `json:"disable"`
-	Signals []SignalType `json:"signals"`
-	Details []*string    `json:"details"`
+type KarmaInstrumentationInstanceAnalyze struct {
+	Healthy               *EntityProperty   `json:"healthy"`
+	Message               *EntityProperty   `json:"message,omitempty"`
+	IdentifyingAttributes []*EntityProperty `json:"identifyingAttributes"`
 }
 
-func (LatencySamplerAction) IsAction()              {}
-func (this LatencySamplerAction) GetID() string     { return this.ID }
-func (this LatencySamplerAction) GetType() string   { return this.Type }
-func (this LatencySamplerAction) GetName() *string  { return this.Name }
-func (this LatencySamplerAction) GetNotes() *string { return this.Notes }
-func (this LatencySamplerAction) GetDisable() bool  { return this.Disable }
-func (this LatencySamplerAction) GetSignals() []SignalType {
-	if this.Signals == nil {
-		return nil
-	}
-	interfaceSlice := make([]SignalType, 0, len(this.Signals))
-	for _, concrete := range this.Signals {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
+type KarmaInstrumentedApplicationAnalyze struct {
+	Created    *EntityProperty                `json:"created"`
+	CreateTime *EntityProperty                `json:"createTime,omitempty"`
+	Containers []*ContainerRuntimeInfoAnalyze `json:"containers"`
 }
 
 type MessagingPayloadCollection struct {
@@ -449,33 +323,6 @@ type PersistNamespaceSourceInput struct {
 	Selected *bool           `json:"selected,omitempty"`
 }
 
-type PiiMaskingAction struct {
-	ID      string       `json:"id"`
-	Type    string       `json:"type"`
-	Name    *string      `json:"name,omitempty"`
-	Notes   *string      `json:"notes,omitempty"`
-	Disable bool         `json:"disable"`
-	Signals []SignalType `json:"signals"`
-	Details []string     `json:"details,omitempty"`
-}
-
-func (PiiMaskingAction) IsAction()              {}
-func (this PiiMaskingAction) GetID() string     { return this.ID }
-func (this PiiMaskingAction) GetType() string   { return this.Type }
-func (this PiiMaskingAction) GetName() *string  { return this.Name }
-func (this PiiMaskingAction) GetNotes() *string { return this.Notes }
-func (this PiiMaskingAction) GetDisable() bool  { return this.Disable }
-func (this PiiMaskingAction) GetSignals() []SignalType {
-	if this.Signals == nil {
-		return nil
-	}
-	interfaceSlice := make([]SignalType, 0, len(this.Signals))
-	for _, concrete := range this.Signals {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
-}
-
 type PodAnalyze struct {
 	PodName    *EntityProperty        `json:"podName"`
 	NodeName   *EntityProperty        `json:"nodeName"`
@@ -484,9 +331,9 @@ type PodAnalyze struct {
 }
 
 type PodContainerAnalyze struct {
-	ContainerName            *EntityProperty                   `json:"containerName"`
-	ActualDevices            *EntityProperty                   `json:"actualDevices"`
-	InstrumentationInstances []*InstrumentationInstanceAnalyze `json:"instrumentationInstances"`
+	ContainerName                 *EntityProperty                        `json:"containerName"`
+	ActualDevices                 *EntityProperty                        `json:"actualDevices"`
+	KarmaInstrumentationInstances []*KarmaInstrumentationInstanceAnalyze `json:"karmaInstrumentationInstances"`
 }
 
 type PodWorkload struct {
@@ -501,61 +348,7 @@ type PodWorkloadInput struct {
 	Name      string          `json:"name"`
 }
 
-type ProbabilisticSamplerAction struct {
-	ID      string       `json:"id"`
-	Type    string       `json:"type"`
-	Name    *string      `json:"name,omitempty"`
-	Notes   *string      `json:"notes,omitempty"`
-	Disable bool         `json:"disable"`
-	Signals []SignalType `json:"signals"`
-	Details string       `json:"details"`
-}
-
-func (ProbabilisticSamplerAction) IsAction()              {}
-func (this ProbabilisticSamplerAction) GetID() string     { return this.ID }
-func (this ProbabilisticSamplerAction) GetType() string   { return this.Type }
-func (this ProbabilisticSamplerAction) GetName() *string  { return this.Name }
-func (this ProbabilisticSamplerAction) GetNotes() *string { return this.Notes }
-func (this ProbabilisticSamplerAction) GetDisable() bool  { return this.Disable }
-func (this ProbabilisticSamplerAction) GetSignals() []SignalType {
-	if this.Signals == nil {
-		return nil
-	}
-	interfaceSlice := make([]SignalType, 0, len(this.Signals))
-	for _, concrete := range this.Signals {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
-}
-
 type Query struct {
-}
-
-type RenameAttributeAction struct {
-	ID      string       `json:"id"`
-	Type    string       `json:"type"`
-	Name    *string      `json:"name,omitempty"`
-	Notes   *string      `json:"notes,omitempty"`
-	Disable bool         `json:"disable"`
-	Signals []SignalType `json:"signals"`
-	Details string       `json:"details"`
-}
-
-func (RenameAttributeAction) IsAction()              {}
-func (this RenameAttributeAction) GetID() string     { return this.ID }
-func (this RenameAttributeAction) GetType() string   { return this.Type }
-func (this RenameAttributeAction) GetName() *string  { return this.Name }
-func (this RenameAttributeAction) GetNotes() *string { return this.Notes }
-func (this RenameAttributeAction) GetDisable() bool  { return this.Disable }
-func (this RenameAttributeAction) GetSignals() []SignalType {
-	if this.Signals == nil {
-		return nil
-	}
-	interfaceSlice := make([]SignalType, 0, len(this.Signals))
-	for _, concrete := range this.Signals {
-		interfaceSlice = append(interfaceSlice, concrete)
-	}
-	return interfaceSlice
 }
 
 type RuntimeInfoAnalyze struct {
@@ -578,17 +371,17 @@ type SingleSourceMetricsResponse struct {
 }
 
 type SourceAnalyze struct {
-	Name                    *EntityProperty                 `json:"name"`
-	Kind                    *EntityProperty                 `json:"kind"`
-	Namespace               *EntityProperty                 `json:"namespace"`
-	Labels                  *InstrumentationLabelsAnalyze   `json:"labels"`
-	InstrumentationConfig   *InstrumentationConfigAnalyze   `json:"instrumentationConfig"`
-	RuntimeInfo             *RuntimeInfoAnalyze             `json:"runtimeInfo,omitempty"`
-	InstrumentedApplication *InstrumentedApplicationAnalyze `json:"instrumentedApplication"`
-	InstrumentationDevice   *InstrumentationDeviceAnalyze   `json:"instrumentationDevice"`
-	TotalPods               int                             `json:"totalPods"`
-	PodsPhasesCount         string                          `json:"podsPhasesCount"`
-	Pods                    []*PodAnalyze                   `json:"pods"`
+	Name                         *EntityProperty                      `json:"name"`
+	Kind                         *EntityProperty                      `json:"kind"`
+	Namespace                    *EntityProperty                      `json:"namespace"`
+	Labels                       *InstrumentationLabelsAnalyze        `json:"labels"`
+	InstrumentationConfig        *InstrumentationConfigAnalyze        `json:"instrumentationConfig"`
+	RuntimeInfo                  *RuntimeInfoAnalyze                  `json:"runtimeInfo,omitempty"`
+	KarmaInstrumentedApplication *KarmaInstrumentedApplicationAnalyze `json:"karmaInstrumentedApplication"`
+	InstrumentationDevice        *InstrumentationDeviceAnalyze        `json:"instrumentationDevice"`
+	TotalPods                    int                                  `json:"totalPods"`
+	PodsPhasesCount              string                               `json:"podsPhasesCount"`
+	Pods                         []*PodAnalyze                        `json:"pods"`
 }
 
 type SourceContainerRuntimeDetails struct {

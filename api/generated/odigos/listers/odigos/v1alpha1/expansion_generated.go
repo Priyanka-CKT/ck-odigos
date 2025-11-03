@@ -17,6 +17,14 @@ limitations under the License.
 
 package v1alpha1
 
+// CodekarmaConfigurationListerExpansion allows custom methods to be added to
+// CodekarmaConfigurationLister.
+type CodekarmaConfigurationListerExpansion interface{}
+
+// CodekarmaConfigurationNamespaceListerExpansion allows custom methods to be added to
+// CodekarmaConfigurationNamespaceLister.
+type CodekarmaConfigurationNamespaceListerExpansion interface{}
+
 // CollectorsGroupListerExpansion allows custom methods to be added to
 // CollectorsGroupLister.
 type CollectorsGroupListerExpansion interface{}
@@ -33,45 +41,37 @@ type DestinationListerExpansion interface{}
 // DestinationNamespaceLister.
 type DestinationNamespaceListerExpansion interface{}
 
-// InstrumentationConfigListerExpansion allows custom methods to be added to
-// InstrumentationConfigLister.
-type InstrumentationConfigListerExpansion interface{}
+// KarmaInstrumentationConfigListerExpansion allows custom methods to be added to
+// KarmaInstrumentationConfigLister.
+type KarmaInstrumentationConfigListerExpansion interface{}
 
-// InstrumentationConfigNamespaceListerExpansion allows custom methods to be added to
-// InstrumentationConfigNamespaceLister.
-type InstrumentationConfigNamespaceListerExpansion interface{}
+// KarmaInstrumentationConfigNamespaceListerExpansion allows custom methods to be added to
+// KarmaInstrumentationConfigNamespaceLister.
+type KarmaInstrumentationConfigNamespaceListerExpansion interface{}
 
-// InstrumentationInstanceListerExpansion allows custom methods to be added to
-// InstrumentationInstanceLister.
-type InstrumentationInstanceListerExpansion interface{}
+// KarmaInstrumentationInstanceListerExpansion allows custom methods to be added to
+// KarmaInstrumentationInstanceLister.
+type KarmaInstrumentationInstanceListerExpansion interface{}
 
-// InstrumentationInstanceNamespaceListerExpansion allows custom methods to be added to
-// InstrumentationInstanceNamespaceLister.
-type InstrumentationInstanceNamespaceListerExpansion interface{}
+// KarmaInstrumentationInstanceNamespaceListerExpansion allows custom methods to be added to
+// KarmaInstrumentationInstanceNamespaceLister.
+type KarmaInstrumentationInstanceNamespaceListerExpansion interface{}
 
-// InstrumentationRuleListerExpansion allows custom methods to be added to
-// InstrumentationRuleLister.
-type InstrumentationRuleListerExpansion interface{}
+// KarmaInstrumentationRuleListerExpansion allows custom methods to be added to
+// KarmaInstrumentationRuleLister.
+type KarmaInstrumentationRuleListerExpansion interface{}
 
-// InstrumentationRuleNamespaceListerExpansion allows custom methods to be added to
-// InstrumentationRuleNamespaceLister.
-type InstrumentationRuleNamespaceListerExpansion interface{}
+// KarmaInstrumentationRuleNamespaceListerExpansion allows custom methods to be added to
+// KarmaInstrumentationRuleNamespaceLister.
+type KarmaInstrumentationRuleNamespaceListerExpansion interface{}
 
-// InstrumentedApplicationListerExpansion allows custom methods to be added to
-// InstrumentedApplicationLister.
-type InstrumentedApplicationListerExpansion interface{}
+// KarmaInstrumentedApplicationListerExpansion allows custom methods to be added to
+// KarmaInstrumentedApplicationLister.
+type KarmaInstrumentedApplicationListerExpansion interface{}
 
-// InstrumentedApplicationNamespaceListerExpansion allows custom methods to be added to
-// InstrumentedApplicationNamespaceLister.
-type InstrumentedApplicationNamespaceListerExpansion interface{}
-
-// OdigosConfigurationListerExpansion allows custom methods to be added to
-// OdigosConfigurationLister.
-type OdigosConfigurationListerExpansion interface{}
-
-// OdigosConfigurationNamespaceListerExpansion allows custom methods to be added to
-// OdigosConfigurationNamespaceLister.
-type OdigosConfigurationNamespaceListerExpansion interface{}
+// KarmaInstrumentedApplicationNamespaceListerExpansion allows custom methods to be added to
+// KarmaInstrumentedApplicationNamespaceLister.
+type KarmaInstrumentedApplicationNamespaceListerExpansion interface{}
 
 // ProcessorListerExpansion allows custom methods to be added to
 // ProcessorLister.

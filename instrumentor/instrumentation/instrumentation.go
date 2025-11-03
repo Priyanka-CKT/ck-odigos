@@ -22,7 +22,7 @@ var (
 	ErrPatchEnvVars = errors.New("failed to patch env vars")
 )
 
-func ApplyInstrumentationDevicesToPodTemplate(original *corev1.PodTemplateSpec, runtimeDetails *odigosv1.InstrumentedApplication, defaultSdks map[common.ProgrammingLanguage]common.OtelSdk, targetObj client.Object,
+func ApplyInstrumentationDevicesToPodTemplate(original *corev1.PodTemplateSpec, runtimeDetails *odigosv1.KarmaInstrumentedApplication, defaultSdks map[common.ProgrammingLanguage]common.OtelSdk, targetObj client.Object,
 	logger logr.Logger, agentsCanRunConcurrently bool) (error, bool, bool) {
 	// delete any existing instrumentation devices.
 	// this is necessary for example when migrating from community to enterprise,
@@ -57,7 +57,7 @@ func ApplyInstrumentationDevicesToPodTemplate(original *corev1.PodTemplateSpec, 
 		if containerLanguage == common.UnknownProgrammingLanguage || containerLanguage == common.IgnoredProgrammingLanguage || containerLanguage == common.NginxProgrammingLanguage {
 			// always patch the env vars, even if the language is unknown or ignored.
 			// this is necessary to sync the existing envs with the missing language if changed for any reason.
-			err = patchEnvVarsForContainer(runtimeDetails, &container, nil, containerLanguage, manifestEnvOriginal)
+			err = patchEnvVarsForContainer(runtimeDetails, &container, nil, containerLanguage, manifestEnvOriginal, logger)
 			if err != nil {
 				return fmt.Errorf("%w: %v", ErrPatchEnvVars, err), deviceApplied, deviceSkippedDueToOtherAgent
 			}
@@ -68,7 +68,11 @@ func ApplyInstrumentationDevicesToPodTemplate(original *corev1.PodTemplateSpec, 
 		// Find and apply the appropriate SDK for the container language.
 		otelSdk, found := defaultSdks[containerLanguage]
 		if !found {
-			return fmt.Errorf("%w for language: %s, container:%s", ErrNoDefaultSDK, containerLanguage, container.Name), deviceApplied, deviceSkippedDueToOtherAgent
+			// No SDK found for this language (e.g., Python, Node.js) - skip this container
+			logger.V(0).Info("No SDK found for language, skipping device for container",
+				"language", containerLanguage, "container", container.Name)
+			modifiedContainers = append(modifiedContainers, container)
+			continue // Skip this container but continue with others
 		}
 
 		instrumentationDeviceName := common.InstrumentationDeviceName(containerLanguage, otelSdk, libcType)
@@ -78,7 +82,7 @@ func ApplyInstrumentationDevicesToPodTemplate(original *corev1.PodTemplateSpec, 
 		container.Resources.Limits[corev1.ResourceName(instrumentationDeviceName)] = resource.MustParse("1")
 		deviceApplied = true
 
-		err = patchEnvVarsForContainer(runtimeDetails, &container, &otelSdk, containerLanguage, manifestEnvOriginal)
+		err = patchEnvVarsForContainer(runtimeDetails, &container, &otelSdk, containerLanguage, manifestEnvOriginal, logger)
 		if err != nil {
 			return fmt.Errorf("%w: %v", ErrPatchEnvVars, err), deviceApplied, deviceSkippedDueToOtherAgent
 		}
@@ -154,7 +158,7 @@ func RevertInstrumentationDevices(original *corev1.PodTemplateSpec) bool {
 	return changed
 }
 
-func getLanguageOfContainer(instrumentation *odigosv1.InstrumentedApplication, containerName string) common.ProgrammingLanguage {
+func getLanguageOfContainer(instrumentation *odigosv1.KarmaInstrumentedApplication, containerName string) common.ProgrammingLanguage {
 	for _, l := range instrumentation.Spec.RuntimeDetails {
 		if l.ContainerName == containerName {
 			return l.Language
@@ -164,7 +168,7 @@ func getLanguageOfContainer(instrumentation *odigosv1.InstrumentedApplication, c
 	return common.UnknownProgrammingLanguage
 }
 
-func getContainerOtherAgents(instrumentation *odigosv1.InstrumentedApplication, containerName string) *odigosv1.OtherAgent {
+func getContainerOtherAgents(instrumentation *odigosv1.KarmaInstrumentedApplication, containerName string) *odigosv1.OtherAgent {
 	for _, l := range instrumentation.Spec.RuntimeDetails {
 		if l.ContainerName == containerName {
 			if l.OtherAgent != nil && *l.OtherAgent != (odigosv1.OtherAgent{}) {
@@ -175,7 +179,7 @@ func getContainerOtherAgents(instrumentation *odigosv1.InstrumentedApplication, 
 	return nil
 }
 
-func getLibCTypeOfContainer(instrumentation *odigosv1.InstrumentedApplication, containerName string) *common.LibCType {
+func getLibCTypeOfContainer(instrumentation *odigosv1.KarmaInstrumentedApplication, containerName string) *common.LibCType {
 	for _, l := range instrumentation.Spec.RuntimeDetails {
 		if l.ContainerName == containerName {
 			return l.LibCType
@@ -187,7 +191,8 @@ func getLibCTypeOfContainer(instrumentation *odigosv1.InstrumentedApplication, c
 
 // getEnvVarsOfContainer returns the env vars which are defined for the given container and are used for instrumentation purposes.
 // This function also returns env vars which are declared in the container build.
-func getEnvVarsOfContainer(instrumentation *odigosv1.InstrumentedApplication, containerName string) map[string]string {
+// NOTE: This reads from KarmaInstrumentedApplication.Spec which has the ORIGINAL values (before any patching).
+func getEnvVarsOfContainer(instrumentation *odigosv1.KarmaInstrumentedApplication, containerName string) map[string]string {
 	envVars := make(map[string]string)
 
 	for _, l := range instrumentation.Spec.RuntimeDetails {
@@ -204,24 +209,61 @@ func getEnvVarsOfContainer(instrumentation *odigosv1.InstrumentedApplication, co
 
 // when otelsdk is nil, it means that the container is not instrumented.
 // this will trigger reverting of any existing env vars which were set by odigos before.
-func patchEnvVarsForContainer(runtimeDetails *odigosv1.InstrumentedApplication, container *corev1.Container, sdk *common.OtelSdk, programmingLanguage common.ProgrammingLanguage, manifestEnvOriginal *envoverwrite.OrigWorkloadEnvValues) error {
+func patchEnvVarsForContainer(runtimeDetails *odigosv1.KarmaInstrumentedApplication, container *corev1.Container, sdk *common.OtelSdk, programmingLanguage common.ProgrammingLanguage, manifestEnvOriginal *envoverwrite.OrigWorkloadEnvValues, logger logr.Logger) error {
 
+	// Get observed env vars from KarmaInstrumentedApplication.Spec (original values)
 	observedEnvs := getEnvVarsOfContainer(runtimeDetails, container.Name)
+
+	logger.V(0).Info("DEBUG ENV PATCH: Using env vars from KarmaInstrumentedApplication.Spec (original values)",
+		"container", container.Name, "envCount", len(observedEnvs))
 
 	// Step 1: check existing environment on the manifest and update them if needed
 	newEnvs := make([]corev1.EnvVar, 0, len(container.Env))
+	logger.V(0).Info("DEBUG ENV PATCH: Starting env patching for container", "container", container.Name, "totalEnvVars", len(container.Env), "language", programmingLanguage, "sdk", sdk)
+
 	for _, envVar := range container.Env {
 
 		// extract the observed value for this env var, which might be empty if not currently exists
 		observedEnvValue := observedEnvs[envVar.Name]
 
+		if envVar.Name == "JAVA_TOOL_OPTIONS" || envVar.Name == "JAVA_OPTS" {
+			logger.V(0).Info("DEBUG ENV PATCH: Processing Java env var", "name", envVar.Name, "manifestValue", envVar.Value, "observedValue", observedEnvValue, "sdk", sdk, "language", programmingLanguage)
+		}
+
 		desiredEnvValue := envOverwrite.GetPatchedEnvValue(envVar.Name, observedEnvValue, sdk, programmingLanguage)
+
+		if envVar.Name == "JAVA_TOOL_OPTIONS" || envVar.Name == "JAVA_OPTS" {
+			if desiredEnvValue != nil {
+				logger.V(0).Info("DEBUG ENV PATCH: GetPatchedEnvValue returned value", "name", envVar.Name, "desiredValue", *desiredEnvValue)
+			} else {
+				logger.V(0).Info("DEBUG ENV PATCH: GetPatchedEnvValue returned nil", "name", envVar.Name, "manifestValue", envVar.Value)
+			}
+		}
 
 		if desiredEnvValue == nil {
 			// no need to patch this env var, so make sure it is reverted to its original value
+
+			// CRITICAL FIX: Don't remove env vars that contain our CodeKarma agent!
+			// This happens during helm upgrade when SDK might be nil temporarily.
+			// If the manifest value contains our agent, we want to keep it.
+			if (envVar.Name == "JAVA_TOOL_OPTIONS" || envVar.Name == "JAVA_OPTS") && strings.Contains(envVar.Value, "ck-agent-universal.jar") {
+				logger.V(0).Info("✅ DEBUG ENV PATCH: Preserving env var with ck-agent even though desiredEnvValue is nil", "name", envVar.Name, "value", envVar.Value)
+				newEnvs = append(newEnvs, envVar)
+				delete(observedEnvs, envVar.Name)
+				continue
+			}
+
 			origValue, found := manifestEnvOriginal.RemoveOriginalValue(container.Name, envVar.Name)
+
+			if envVar.Name == "JAVA_TOOL_OPTIONS" || envVar.Name == "JAVA_OPTS" {
+				logger.V(0).Info("DEBUG ENV PATCH: desiredEnvValue is nil, checking original", "name", envVar.Name, "found", found, "origValue", origValue, "manifestValue", envVar.Value)
+			}
+
 			if !found {
 				newEnvs = append(newEnvs, envVar)
+				if envVar.Name == "JAVA_TOOL_OPTIONS" || envVar.Name == "JAVA_OPTS" {
+					logger.V(0).Info("DEBUG ENV PATCH: No original found, keeping manifest value", "name", envVar.Name, "value", envVar.Value)
+				}
 			} else { // found, we need to update the env var to it's original value
 				if origValue != nil {
 					// this case reverts back the env var to it's original value
@@ -229,19 +271,31 @@ func patchEnvVarsForContainer(runtimeDetails *odigosv1.InstrumentedApplication, 
 						Name:  envVar.Name,
 						Value: *origValue,
 					})
+					if envVar.Name == "JAVA_TOOL_OPTIONS" || envVar.Name == "JAVA_OPTS" {
+						logger.V(0).Info("DEBUG ENV PATCH: Reverting to original value", "name", envVar.Name, "value", *origValue)
+					}
 				} else {
 					// if the original value was nil, then it was not set by the user.
 					// we will simply not append it to the new envs to achieve the same effect.
+					if envVar.Name == "JAVA_TOOL_OPTIONS" || envVar.Name == "JAVA_OPTS" {
+						logger.V(0).Info("⚠️ DEBUG ENV PATCH: REMOVING env var - original was nil!", "name", envVar.Name, "manifestValue", envVar.Value)
+					}
 				}
 			}
 		} else { // there is a desired value to inject
 			// if it's the first time we patch this env var, save the original value
+			// InsertOriginalValue will NOT overwrite if it already exists
 			manifestEnvOriginal.InsertOriginalValue(container.Name, envVar.Name, &envVar.Value)
 			// update the env var to it's desired value
 			newEnvs = append(newEnvs, corev1.EnvVar{
 				Name:  envVar.Name,
 				Value: *desiredEnvValue,
 			})
+
+			if envVar.Name == "JAVA_TOOL_OPTIONS" || envVar.Name == "JAVA_OPTS" {
+				logger.V(0).Info("✅ DEBUG ENV PATCH: Applied desired value to manifest",
+					"name", envVar.Name, "value", *desiredEnvValue)
+			}
 		}
 
 		// If an env var is defined both in the container build and in the container spec, the value in the container spec will be used.
@@ -249,9 +303,23 @@ func patchEnvVarsForContainer(runtimeDetails *odigosv1.InstrumentedApplication, 
 	}
 
 	// Step 2: add the new env vars which odigos might patch, but which are not defined in the manifest
+	logger.V(0).Info("DEBUG ENV PATCH: Step 2 - processing observed envs not in manifest", "container", container.Name, "observedEnvCount", len(observedEnvs), "sdk", sdk)
 	if sdk != nil {
 		for envName, envValue := range observedEnvs {
+			if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
+				logger.V(0).Info("DEBUG ENV PATCH: Step 2 - Processing Java env from observed", "name", envName, "observedValue", envValue)
+			}
+
 			desiredEnvValue := envOverwrite.GetPatchedEnvValue(envName, envValue, sdk, programmingLanguage)
+
+			if envName == "JAVA_TOOL_OPTIONS" || envName == "JAVA_OPTS" {
+				if desiredEnvValue != nil {
+					logger.V(0).Info("DEBUG ENV PATCH: Step 2 - GetPatchedEnvValue returned value", "name", envName, "desiredValue", *desiredEnvValue)
+				} else {
+					logger.V(0).Info("DEBUG ENV PATCH: Step 2 - GetPatchedEnvValue returned nil", "name", envName)
+				}
+			}
+
 			if desiredEnvValue != nil {
 				// store that it was empty to begin with
 				manifestEnvOriginal.InsertOriginalValue(container.Name, envName, nil)
@@ -278,7 +346,7 @@ func SetInjectInstrumentationLabel(original *corev1.PodTemplateSpec) {
 	original.Labels[consts.OdigosInjectInstrumentationLabel] = "true"
 }
 
-// RemoveInjectInstrumentationLabel removes the "odigos.io/inject-instrumentation" label if it exists.
+// RemoveInjectInstrumentationLabel removes the "codekarma.tech/inject-instrumentation" label if it exists.
 func RemoveInjectInstrumentationLabel(original *corev1.PodTemplateSpec) bool {
 	if original.Labels != nil {
 		if _, ok := original.Labels[consts.OdigosInjectInstrumentationLabel]; ok {

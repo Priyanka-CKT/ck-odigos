@@ -38,7 +38,7 @@ type InstrumentationLibraryGlobalId struct {
 	Language common.ProgrammingLanguage `json:"language"`
 }
 
-type InstrumentationRuleSpec struct {
+type KarmaInstrumentationRuleSpec struct {
 
 	// Allows you to attach a meaningful name to the rule for convenience. Odigos does not use or assume any meaning from this field.
 	RuleName string `json:"ruleName,omitempty"`
@@ -67,7 +67,7 @@ type InstrumentationRuleSpec struct {
 	OtelSdks *instrumentationrules.OtelSdks `json:"otelSdks,omitempty"`
 }
 
-type InstrumentationRuleStatus struct {
+type KarmaInstrumentationRuleStatus struct {
 	// Represents the observations of a instrumentationrule's current state.
 	// Known .status.conditions.type are: "Available", "Progressing"
 	// +patchMergeKey=type
@@ -80,25 +80,25 @@ type InstrumentationRuleStatus struct {
 //+genclient
 //+kubebuilder:object:root=true
 //+kubebuilder:subresource:status
-//+kubebuilder:metadata:labels=metadata.labels.odigos.io/config=1
-//+kubebuilder:metadata:labels=metadata.labels.odigos.io/system-object=true
+//+kubebuilder:metadata:labels=metadata.labels.codekarma.tech/config=1
+//+kubebuilder:metadata:labels=metadata.labels.codekarma.tech/system-object=true
 
-type InstrumentationRule struct {
+type KarmaInstrumentationRule struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
 
-	Spec   InstrumentationRuleSpec   `json:"spec,omitempty"`
-	Status InstrumentationRuleStatus `json:"status,omitempty"`
+	Spec   KarmaInstrumentationRuleSpec   `json:"spec,omitempty"`
+	Status KarmaInstrumentationRuleStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
 
-type InstrumentationRuleList struct {
+type KarmaInstrumentationRuleList struct {
 	metav1.TypeMeta `json:",inline"`
 	metav1.ListMeta `json:"metadata,omitempty"`
-	Items           []InstrumentationRule `json:"items"`
+	Items           []KarmaInstrumentationRule `json:"items"`
 }
 
 func init() {
-	SchemeBuilder.Register(&InstrumentationRule{}, &InstrumentationRuleList{})
+	SchemeBuilder.Register(&KarmaInstrumentationRule{}, &KarmaInstrumentationRuleList{})
 }

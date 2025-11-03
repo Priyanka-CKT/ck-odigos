@@ -87,9 +87,9 @@ func GetWorkload(c context.Context, ns string, kind string, name string) (metav1
 	}
 }
 
-func AddHealthyInstrumentationInstancesCondition(ctx context.Context, app *v1alpha1.InstrumentedApplication, source *model.K8sActualSource) error {
+func AddHealthyKarmaInstrumentationInstancesCondition(ctx context.Context, app *v1alpha1.KarmaInstrumentedApplication, source *model.K8sActualSource) error {
 	labelSelector := fmt.Sprintf("%s=%s", consts.InstrumentedAppNameLabel, app.Name)
-	instancesList, err := kube.DefaultClient.OdigosClient.InstrumentationInstances(app.Namespace).List(ctx, metav1.ListOptions{
+	instancesList, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationInstances(app.Namespace).List(ctx, metav1.ListOptions{
 		LabelSelector: labelSelector,
 	})
 
@@ -122,7 +122,7 @@ func AddHealthyInstrumentationInstancesCondition(ctx context.Context, app *v1alp
 	message := fmt.Sprintf("%d/%d instances are healthy", healthyInstances, totalInstances)
 	lastTransitionTime := Metav1TimeToString(latestStatusTime)
 	source.InstrumentedApplicationDetails.Conditions = append(source.InstrumentedApplicationDetails.Conditions, &model.Condition{
-		Type:               "HealthyInstrumentationInstances",
+		Type:               "HealthyKarmaInstrumentationInstances",
 		Status:             status,
 		LastTransitionTime: &lastTransitionTime,
 		Message:            &message,

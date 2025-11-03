@@ -24,7 +24,7 @@ type SourceLanguage struct {
 	OtherAgent     *v1alpha1.OtherAgent `json:"other_agent,omitempty"`
 }
 
-type InstrumentedApplicationDetails struct {
+type KarmaInstrumentedApplicationDetails struct {
 	Languages              []SourceLanguage                         `json:"languages,omitempty"`
 	Conditions             []metav1.Condition                       `json:"conditions,omitempty"`
 	InstrumentationOptions []v1alpha1.WorkloadInstrumentationConfig `json:"instrumentation_options,omitempty"`
@@ -33,8 +33,8 @@ type InstrumentedApplicationDetails struct {
 // this object contains only part of the source fields. It is used to display the sources in the frontend
 type ThinSource struct {
 	common.SourceID
-	NumberOfRunningInstances int                             `json:"number_of_running_instances"`
-	IaDetails                *InstrumentedApplicationDetails `json:"instrumented_application_details"`
+	NumberOfRunningInstances int                                  `json:"number_of_running_instances"`
+	IaDetails                *KarmaInstrumentedApplicationDetails `json:"instrumented_application_details"`
 }
 
 type Source struct {
@@ -54,7 +54,7 @@ func GetSources(c *gin.Context, odigosns string) {
 
 	var (
 		items                    []GetApplicationItem
-		instrumentedApplications *v1alpha1.InstrumentedApplicationList
+		instrumentedApplications *v1alpha1.KarmaInstrumentedApplicationList
 	)
 
 	g, errCtx := errgroup.WithContext(reqCtx)
@@ -76,7 +76,7 @@ func GetSources(c *gin.Context, odigosns string) {
 
 	g.Go(func() error {
 		var err error
-		instrumentedApplications, err = kube.DefaultClient.OdigosClient.InstrumentedApplications("").List(errCtx, metav1.ListOptions{})
+		instrumentedApplications, err = kube.DefaultClient.CodekarmaClient.KarmaInstrumentedApplications("").List(errCtx, metav1.ListOptions{})
 		return err
 	})
 
@@ -104,7 +104,7 @@ func GetSources(c *gin.Context, odigosns string) {
 		thinSource := k8sInstrumentedAppToThinSource(&app)
 		if source, ok := effectiveInstrumentedSources[thinSource.SourceID]; ok {
 			source.IaDetails = thinSource.IaDetails
-			err := addHealthyInstrumentationInstancesCondition(reqCtx, &app, &source)
+			err := addHealthyKarmaInstrumentationInstancesCondition(reqCtx, &app, &source)
 			if err != nil {
 				returnError(c, err)
 				return
@@ -148,20 +148,20 @@ func GetSource(c *gin.Context) {
 		NumberOfRunningInstances: numberOfRunningInstances,
 	}
 
-	instrumentedApplication, err := kube.DefaultClient.OdigosClient.InstrumentedApplications(ns).Get(c, k8sObjectName, metav1.GetOptions{})
+	instrumentedApplication, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentedApplications(ns).Get(c, k8sObjectName, metav1.GetOptions{})
 
 	if err == nil {
 		// valid instrumented application, grab the runtime details
 		ts.IaDetails = k8sInstrumentedAppToThinSource(instrumentedApplication).IaDetails
 		// potentially add a condition for healthy instrumentation instances
-		err = addHealthyInstrumentationInstancesCondition(c, instrumentedApplication, &ts)
+		err = addHealthyKarmaInstrumentationInstancesCondition(c, instrumentedApplication, &ts)
 		if err != nil {
 			returnError(c, err)
 			return
 		}
 	}
 
-	instrumentationConfig, err := kube.DefaultClient.OdigosClient.InstrumentationConfigs(ns).Get(context.Background(), instrumentedApplication.Name, metav1.GetOptions{})
+	instrumentationConfig, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationConfigs(ns).Get(context.Background(), instrumentedApplication.Name, metav1.GetOptions{})
 	if err != nil {
 		if !apierrors.IsNotFound(err) {
 			returnError(c, err)
@@ -274,7 +274,7 @@ func DeleteSource(c *gin.Context) {
 
 	// Fetch the existing InstrumentationConfig
 	k8sObjectName := workload.CalculateWorkloadRuntimeObjectName(name, kind)
-	instrumentationConfig, err := kube.DefaultClient.OdigosClient.InstrumentationConfigs(ns).Get(context.Background(), k8sObjectName, metav1.GetOptions{})
+	instrumentationConfig, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationConfigs(ns).Get(context.Background(), k8sObjectName, metav1.GetOptions{})
 	if err != nil && !apierrors.IsNotFound(err) {
 		returnError(c, err)
 		return
@@ -283,7 +283,7 @@ func DeleteSource(c *gin.Context) {
 	// Reset the InstrumentationConfig if it exists
 	if err == nil {
 		instrumentationConfig.Spec.Config = []v1alpha1.WorkloadInstrumentationConfig{}
-		_, err = kube.DefaultClient.OdigosClient.InstrumentationConfigs(ns).Update(c.Request.Context(), instrumentationConfig, metav1.UpdateOptions{})
+		_, err = kube.DefaultClient.CodekarmaClient.KarmaInstrumentationConfigs(ns).Update(c.Request.Context(), instrumentationConfig, metav1.UpdateOptions{})
 		if err != nil {
 			returnError(c, err)
 			return
@@ -303,7 +303,7 @@ func DeleteSource(c *gin.Context) {
 func handleInstrumentationConfigRequest(c *gin.Context, ns, kind, name string, configs []v1alpha1.WorkloadInstrumentationConfig) error {
 	k8sObjectName := workload.CalculateWorkloadRuntimeObjectName(name, kind)
 
-	instrumentationConfigResource, err := kube.DefaultClient.OdigosClient.InstrumentationConfigs(ns).Get(c.Request.Context(), k8sObjectName, metav1.GetOptions{})
+	instrumentationConfigResource, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationConfigs(ns).Get(c.Request.Context(), k8sObjectName, metav1.GetOptions{})
 	if err != nil && !apierrors.IsNotFound(err) {
 		return err
 	}
@@ -323,7 +323,7 @@ func handleInstrumentationConfigRequest(c *gin.Context, ns, kind, name string, c
 		workloadConfigs = append(workloadConfigs, workloadConfig)
 	}
 
-	newConfig := v1alpha1.InstrumentationConfig{
+	newConfig := v1alpha1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      k8sObjectName,
 			Namespace: ns,
@@ -336,7 +336,7 @@ func handleInstrumentationConfigRequest(c *gin.Context, ns, kind, name string, c
 				},
 			},
 		},
-		Spec: v1alpha1.InstrumentationConfigSpec{
+		Spec: v1alpha1.KarmaInstrumentationConfigSpec{
 			Config: workloadConfigs,
 		},
 	}
@@ -346,15 +346,15 @@ func handleInstrumentationConfigRequest(c *gin.Context, ns, kind, name string, c
 	}
 
 	if shouldInsert {
-		_, err = kube.DefaultClient.OdigosClient.InstrumentationConfigs(ns).Create(c.Request.Context(), &newConfig, metav1.CreateOptions{})
+		_, err = kube.DefaultClient.CodekarmaClient.KarmaInstrumentationConfigs(ns).Create(c.Request.Context(), &newConfig, metav1.CreateOptions{})
 	} else {
-		_, err = kube.DefaultClient.OdigosClient.InstrumentationConfigs(ns).Update(c.Request.Context(), &newConfig, metav1.UpdateOptions{})
+		_, err = kube.DefaultClient.CodekarmaClient.KarmaInstrumentationConfigs(ns).Update(c.Request.Context(), &newConfig, metav1.UpdateOptions{})
 	}
 
 	return err
 }
 
-func k8sInstrumentedAppToThinSource(app *v1alpha1.InstrumentedApplication) ThinSource {
+func k8sInstrumentedAppToThinSource(app *v1alpha1.KarmaInstrumentedApplication) ThinSource {
 	var source ThinSource
 	source.Name = app.OwnerReferences[0].Name
 	source.Kind = workload.WorkloadKind(app.OwnerReferences[0].Kind)
@@ -387,7 +387,7 @@ func k8sInstrumentedAppToThinSource(app *v1alpha1.InstrumentedApplication) ThinS
 		}
 	}
 
-	source.IaDetails = &InstrumentedApplicationDetails{
+	source.IaDetails = &KarmaInstrumentedApplicationDetails{
 		Languages:              []SourceLanguage{},
 		Conditions:             conditions,
 		InstrumentationOptions: instrumentationOptions,
@@ -406,9 +406,9 @@ func k8sInstrumentedAppToThinSource(app *v1alpha1.InstrumentedApplication) ThinS
 	return source
 }
 
-func addHealthyInstrumentationInstancesCondition(ctx context.Context, app *v1alpha1.InstrumentedApplication, source *ThinSource) error {
+func addHealthyKarmaInstrumentationInstancesCondition(ctx context.Context, app *v1alpha1.KarmaInstrumentedApplication, source *ThinSource) error {
 	labelSelector := fmt.Sprintf("%s=%s", consts.InstrumentedAppNameLabel, app.Name)
-	instancesList, err := kube.DefaultClient.OdigosClient.InstrumentationInstances(app.Namespace).List(ctx, metav1.ListOptions{
+	instancesList, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationInstances(app.Namespace).List(ctx, metav1.ListOptions{
 		LabelSelector: labelSelector,
 	})
 
@@ -439,7 +439,7 @@ func addHealthyInstrumentationInstancesCondition(ctx context.Context, app *v1alp
 	}
 
 	source.IaDetails.Conditions = append(source.IaDetails.Conditions, metav1.Condition{
-		Type:               "HealthyInstrumentationInstances",
+		Type:               "HealthyKarmaInstrumentationInstances",
 		Status:             status,
 		LastTransitionTime: latestStatusTime,
 		Message:            fmt.Sprintf("%d/%d instances are healthy", healthyInstances, totalInstances),

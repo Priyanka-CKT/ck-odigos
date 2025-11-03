@@ -2,7 +2,10 @@ package sdks
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
+	"os"
+	"strings"
 
 	odigosv1 "github.com/odigos-io/odigos/api/odigos/v1alpha1"
 	"github.com/odigos-io/odigos/common"
@@ -13,6 +16,7 @@ import (
 	"github.com/odigos-io/odigos/odiglet/pkg/instrumentation/consts"
 	"github.com/odigos-io/odigos/odiglet/pkg/log"
 	"go.opentelemetry.io/auto"
+	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/exporters/otlp/otlptrace/otlptracegrpc"
 )
 
@@ -32,6 +36,11 @@ func NewGoInstrumentationFactory() instrumentation.Factory {
 }
 
 func (g *GoInstrumentationFactory) CreateInstrumentation(ctx context.Context, pid int, settings instrumentation.Settings) (instrumentation.Instrumentation, error) {
+
+	log.Logger.Info("Creating Go instrumentation with context", "context", ctx)
+	log.Logger.Info("Process ID", "pid", pid)
+	log.Logger.Info("Instrumentation settings", "settings", settings)
+
 	defaultExporter, err := otlptracegrpc.New(
 		ctx,
 		otlptracegrpc.WithInsecure(),
@@ -48,12 +57,64 @@ func (g *GoInstrumentationFactory) CreateInstrumentation(ctx context.Context, pi
 
 	cp := ebpf.NewConfigProvider(initialConfig)
 
+	// Try to read APP_NAME directly from the process environment
+	serviceName := settings.ServiceName
+	appName, err := readAppNameFromProcess(pid)
+	if err == nil && appName != "" {
+		log.Logger.Info("Found APP_NAME environment variable in process", "APP_NAME", appName, "pid", pid)
+		serviceName = appName
+
+		// Add APP_NAME as a resource attribute
+		settings.ResourceAttributes = append(settings.ResourceAttributes,
+			attribute.String("app.name", appName))
+	} else if appName == "" {
+		// Only use workload name as fallback if service name is empty or default
+		// If APP_NAME is not found, use the workload name as a fallback
+		log.Logger.Info("APP_NAME not found in process environment, using workload name as fallback", "pid", pid)
+
+		// Extract workload name from resource attributes
+		workloadName := extractWorkloadName(settings.ResourceAttributes)
+		if workloadName != "" {
+			log.Logger.Info("Using workload name as service name", "workloadName", workloadName)
+			serviceName = workloadName
+
+			// Add workload name as app.name attribute
+			settings.ResourceAttributes = append(settings.ResourceAttributes,
+				attribute.String("app.name", workloadName))
+		} else {
+			log.Logger.Info("No workload name found in resource attributes", "resourceAttributes", settings.ResourceAttributes)
+			log.Logger.Info("falling back to using existing service name", "serviceName", serviceName)
+		}
+	} else {
+		log.Logger.Info("Using existing service name", "serviceName", serviceName)
+	}
+
+	log.Logger.Info("Creating Go instrumentation",
+		"pid", pid,
+		"serviceName", serviceName,
+		"resourceAttributes", settings.ResourceAttributes)
+
+	// For complex objects, you might want to use JSON formatting
+	configJSON, _ := json.Marshal(initialConfig)
+	log.Logger.Info("Initial configuration",
+		"config", string(configJSON))
+
+	// Log resource attributes properly
+	for i, attr := range settings.ResourceAttributes {
+		log.Logger.Info("Resource attribute",
+			"index", i,
+			"key", attr.Key,
+			"value", attr.Value)
+	}
+
+	log.Logger.Info("creating new instrumentation with settings")
+
 	inst, err := auto.NewInstrumentation(
 		ctx,
 		auto.WithEnv(), // for OTEL_LOG_LEVEL
 		auto.WithPID(pid),
 		auto.WithResourceAttributes(settings.ResourceAttributes...),
-		auto.WithServiceName(settings.ServiceName),
+		auto.WithServiceName(serviceName),
 		auto.WithTraceExporter(defaultExporter),
 		auto.WithGlobal(),
 		auto.WithConfigProvider(cp),
@@ -64,6 +125,28 @@ func (g *GoInstrumentationFactory) CreateInstrumentation(ctx context.Context, pi
 	}
 
 	return &GoOtelEbpfSdk{inst: inst, cp: cp}, nil
+}
+
+// readAppNameFromProcess attempts to read the APP_NAME environment variable from a process
+func readAppNameFromProcess(pid int) (string, error) {
+	log.Logger.Info("Reading APP_NAME from process environment", "pid", pid)
+	// Read environment variables from /proc/{pid}/environ
+	environPath := fmt.Sprintf("/proc/%d/environ", pid)
+	environBytes, err := os.ReadFile(environPath)
+	if err != nil {
+		return "", fmt.Errorf("failed to read process environment: %w", err)
+	}
+
+	// Environment variables are null-separated
+	environ := strings.Split(string(environBytes), "\x00")
+	// log.Logger.Info("readAppNameFromProcess environ", "environ", environ)
+	for _, env := range environ {
+		if strings.HasPrefix(env, "APP_NAME=") {
+			return strings.TrimPrefix(env, "APP_NAME="), nil
+		}
+	}
+
+	return "", fmt.Errorf("APP_NAME environment variable not found")
 }
 
 func (g *GoOtelEbpfSdk) Run(ctx context.Context) error {
@@ -115,4 +198,37 @@ func convertToGoInstrumentationConfig(sdkConfig instrumentation.Config) (auto.In
 	// TODO: take sampling config from the CR
 	ic.Sampler = auto.DefaultSampler()
 	return ic, nil
+}
+
+// extractWorkloadName extracts the workload name from resource attributes
+// It checks for deployment, statefulset, or daemonset names in order
+func extractWorkloadName(attrs []attribute.KeyValue) string {
+	// Check for deployment name first
+	for _, attr := range attrs {
+		if attr.Key == attribute.Key("k8s.deployment.name") {
+			return attr.Value.AsString()
+		}
+	}
+
+	return ""
+}
+
+// extractPodName extracts the pod name from resource attributes
+func extractPodName(attrs []attribute.KeyValue) string {
+	for _, attr := range attrs {
+		if attr.Key == attribute.Key("k8s.pod.name") {
+			return attr.Value.AsString()
+		}
+	}
+	return ""
+}
+
+// extractNamespace extracts the namespace from resource attributes
+func extractNamespace(attrs []attribute.KeyValue) string {
+	for _, attr := range attrs {
+		if attr.Key == attribute.Key("k8s.namespace.name") {
+			return attr.Value.AsString()
+		}
+	}
+	return ""
 }

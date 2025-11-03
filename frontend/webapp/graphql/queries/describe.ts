@@ -1,8 +1,8 @@
 import { gql } from '@apollo/client';
 
-export const DESCRIBE_ODIGOS = gql`
-  query DescribeOdigos {
-    describeOdigos {
+export const DESCRIBE_CK = gql`
+  query DescribeCodeKarma {
+    describeCodeKarma {
       odigosVersion {
         name
         value
@@ -236,7 +236,7 @@ export const DESCRIBE_SOURCE = gql`
           }
         }
       }
-      instrumentedApplication {
+      karmaInstrumentedApplication {
         created {
           name
           value
@@ -338,7 +338,7 @@ export const DESCRIBE_SOURCE = gql`
             status
             explain
           }
-          instrumentationInstances {
+          karmaInstrumentationInstances {
             healthy {
               name
               value

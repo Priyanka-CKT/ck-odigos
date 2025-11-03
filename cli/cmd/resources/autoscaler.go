@@ -320,7 +320,7 @@ func NewAutoscalerClusterRole() *rbacv1.ClusterRole {
 					"get",
 					"list",
 				},
-				APIGroups: []string{"actions.odigos.io"},
+				APIGroups: []string{"actions.codekarma.tech"},
 				Resources: []string{"addclusterinfos", "deleteattributes", "renameattributes", "probabilisticsamplers", "piimaskings", "latencysamplers", "errorsamplers"},
 			},
 			{
@@ -329,7 +329,7 @@ func NewAutoscalerClusterRole() *rbacv1.ClusterRole {
 					"patch",
 					"update",
 				},
-				APIGroups: []string{"actions.odigos.io"},
+				APIGroups: []string{"actions.codekarma.tech"},
 				Resources: []string{"addclusterinfos/status", "deleteattributes/status", "renameattributes/status", "probabilisticsamplers/status", "piimaskings/status", "latencysamplers/status", "errorsamplers/status"},
 			},
 			{

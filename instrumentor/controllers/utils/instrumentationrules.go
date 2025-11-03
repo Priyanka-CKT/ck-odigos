@@ -7,7 +7,7 @@ import (
 
 // naive implementation, can be optimized.
 // assumption is that the list of workloads is small
-func IsWorkloadParticipatingInRule(workload workload.PodWorkload, rule *odigosv1alpha1.InstrumentationRule) bool {
+func IsWorkloadParticipatingInRule(workload workload.PodWorkload, rule *odigosv1alpha1.KarmaInstrumentationRule) bool {
 	// nil means all workloads are participating
 	if rule.Spec.Workloads == nil {
 		return true

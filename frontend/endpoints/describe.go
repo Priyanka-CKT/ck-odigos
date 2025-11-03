@@ -11,7 +11,7 @@ import (
 func DescribeOdigos(c *gin.Context) {
 	ctx := c.Request.Context()
 	odiogosNs := env.GetCurrentNamespace()
-	desc, err := describe.DescribeOdigos(ctx, kube.DefaultClient, kube.DefaultClient.OdigosClient, odiogosNs)
+	desc, err := describe.DescribeOdigos(ctx, kube.DefaultClient, kube.DefaultClient.CodekarmaClient, odiogosNs)
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": err.Error(),
@@ -40,11 +40,11 @@ func DescribeSource(c *gin.Context, ns string, kind string, name string) {
 	var err error
 	switch kind {
 	case "deployment":
-		desc, err = describe.DescribeDeployment(ctx, kube.DefaultClient.Interface, kube.DefaultClient.OdigosClient, ns, name)
+		desc, err = describe.DescribeDeployment(ctx, kube.DefaultClient.Interface, kube.DefaultClient.CodekarmaClient, ns, name)
 	case "daemonset":
-		desc, err = describe.DescribeDaemonSet(ctx, kube.DefaultClient.Interface, kube.DefaultClient.OdigosClient, ns, name)
+		desc, err = describe.DescribeDaemonSet(ctx, kube.DefaultClient.Interface, kube.DefaultClient.CodekarmaClient, ns, name)
 	case "statefulset":
-		desc, err = describe.DescribeStatefulSet(ctx, kube.DefaultClient.Interface, kube.DefaultClient.OdigosClient, ns, name)
+		desc, err = describe.DescribeStatefulSet(ctx, kube.DefaultClient.Interface, kube.DefaultClient.CodekarmaClient, ns, name)
 	default:
 		c.JSON(404, gin.H{
 			"message": "kind not supported",

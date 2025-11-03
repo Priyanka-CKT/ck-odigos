@@ -41,10 +41,15 @@ func k8sLastTransitionTimeToGql(t v1.Time) *string {
 	return &str
 }
 
-func instrumentedApplicationToActualSource(instrumentedApp v1alpha1.InstrumentedApplication) *gqlmodel.K8sActualSource {
+func instrumentedApplicationToActualSource(instrumentedApp v1alpha1.KarmaInstrumentedApplication) *gqlmodel.K8sActualSource {
 	// Map the container runtime details
 	var containers []*gqlmodel.SourceContainerRuntimeDetails
 	for _, container := range instrumentedApp.Spec.RuntimeDetails {
+		println("Container Language:", string(container.Language))
+		// Filter to include only containers with Language "Java" or "Go"
+		// if container.Language != "java" && container.Language != "go" {
+		// 	continue
+		// }
 		var otherAgentName *string
 		if container.OtherAgent != nil {
 			otherAgentName = &container.OtherAgent.Name

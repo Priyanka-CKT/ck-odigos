@@ -33,7 +33,7 @@ import (
 
 // FakeCollectorsGroups implements CollectorsGroupInterface
 type FakeCollectorsGroups struct {
-	Fake *FakeOdigosV1alpha1
+	Fake *FakeCodekarmaV1alpha1
 	ns   string
 }
 

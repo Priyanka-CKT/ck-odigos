@@ -35,7 +35,7 @@ export const ActionDrawer: React.FC<Props> = () => {
       } else {
         const { item } = selectedItem as { item: ActionDataParsed };
         const { id } = item;
-        setSelectedItem({ id, type: OVERVIEW_ENTITY_TYPES.ACTION, item: buildDrawerItem(id, formData, item) });
+        setSelectedItem({ id, type: 'action' as any, item: buildDrawerItem(id, formData, item) });
       }
     },
   });
@@ -82,14 +82,14 @@ export const ActionDrawer: React.FC<Props> = () => {
   };
 
   const handleDelete = async () => {
-    await deleteAction(id, item.type);
+    await deleteAction();
   };
 
   const handleSave = async (newTitle: string) => {
     if (validateForm({ withAlert: true, alertTitle: ACTION.UPDATE })) {
       const title = newTitle !== item.type ? newTitle : '';
       handleFormChange('name', title);
-      await updateAction(id, { ...formData, name: title });
+      await updateAction();
     }
   };
 

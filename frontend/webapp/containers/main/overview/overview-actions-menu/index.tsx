@@ -1,9 +1,9 @@
 import React from 'react';
 import { Search } from './search';
-import { Filters } from './filters';
+// import { Filters } from './filters';
 import styled from 'styled-components';
 import { AddEntity } from '@/components';
-import { Divider, MonitorsIcons, TabList } from '@/reuseable-components';
+import { Divider, TabList } from '@/reuseable-components';
 
 const MenuContainer = styled.div`
   display: flex;
@@ -24,8 +24,7 @@ export const OverviewActionsMenu = () => {
       <TabList />
       <Divider orientation='vertical' length='20px' margin='0' />
       <Search />
-      <Filters />
-      <MonitorsIcons withLabels />
+     {/* // <Filters /> */}
 
       <PushToEnd>
         <AddEntity />

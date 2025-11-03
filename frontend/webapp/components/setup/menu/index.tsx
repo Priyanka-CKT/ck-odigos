@@ -79,19 +79,20 @@ export const SideMenu: React.FC<{ data?: StepProps[]; currentStep?: number }> = 
       stepNumber: 1,
     },
     {
-      title: 'SOURCES',
+      title: 'APPLICATIONS',
       state: 'active',
       subtitle: '',
 
       stepNumber: 2,
     },
-    {
-      title: 'DESTINATIONS',
-      state: 'disabled',
-      stepNumber: 3,
-    },
+    // {
+    //   title: 'DESTINATIONS',
+    //   state: 'disabled',
+    //   stepNumber: 3,
+    // },
   ];
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     if (currentStep) {
       const currentSteps = (data || steps).map((step, index) => {

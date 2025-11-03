@@ -19,13 +19,17 @@ export const LanguageDropdown: React.FC<Props> = ({ title = 'Programming Languag
   const options = useMemo(() => {
     const payload: DropdownOption[] = [];
 
-    sources.forEach(({ instrumentedApplicationDetails: { containers } }) => {
-      containers.forEach(({ language }) => {
-        if (!payload.find((opt) => opt.id === language)) {
-          payload.push({ id: language, value: language });
+    if (sources && Array.isArray(sources)) {
+      sources.forEach((source) => {
+        if (source.instrumentedApplicationDetails?.containers && Array.isArray(source.instrumentedApplicationDetails.containers)) {
+          source.instrumentedApplicationDetails.containers.forEach(({ language }) => {
+            if (language && !payload.find((opt) => opt.id === language)) {
+              payload.push({ id: language, value: language });
+            }
+          });
         }
       });
-    });
+    }
 
     return payload.sort((a, b) => a.id.localeCompare(b.id));
   }, [sources]);

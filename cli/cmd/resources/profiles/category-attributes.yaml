@@ -354,7 +354,7 @@ spec:
               value: "web"                               
           # Python
           # HTTP
-          "instrumentation.odigos.io/ebpf/aiohttp_client":
+          "instrumentation.codekarma.tech/ebpf/aiohttp_client":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -363,7 +363,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/asgi":
+          "instrumentation.codekarma.tech/ebpf/asgi":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -372,7 +372,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/boto":
+          "instrumentation.codekarma.tech/ebpf/boto":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -381,7 +381,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/django":
+          "instrumentation.codekarma.tech/ebpf/django":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -390,7 +390,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/falcon":
+          "instrumentation.codekarma.tech/ebpf/falcon":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -399,7 +399,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/fastapi":
+          "instrumentation.codekarma.tech/ebpf/fastapi":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -408,7 +408,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/flask":
+          "instrumentation.codekarma.tech/ebpf/flask":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -417,7 +417,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/httpx":
+          "instrumentation.codekarma.tech/ebpf/httpx":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -426,7 +426,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/pyramid":
+          "instrumentation.codekarma.tech/ebpf/pyramid":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -435,7 +435,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/starlette":
+          "instrumentation.codekarma.tech/ebpf/starlette":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -444,7 +444,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/tornado":
+          "instrumentation.codekarma.tech/ebpf/tornado":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -453,7 +453,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/urllib":
+          "instrumentation.codekarma.tech/ebpf/urllib":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -462,7 +462,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/requests":
+          "instrumentation.codekarma.tech/ebpf/requests":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -471,7 +471,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/urllib3":
+          "instrumentation.codekarma.tech/ebpf/urllib3":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -480,7 +480,7 @@ spec:
               from_field: "http.request.method"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/wsgi":
+          "instrumentation.codekarma.tech/ebpf/wsgi":
             - new_attribute: "odigos.category"
               value: "HTTP"
             - new_attribute: "odigos.sub_category"
@@ -490,105 +490,105 @@ spec:
             - new_attribute: "odigos.transaction.type"
               value: "web"
           # Database
-          "instrumentation.odigos.io/ebpf/aiopg":
+          "instrumentation.codekarma.tech/ebpf/aiopg":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/asyncpg":
+          "instrumentation.codekarma.tech/ebpf/asyncpg":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/cassandra":
+          "instrumentation.codekarma.tech/ebpf/cassandra":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/dbapi":
+          "instrumentation.codekarma.tech/ebpf/dbapi":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/elasticsearch":
+          "instrumentation.codekarma.tech/ebpf/elasticsearch":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/mysql":
+          "instrumentation.codekarma.tech/ebpf/mysql":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/mysqlclient":
+          "instrumentation.codekarma.tech/ebpf/mysqlclient":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/psycopg2":
+          "instrumentation.codekarma.tech/ebpf/psycopg2":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/pymemcache":
+          "instrumentation.codekarma.tech/ebpf/pymemcache":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/pymongo":
+          "instrumentation.codekarma.tech/ebpf/pymongo":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/pymysql":
+          "instrumentation.codekarma.tech/ebpf/pymysql":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/redis":
+          "instrumentation.codekarma.tech/ebpf/redis":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/sqlalchemy":
+          "instrumentation.codekarma.tech/ebpf/sqlalchemy":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/sqlite3":
+          "instrumentation.codekarma.tech/ebpf/sqlite3":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
               from_field: "db.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/tortoiseorm":
+          "instrumentation.codekarma.tech/ebpf/tortoiseorm":
             - new_attribute: "odigos.category"
               value: "Database"
             - new_attribute: "odigos.sub_category"
@@ -597,49 +597,49 @@ spec:
               value: "non-web"
 
           # Messaging Queues
-          "instrumentation.odigos.io/ebpf/aio_pika":
+          "instrumentation.codekarma.tech/ebpf/aio_pika":
             - new_attribute: "odigos.category"
               value: "Messaging queues"
             - new_attribute: "odigos.sub_category"
               from_field: "messaging.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/boto3sqs":
+          "instrumentation.codekarma.tech/ebpf/boto3sqs":
             - new_attribute: "odigos.category"
               value: "Messaging queues"
             - new_attribute: "odigos.sub_category"
               from_field: "messaging.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/celery":
+          "instrumentation.codekarma.tech/ebpf/celery":
             - new_attribute: "odigos.category"
               value: "Messaging queues"
             - new_attribute: "odigos.sub_category"
               from_field: "messaging.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/confluent_kafka":
+          "instrumentation.codekarma.tech/ebpf/confluent_kafka":
             - new_attribute: "odigos.category"
               value: "Messaging queues"
             - new_attribute: "odigos.sub_category"
               from_field: "messaging.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/kafka":
+          "instrumentation.codekarma.tech/ebpf/kafka":
             - new_attribute: "odigos.category"
               value: "Messaging queues"
             - new_attribute: "odigos.sub_category"
               from_field: "messaging.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/pika":
+          "instrumentation.codekarma.tech/ebpf/pika":
             - new_attribute: "odigos.category"
               value: "Messaging queues"
             - new_attribute: "odigos.sub_category"
               from_field: "messaging.system"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/remoulade":
+          "instrumentation.codekarma.tech/ebpf/remoulade":
             - new_attribute: "odigos.category"
               value: "Messaging queues"
             - new_attribute: "odigos.sub_category"
@@ -647,14 +647,14 @@ spec:
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
           # RPC Systems
-          "instrumentation.odigos.io/ebpf/botocore":
+          "instrumentation.codekarma.tech/ebpf/botocore":
             - new_attribute: "odigos.category"
               value: "RPC Systems"
             - new_attribute: "odigos.sub_category"
               from_field: "rpc.system"
             - new_attribute: "odigos.transaction.type"
               value: "web"
-          "instrumentation.odigos.io/ebpf/grpc":
+          "instrumentation.codekarma.tech/ebpf/grpc":
             - new_attribute: "odigos.category"
               value: "RPC Systems"
             - new_attribute: "odigos.sub_category"
@@ -663,21 +663,21 @@ spec:
               value: "web"
 
           # Programming Language
-          "instrumentation.odigos.io/ebpf/asyncio":
+          "instrumentation.codekarma.tech/ebpf/asyncio":
             - new_attribute: "odigos.category"
               value: "Programming Language"
             - new_attribute: "odigos.sub_category"
               from_field: "telemetry.sdk.language"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/jinja2":
+          "instrumentation.codekarma.tech/ebpf/jinja2":
             - new_attribute: "odigos.category"
               value: "Programming Language"
             - new_attribute: "odigos.sub_category"
               from_field: "telemetry.sdk.language"
             - new_attribute: "odigos.transaction.type"
               value: "non-web"
-          "instrumentation.odigos.io/ebpf/sklearn":
+          "instrumentation.codekarma.tech/ebpf/sklearn":
             - new_attribute: "odigos.category"
               value: "Programming Language"
             - new_attribute: "odigos.sub_category"

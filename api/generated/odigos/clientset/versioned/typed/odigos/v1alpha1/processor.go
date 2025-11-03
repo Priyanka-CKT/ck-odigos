@@ -59,7 +59,7 @@ type processors struct {
 }
 
 // newProcessors returns a Processors
-func newProcessors(c *OdigosV1alpha1Client, namespace string) *processors {
+func newProcessors(c *CodekarmaV1alpha1Client, namespace string) *processors {
 	return &processors{
 		gentype.NewClientWithListAndApply[*v1alpha1.Processor, *v1alpha1.ProcessorList, *odigosv1alpha1.ProcessorApplyConfiguration](
 			"processors",

@@ -12,22 +12,22 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-type InstrumentationRuleReconciler struct {
+type KarmaInstrumentationRuleReconciler struct {
 	client.Client
 	Scheme *runtime.Scheme
 }
 
-func (r *InstrumentationRuleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *KarmaInstrumentationRuleReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 
 	logger := log.FromContext(ctx)
 
-	instrumentationRules := &odigosv1alpha1.InstrumentationRuleList{}
+	instrumentationRules := &odigosv1alpha1.KarmaInstrumentationRuleList{}
 	err := r.Client.List(ctx, instrumentationRules)
 	if err != nil {
 		return ctrl.Result{}, err
 	}
 
-	instrumentedApplications := &odigosv1alpha1.InstrumentedApplicationList{}
+	instrumentedApplications := &odigosv1alpha1.KarmaInstrumentedApplicationList{}
 	err = r.Client.List(ctx, instrumentedApplications)
 	if err != nil {
 		return ctrl.Result{}, err
@@ -44,7 +44,7 @@ func (r *InstrumentationRuleReconciler) Reconcile(ctx context.Context, req ctrl.
 			logger.Error(err, "error resolving service name", "workload", ia.Name)
 			continue
 		}
-		ic := &odigosv1alpha1.InstrumentationConfig{}
+		ic := &odigosv1alpha1.KarmaInstrumentationConfig{}
 		err = r.Client.Get(ctx, client.ObjectKey{Name: ia.Name, Namespace: ia.Namespace}, ic)
 		if err != nil {
 			if apierrors.IsNotFound(err) {
@@ -55,7 +55,7 @@ func (r *InstrumentationRuleReconciler) Reconcile(ctx context.Context, req ctrl.
 			}
 		}
 
-		err = updateInstrumentationConfigForWorkload(ic, &ia, instrumentationRules, serviceName)
+		err = updateKarmaInstrumentationConfigForWorkload(ic, &ia, instrumentationRules, serviceName)
 		if err != nil {
 			logger.Error(err, "error updating instrumentation config", "workload", ia.Name)
 			continue

@@ -33,7 +33,7 @@ type Client struct {
 	Clientset     *kubernetes.Clientset
 	Dynamic       *dynamic.DynamicClient
 	ApiExtensions apiextensionsclient.Interface
-	OdigosClient  v1alpha1.OdigosV1alpha1Interface
+	OdigosClient  v1alpha1.CodekarmaV1alpha1Interface
 	Config        *rest.Config
 }
 

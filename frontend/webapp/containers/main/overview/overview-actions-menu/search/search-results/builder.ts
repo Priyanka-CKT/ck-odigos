@@ -6,23 +6,23 @@ export const buildSearchResults = ({
   rules,
   sources,
   actions,
-  destinations,
+  destinations = [],
   searchText,
   selectedCategory,
 }: {
   rules: InstrumentationRuleSpec[];
   sources: K8sActualSource[];
   actions: ActionDataParsed[];
-  destinations: ActualDestination[];
+  destinations?: ActualDestination[];
   searchText: string;
   selectedCategory: Category;
 }) => {
-  const filteredRules = !searchText ? rules : rules.filter((rule) => rule.type?.toLowerCase().includes(searchText) || rule.ruleName?.toLowerCase().includes(searchText));
+  // const filteredRules = !searchText ? rules : rules.filter((rule) => rule.type?.toLowerCase().includes(searchText) || rule.ruleName?.toLowerCase().includes(searchText));
   const filteredSources = !searchText ? sources : sources.filter((source) => source.name?.toLowerCase().includes(searchText) || source.reportedName?.toLowerCase().includes(searchText));
-  const filteredActions = !searchText ? actions : actions.filter((action) => action.type?.toLowerCase().includes(searchText) || action.spec.actionName?.toLowerCase().includes(searchText));
-  const filteredDestinations = !searchText
-    ? destinations
-    : destinations.filter((destination) => destination.destinationType.displayName?.toLowerCase().includes(searchText) || destination.name?.toLowerCase().includes(searchText));
+  // const filteredActions = !searchText ? actions : actions.filter((action) => action.type?.toLowerCase().includes(searchText) || action.spec.actionName?.toLowerCase().includes(searchText));
+  // const filteredDestinations = !searchText
+  //   ? destinations
+  //   : destinations.filter((destination) => destination.destinationType.displayName?.toLowerCase().includes(searchText) || destination.name?.toLowerCase().includes(searchText));
 
   const categories: {
     category: Category;
@@ -32,34 +32,34 @@ export const buildSearchResults = ({
   }[] = [
     {
       category: OVERVIEW_ENTITY_TYPES.SOURCE,
-      label: 'Sources',
+      label: 'Applications',
       count: filteredSources.length,
       entities: [],
     },
-    {
-      category: OVERVIEW_ENTITY_TYPES.ACTION,
-      label: 'Actions',
-      count: filteredActions.length,
-      entities: [],
-    },
-    {
-      category: OVERVIEW_ENTITY_TYPES.DESTINATION,
-      label: 'Destinations',
-      count: filteredDestinations.length,
-      entities: [],
-    },
-    {
-      category: OVERVIEW_ENTITY_TYPES.RULE,
-      label: 'Instrumentation Rules',
-      count: filteredRules.length,
-      entities: [],
-    },
+    // {
+    //   category: OVERVIEW_ENTITY_TYPES.ACTION,
+    //   label: 'Actions',
+    //   count: filteredActions.length,
+    //   entities: [],
+    // },
+    // {
+    //   category: OVERVIEW_ENTITY_TYPES.DESTINATION,
+    //   label: 'Destinations',
+    //   count: filteredDestinations.length,
+    //   entities: [],
+    // },
+    // {
+    //   category: OVERVIEW_ENTITY_TYPES.RULE,
+    //   label: 'Instrumentation Rules',
+    //   count: filteredRules.length,
+    //   entities: [],
+    // },
   ];
 
   categories.unshift({
     category: 'all',
     label: 'All',
-    count: filteredRules.length + filteredSources.length + filteredActions.length + filteredDestinations.length,
+    count: filteredSources.length, // Only count sources
     entities: [],
   });
 
@@ -68,14 +68,8 @@ export const buildSearchResults = ({
     .map((item) => ({
       ...item,
       entities:
-        item.category === OVERVIEW_ENTITY_TYPES.RULE
-          ? filteredRules
-          : item.category === OVERVIEW_ENTITY_TYPES.SOURCE
-          ? filteredSources
-          : item.category === OVERVIEW_ENTITY_TYPES.ACTION
-          ? filteredActions
-          : item.category === OVERVIEW_ENTITY_TYPES.DESTINATION
-          ? filteredDestinations
+        item.category === OVERVIEW_ENTITY_TYPES.SOURCE
+          ? filteredSources 
           : [],
     }));
 

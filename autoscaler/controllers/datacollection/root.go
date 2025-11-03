@@ -22,7 +22,7 @@ const (
 func Sync(ctx context.Context, c client.Client, scheme *runtime.Scheme, imagePullSecrets []string, odigosVersion string, k8sVersion *version.Version, disableNameProcessor bool) error {
 	logger := log.FromContext(ctx)
 
-	var instApps odigosv1.InstrumentedApplicationList
+	var instApps odigosv1.KarmaInstrumentedApplicationList
 	if err := c.List(ctx, &instApps); err != nil {
 		logger.Error(err, "Failed to list instrumented apps")
 		return err
@@ -55,7 +55,7 @@ func Sync(ctx context.Context, c client.Client, scheme *runtime.Scheme, imagePul
 	return syncDataCollection(&instApps, &dests, &processors, &dataCollectionCollectorGroup, ctx, c, scheme, imagePullSecrets, odigosVersion, k8sVersion, disableNameProcessor)
 }
 
-func syncDataCollection(instApps *odigosv1.InstrumentedApplicationList, dests *odigosv1.DestinationList, processors *odigosv1.ProcessorList,
+func syncDataCollection(instApps *odigosv1.KarmaInstrumentedApplicationList, dests *odigosv1.DestinationList, processors *odigosv1.ProcessorList,
 	dataCollection *odigosv1.CollectorsGroup, ctx context.Context, c client.Client,
 	scheme *runtime.Scheme, imagePullSecrets []string, odigosVersion string, k8sVersion *version.Version, disableNameProcessor bool) error {
 	logger := log.FromContext(ctx)

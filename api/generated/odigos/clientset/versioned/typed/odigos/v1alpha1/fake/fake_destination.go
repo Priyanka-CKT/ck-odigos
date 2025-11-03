@@ -33,7 +33,7 @@ import (
 
 // FakeDestinations implements DestinationInterface
 type FakeDestinations struct {
-	Fake *FakeOdigosV1alpha1
+	Fake *FakeCodekarmaV1alpha1
 	ns   string
 }
 

@@ -21,7 +21,7 @@ var _ = Describe("envoverwrite", func() {
 	ctx := context.Background()
 	var namespace *corev1.Namespace
 	var deployment *appsv1.Deployment
-	var instrumentedApplication *odigosv1.InstrumentedApplication
+	var instrumentedApplication *odigosv1.KarmaInstrumentedApplication
 
 	testProgrammingLanguagePython := common.PythonProgrammingLanguage
 	deploymentSdk := common.OtelSdkNativeCommunity
@@ -55,7 +55,7 @@ var _ = Describe("envoverwrite", func() {
 		It("should not add env vars to deployment", func() {
 			// initial state - no env varas in manifest or dockerfile
 			// and odigos haven't yet injected it's env, so the deployment should have no env vars
-			instrumentedApplication = testutil.NewMockInstrumentedApplication(deployment)
+			instrumentedApplication = testutil.NewMockKarmaInstrumentedApplication(deployment)
 			Expect(k8sClient.Create(ctx, instrumentedApplication)).Should(Succeed())
 
 			// odigos env is the only one, so no need to inject anything to the manifest
@@ -65,7 +65,7 @@ var _ = Describe("envoverwrite", func() {
 			// via the instrumentation device.
 			// instrumented application should be updated with the odigos env
 			k8sClient.Get(ctx, client.ObjectKeyFromObject(instrumentedApplication), instrumentedApplication)
-			instrumentedApplication = testutil.SetInstrumentedApplicationContainer(instrumentedApplication, &testEnvVarPythonPath, &testEnvOdigosValue, testProgrammingLanguagePython)
+			instrumentedApplication = testutil.SetKarmaInstrumentedApplicationContainer(instrumentedApplication, &testEnvVarPythonPath, &testEnvOdigosValue, testProgrammingLanguagePython)
 			Expect(k8sClient.Update(ctx, instrumentedApplication)).Should(Succeed())
 			testutil.AssertDepContainerEnvRemainEmpty(ctx, k8sClient, deployment)
 
@@ -88,7 +88,7 @@ var _ = Describe("envoverwrite", func() {
 
 		It("Should add the dockerfile env and odigos env to manifest and successfully revert", func() {
 			// initial state - should capture the env var from dockerfile only
-			instrumentedApplication = testutil.SetInstrumentedApplicationContainer(testutil.NewMockInstrumentedApplication(deployment), &testEnvVarPythonPath, &userEnvValue, testProgrammingLanguagePython)
+			instrumentedApplication = testutil.SetKarmaInstrumentedApplicationContainer(testutil.NewMockKarmaInstrumentedApplication(deployment), &testEnvVarPythonPath, &userEnvValue, testProgrammingLanguagePython)
 			Expect(k8sClient.Create(ctx, instrumentedApplication)).Should(Succeed())
 
 			// odigos should merge the value from dockerfile and odigos env
@@ -118,7 +118,7 @@ var _ = Describe("envoverwrite", func() {
 		})
 
 		It("Should not add the unrelated env vars to the manifest", func() {
-			instrumentedApplication = testutil.SetInstrumentedApplicationContainer(testutil.NewMockInstrumentedApplication(deployment), &testEnvVarPythonPath, &userEnvValue, common.JavaProgrammingLanguage)
+			instrumentedApplication = testutil.SetKarmaInstrumentedApplicationContainer(testutil.NewMockKarmaInstrumentedApplication(deployment), &testEnvVarPythonPath, &userEnvValue, common.JavaProgrammingLanguage)
 			Expect(k8sClient.Create(ctx, instrumentedApplication)).Should(Succeed())
 
 			// odigos found a relevant env var for python, but it should not be injected to the manifest
@@ -130,7 +130,7 @@ var _ = Describe("envoverwrite", func() {
 			// make the SDK for python and java different
 			testutil.SetDefaultSDK(common.JavaProgrammingLanguage, common.OtelSdkEbpfEnterprise)
 
-			instrumentedApplication = testutil.SetInstrumentedApplicationContainer(testutil.NewMockInstrumentedApplication(deployment), &testEnvVarPythonPath, &userEnvValue, common.JavaProgrammingLanguage)
+			instrumentedApplication = testutil.SetKarmaInstrumentedApplicationContainer(testutil.NewMockKarmaInstrumentedApplication(deployment), &testEnvVarPythonPath, &userEnvValue, common.JavaProgrammingLanguage)
 			Expect(k8sClient.Create(ctx, instrumentedApplication)).Should(Succeed())
 
 			// odigos found a relevant env var for python, but it should not be injected to the manifest
@@ -156,7 +156,7 @@ var _ = Describe("envoverwrite", func() {
 
 		It("Should update the manifest with merged value, and revet when uninstrumenting", func() {
 			// initial state - should capture the env var from manifest only
-			instrumentedApplication = testutil.SetInstrumentedApplicationContainer(testutil.NewMockInstrumentedApplication(deployment), &testEnvVarPythonPath, &userEnvValue, testProgrammingLanguagePython)
+			instrumentedApplication = testutil.SetKarmaInstrumentedApplicationContainer(testutil.NewMockKarmaInstrumentedApplication(deployment), &testEnvVarPythonPath, &userEnvValue, testProgrammingLanguagePython)
 			Expect(k8sClient.Create(ctx, instrumentedApplication)).Should(Succeed())
 
 			// odigos should merge the value from manifest and odigos env
@@ -189,7 +189,7 @@ var _ = Describe("envoverwrite", func() {
 
 			// initial state - should capture the env var from manifest only
 			mergedEnvValue := userEnvValue + ":" + testEnvOdigosValue
-			instrumentedApplication = testutil.SetInstrumentedApplicationContainer(testutil.NewMockInstrumentedApplication(deployment), &testEnvVarPythonPath, &userEnvValue, testProgrammingLanguagePython)
+			instrumentedApplication = testutil.SetKarmaInstrumentedApplicationContainer(testutil.NewMockKarmaInstrumentedApplication(deployment), &testEnvVarPythonPath, &userEnvValue, testProgrammingLanguagePython)
 			Expect(k8sClient.Create(ctx, instrumentedApplication)).Should(Succeed())
 			testutil.AssertDepContainerSingleEnv(ctx, k8sClient, deployment, testEnvVarPythonPath, mergedEnvValue)
 
@@ -206,7 +206,7 @@ var _ = Describe("envoverwrite", func() {
 
 			BeforeEach(func() {
 				// change the default SDK to another SDK by creating a rule
-				rule := testutil.NewMockEmptyInstrumentationRule(ruleName, consts.DefaultOdigosNamespace)
+				rule := testutil.NewMockEmptyKarmaInstrumentationRule(ruleName, consts.DefaultOdigosNamespace)
 				Expect(k8sClient.Create(ctx, rule)).Should(Succeed())
 				rule.Spec.OtelSdks = &instrumentationrules.OtelSdks{
 					OtelSdkByLanguage: map[common.ProgrammingLanguage]common.OtelSdk{
@@ -218,7 +218,7 @@ var _ = Describe("envoverwrite", func() {
 
 			AfterEach(func() {
 				// revert the default SDK back to the original value by deleting the rule
-				var rule odigosv1.InstrumentationRule
+				var rule odigosv1.KarmaInstrumentationRule
 				Expect(k8sClient.Get(ctx, types.NamespacedName{Name: ruleName, Namespace: consts.DefaultOdigosNamespace}, &rule)).Should(Succeed())
 				Expect(k8sClient.Delete(ctx, &rule)).Should(Succeed())
 			})
@@ -254,7 +254,7 @@ var _ = Describe("envoverwrite", func() {
 
 			// initial state - should capture the env var from manifest only
 			mergedEnvValue = userEnvValue + ":" + testEnvOdigosValue
-			instrumentedApplication = testutil.SetInstrumentedApplicationContainer(testutil.NewMockInstrumentedApplication(deployment), &testEnvVarPythonPath, &userEnvValue, testProgrammingLanguagePython)
+			instrumentedApplication = testutil.SetKarmaInstrumentedApplicationContainer(testutil.NewMockKarmaInstrumentedApplication(deployment), &testEnvVarPythonPath, &userEnvValue, testProgrammingLanguagePython)
 			Expect(k8sClient.Create(ctx, instrumentedApplication)).Should(Succeed())
 			testutil.AssertDepContainerSingleEnv(ctx, k8sClient, deployment, testEnvVarPythonPath, mergedEnvValue)
 

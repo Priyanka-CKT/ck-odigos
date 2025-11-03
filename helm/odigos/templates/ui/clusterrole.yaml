@@ -51,7 +51,7 @@ rules:
       - update
       - patch
   - apiGroups:
-      - odigos.io
+      - codekarma.tech
     resources:
       - "*"
     verbs:
@@ -63,7 +63,7 @@ rules:
       - delete
       - update
   - apiGroups:
-      - actions.odigos.io
+      - actions.codekarma.tech
     resources:
       - "*"
     verbs:

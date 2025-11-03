@@ -55,8 +55,6 @@ export const DestinationsList: React.FC<DestinationsListProps> = ({ items, setSe
               title={destinationItem.displayName}
               iconSrc={destinationItem.imageUrl}
               hoverText='Select'
-              monitors={Object.keys(destinationItem.supportedSignals).filter((signal) => destinationItem.supportedSignals[signal].supported)}
-              monitorsWithLabels
               onClick={() => setSelectedItems(destinationItem)}
             />
           ))}

@@ -41,7 +41,7 @@ const (
 	defaultLimitCPUm = 500
 )
 
-func getResourceSettings(odigosConfig common.OdigosConfiguration) odigosv1.CollectorsGroupResourcesSettings {
+func getResourceSettings(codekarmaConfig common.CodekarmaConfiguration) odigosv1.CollectorsGroupResourcesSettings {
 	// memory request is expensive on daemonsets since it will consume this memory
 	// on each node in the cluster. setting to 256, but allowing memory to spike higher
 	// to consume more available memory on the node.
@@ -58,7 +58,7 @@ func getResourceSettings(odigosConfig common.OdigosConfiguration) odigosv1.Colle
 	// - limit is set way above request: in case of memory spike, collector will use extra memory available on the node to buffer data, but might get killed by OOM killer if this memory is not available.
 	// currently choosing 512MiB as a balance (200MiB guaranteed for heap, and the rest ~300MiB of buffer from node before start dropping).
 
-	nodeCollectorConfig := odigosConfig.CollectorNode
+	nodeCollectorConfig := codekarmaConfig.CollectorNode
 
 	memoryRequestMiB := defaultRequestMemoryMiB
 	if nodeCollectorConfig != nil && nodeCollectorConfig.RequestMemoryMiB > 0 {
@@ -103,17 +103,17 @@ func getResourceSettings(odigosConfig common.OdigosConfiguration) odigosv1.Colle
 	}
 }
 
-func newNodeCollectorGroup(odigosConfig common.OdigosConfiguration) *odigosv1.CollectorsGroup {
+func newNodeCollectorGroup(codekarmaConfig common.CodekarmaConfiguration) *odigosv1.CollectorsGroup {
 
 	ownMetricsPort := k8sutilsconsts.OdigosNodeCollectorOwnTelemetryPortDefault
-	if odigosConfig.CollectorNode != nil && odigosConfig.CollectorNode.CollectorOwnMetricsPort != 0 {
-		ownMetricsPort = odigosConfig.CollectorNode.CollectorOwnMetricsPort
+	if codekarmaConfig.CollectorNode != nil && codekarmaConfig.CollectorNode.CollectorOwnMetricsPort != 0 {
+		ownMetricsPort = codekarmaConfig.CollectorNode.CollectorOwnMetricsPort
 	}
 
 	return &odigosv1.CollectorsGroup{
 		TypeMeta: metav1.TypeMeta{
 			Kind:       "CollectorsGroup",
-			APIVersion: "odigos.io/v1alpha1",
+			APIVersion: "codekarma.tech/v1alpha1",
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      k8sutilsconsts.OdigosNodeCollectorDaemonSetName,
@@ -122,7 +122,7 @@ func newNodeCollectorGroup(odigosConfig common.OdigosConfiguration) *odigosv1.Co
 		Spec: odigosv1.CollectorsGroupSpec{
 			Role:                    odigosv1.CollectorsGroupRoleNodeCollector,
 			CollectorOwnMetricsPort: ownMetricsPort,
-			ResourcesSettings:       getResourceSettings(odigosConfig),
+			ResourcesSettings:       getResourceSettings(codekarmaConfig),
 		},
 	}
 }
@@ -131,10 +131,10 @@ func sync(ctx context.Context, c client.Client) error {
 
 	namespace := env.GetCurrentNamespace()
 
-	var instrumentedConfigs odigosv1.InstrumentationConfigList
+	var instrumentedConfigs odigosv1.KarmaInstrumentationConfigList
 	err := c.List(ctx, &instrumentedConfigs)
 	if err != nil {
-		return errors.Join(errors.New("failed to list InstrumentationConfigs"), err)
+		return errors.Join(errors.New("failed to list KarmaInstrumentationConfigs"), err)
 	}
 	numberOfInstrumentedApps := len(instrumentedConfigs.Items)
 
@@ -148,14 +148,14 @@ func sync(ctx context.Context, c client.Client) error {
 		return client.IgnoreNotFound(err)
 	}
 
-	odigosConfig, err := utils.GetCurrentOdigosConfig(ctx, c)
+	codekarmaConfig, err := utils.GetCurrentCodekarmaConfig(ctx, c)
 	if err != nil {
 		return err
 	}
 
 	clusterCollectorReady := clusterCollectorGroup.Status.Ready
 	if clusterCollectorReady {
-		return utils.ApplyCollectorGroup(ctx, c, newNodeCollectorGroup(odigosConfig))
+		return utils.ApplyCollectorGroup(ctx, c, newNodeCollectorGroup(codekarmaConfig))
 	}
 
 	return nil

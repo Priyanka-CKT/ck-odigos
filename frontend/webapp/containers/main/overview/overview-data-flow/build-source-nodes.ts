@@ -5,6 +5,7 @@ import { type NodePositions } from './get-node-positions';
 import { getMainContainerLanguage } from '@/utils/constants/programming-languages';
 import { getEntityIcon, getEntityLabel, getHealthStatus, getProgrammingLanguageIcon } from '@/utils';
 import { NODE_TYPES, OVERVIEW_ENTITY_TYPES, OVERVIEW_NODE_TYPES, STATUSES, type ComputePlatformMapped } from '@/types';
+import { useAgentStatusStore } from '@/store/useAgentStatusStore';
 
 interface Params {
   loading: boolean;
@@ -18,6 +19,14 @@ interface Params {
 const { nodeWidth, nodeHeight, framePadding } = nodeConfig;
 
 const mapToNodeData = (entity: Params['entities'][0]) => {
+  const { statuses } = useAgentStatusStore.getState();
+  const agentStatus = statuses[entity.name];
+  const isDisabled = agentStatus === 'disabled';
+  
+  // Service is active if agent status is not 'disabled'
+  // 'enabled' and 'unknown' both count as active
+  const isActive = agentStatus !== 'disabled';
+  
   return {
     nodeWidth,
     nodeHeight,
@@ -32,25 +41,27 @@ const mapToNodeData = (entity: Params['entities'][0]) => {
     title: getEntityLabel(entity, OVERVIEW_ENTITY_TYPES.SOURCE, { extended: true }),
     subTitle: entity.kind,
     iconSrc: getProgrammingLanguageIcon(getMainContainerLanguage(entity)),
+    isActive,
+    isDisabled,
     raw: entity,
   };
 };
 
 export const buildSourceNodes = ({ loading, entities, positions, unfilteredCounts, containerHeight, onScroll }: Params) => {
   const nodes: Node[] = [];
-  const position = positions[OVERVIEW_ENTITY_TYPES.SOURCE];
+  const position = positions[OVERVIEW_ENTITY_TYPES.SOURCE] || { x: 0, y: () => 0 };
   const unfilteredCount = unfilteredCounts[OVERVIEW_ENTITY_TYPES.SOURCE];
 
   nodes.push({
     id: 'source-header',
     type: NODE_TYPES.HEADER,
     position: {
-      x: positions[OVERVIEW_ENTITY_TYPES.SOURCE]['x'],
+      x: position.x,
       y: 0,
     },
     data: {
       nodeWidth,
-      title: 'Sources',
+      title: 'Applications',
       icon: getEntityIcon(OVERVIEW_ENTITY_TYPES.SOURCE),
       tagValue: unfilteredCounts[OVERVIEW_ENTITY_TYPES.SOURCE],
     },
@@ -61,8 +72,8 @@ export const buildSourceNodes = ({ loading, entities, positions, unfilteredCount
       id: 'source-skeleton',
       type: NODE_TYPES.SKELETON,
       position: {
-        x: position['x'],
-        y: position['y'](),
+        x: position.x,
+        y: position.y(),
       },
       data: {
         nodeWidth,
@@ -74,15 +85,15 @@ export const buildSourceNodes = ({ loading, entities, positions, unfilteredCount
       id: 'source-add',
       type: NODE_TYPES.ADD,
       position: {
-        x: position['x'],
-        y: position['y'](),
+        x: position.x,
+        y: position.y(),
       },
       data: {
         nodeWidth,
         type: OVERVIEW_NODE_TYPES.ADD_SOURCE,
         status: STATUSES.HEALTHY,
-        title: 'ADD SOURCE',
-        subTitle: `Add ${!!unfilteredCount ? 'a new' : 'first'} source to collect OpenTelemetry data`,
+        title: 'ADD APPLICATION',
+        subTitle: `Add ${!!unfilteredCount ? 'a new' : 'first'} application to get insights`,
       },
     });
   } else {
@@ -90,8 +101,8 @@ export const buildSourceNodes = ({ loading, entities, positions, unfilteredCount
       id: 'source-scroll',
       type: NODE_TYPES.SCROLL,
       position: {
-        x: position['x'],
-        y: position['y']() - framePadding,
+        x: position.x,
+        y: position.y() - framePadding,
       },
       data: {
         nodeWidth,
@@ -112,7 +123,7 @@ export const buildSourceNodes = ({ loading, entities, positions, unfilteredCount
         parentId: 'source-scroll',
         position: {
           x: framePadding,
-          y: position['y'](idx) - (nodeHeight - framePadding),
+          y: position.y(idx) - (nodeHeight - framePadding),
         },
         style: {
           zIndex: -1,

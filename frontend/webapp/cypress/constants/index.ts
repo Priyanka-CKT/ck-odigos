@@ -21,7 +21,7 @@ export const CRD_IDS = {
 
 export const NAMESPACES = {
   DEFAULT: 'default',
-  ODIGOS_SYSTEM: 'odigos-system',
+  ODIGOS_SYSTEM: 'codekarma',
 };
 
 export const SELECTED_ENTITIES = {

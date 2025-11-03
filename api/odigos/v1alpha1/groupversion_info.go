@@ -14,9 +14,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 */
 
-// Package v1alpha1 contains API Schema definitions for the odigos.io v1alpha1 API group
-//+kubebuilder:object:generate=true
-//+groupName=odigos.io
+// Package v1alpha1 contains API Schema definitions for the codekarma.tech v1alpha1 API group
+// +kubebuilder:object:generate=true
+// +groupName=codekarma.tech
 package v1alpha1
 
 import (
@@ -26,7 +26,7 @@ import (
 
 var (
 	// SchemeGroupVersion is group version used to register these objects
-	SchemeGroupVersion = schema.GroupVersion{Group: "odigos.io", Version: "v1alpha1"}
+	SchemeGroupVersion = schema.GroupVersion{Group: "codekarma.tech", Version: "v1alpha1"}
 
 	// SchemeBuilder is used to add go types to the GroupVersionKind scheme
 	SchemeBuilder = &scheme.Builder{GroupVersion: SchemeGroupVersion}

@@ -11,13 +11,13 @@ import (
 	corev1 "k8s.io/api/core/v1"
 )
 
-var _ = Describe("deleteInstrumentedApplication Deployment controller", func() {
+var _ = Describe("deleteKarmaInstrumentedApplication Deployment controller", func() {
 	ctx := context.Background()
 	var namespace *corev1.Namespace
 	var deployment *appsv1.Deployment
-	var instrumentedApplication *odigosv1.InstrumentedApplication
+	var instrumentedApplication *odigosv1.KarmaInstrumentedApplication
 
-	Describe("Delete InstrumentedApplication", func() {
+	Describe("Delete KarmaInstrumentedApplication", func() {
 
 		When("Namespace is not instrumented", func() {
 
@@ -28,20 +28,20 @@ var _ = Describe("deleteInstrumentedApplication Deployment controller", func() {
 				deployment = testutil.SetOdigosInstrumentationEnabled(testutil.NewMockTestDeployment(namespace))
 				Expect(k8sClient.Create(ctx, deployment)).Should(Succeed())
 
-				instrumentedApplication = testutil.NewMockInstrumentedApplication(deployment)
+				instrumentedApplication = testutil.NewMockKarmaInstrumentedApplication(deployment)
 				Expect(k8sClient.Create(ctx, instrumentedApplication)).Should(Succeed())
 			})
 
-			It("InstrumentedApplication deleted after removing instrumentation label from deployment", func() {
+			It("KarmaInstrumentedApplication deleted after removing instrumentation label from deployment", func() {
 				deployment = testutil.DeleteOdigosInstrumentationLabel(deployment)
 				Expect(k8sClient.Update(ctx, deployment)).Should(Succeed())
-				testutil.AssertInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplication)
+				testutil.AssertKarmaInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplication)
 			})
 
-			It("InstrumentedApplication deleted after setting instrumentation label to disabled", func() {
+			It("KarmaInstrumentedApplication deleted after setting instrumentation label to disabled", func() {
 				deployment = testutil.SetOdigosInstrumentationDisabled(deployment)
 				Expect(k8sClient.Update(ctx, deployment)).Should(Succeed())
-				testutil.AssertInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplication)
+				testutil.AssertKarmaInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplication)
 			})
 
 		})
@@ -55,20 +55,20 @@ var _ = Describe("deleteInstrumentedApplication Deployment controller", func() {
 				deployment = testutil.SetOdigosInstrumentationEnabled(testutil.NewMockTestDeployment(namespace))
 				Expect(k8sClient.Create(ctx, deployment)).Should(Succeed())
 
-				instrumentedApplication = testutil.NewMockInstrumentedApplication(deployment)
+				instrumentedApplication = testutil.NewMockKarmaInstrumentedApplication(deployment)
 				Expect(k8sClient.Create(ctx, instrumentedApplication)).Should(Succeed())
 			})
 
-			It("InstrumentedApplication retain when removing instrumentation label from deployment", func() {
+			It("KarmaInstrumentedApplication retain when removing instrumentation label from deployment", func() {
 				deployment = testutil.DeleteOdigosInstrumentationLabel(deployment)
 				Expect(k8sClient.Update(ctx, deployment)).Should(Succeed())
-				testutil.AssertInstrumentedApplicationRetained(ctx, k8sClient, instrumentedApplication)
+				testutil.AssertKarmaInstrumentedApplicationRetained(ctx, k8sClient, instrumentedApplication)
 			})
 
-			It("InstrumentedApplication deleted after setting instrumentation label to disabled", func() {
+			It("KarmaInstrumentedApplication deleted after setting instrumentation label to disabled", func() {
 				deployment = testutil.SetOdigosInstrumentationDisabled(deployment)
 				Expect(k8sClient.Update(ctx, deployment)).Should(Succeed())
-				testutil.AssertInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplication)
+				testutil.AssertKarmaInstrumentedApplicationDeleted(ctx, k8sClient, instrumentedApplication)
 			})
 		})
 	})
@@ -83,7 +83,7 @@ var _ = Describe("deleteInstrumentedApplication Deployment controller", func() {
 			deployment = testutil.SetReportedNameAnnotation(deployment, "test")
 			Expect(k8sClient.Create(ctx, deployment)).Should(Succeed())
 
-			instrumentedApplication = testutil.NewMockInstrumentedApplication(deployment)
+			instrumentedApplication = testutil.NewMockKarmaInstrumentedApplication(deployment)
 			Expect(k8sClient.Create(ctx, instrumentedApplication)).Should(Succeed())
 		})
 

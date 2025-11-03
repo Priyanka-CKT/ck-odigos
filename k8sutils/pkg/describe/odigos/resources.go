@@ -31,14 +31,14 @@ type OdigosResources struct {
 	ClusterCollector       ClusterCollectorResources
 	NodeCollector          NodeCollectorResources
 	Destinations           *odigosv1.DestinationList
-	InstrumentationConfigs *odigosv1.InstrumentationConfigList
+	InstrumentationConfigs *odigosv1.KarmaInstrumentationConfigList
 }
 
-func getClusterCollectorResources(ctx context.Context, kubeClient kubernetes.Interface, odigosClient odigosclientset.OdigosV1alpha1Interface, odigosNs string) (*ClusterCollectorResources, error) {
+func getClusterCollectorResources(ctx context.Context, kubeClient kubernetes.Interface, codekarmaClient odigosclientset.CodekarmaV1alpha1Interface, odigosNs string) (*ClusterCollectorResources, error) {
 
 	clusterCollector := ClusterCollectorResources{}
 
-	cg, err := odigosClient.CollectorsGroups(odigosNs).Get(ctx, consts.OdigosClusterCollectorCollectorGroupName, metav1.GetOptions{})
+	cg, err := codekarmaClient.CollectorsGroups(odigosNs).Get(ctx, consts.OdigosClusterCollectorCollectorGroupName, metav1.GetOptions{})
 	if err == nil {
 		clusterCollector.CollectorsGroup = cg
 	} else if !apierrors.IsNotFound(err) {
@@ -92,11 +92,11 @@ func getClusterCollectorResources(ctx context.Context, kubeClient kubernetes.Int
 	return &clusterCollector, nil
 }
 
-func getNodeCollectorResources(ctx context.Context, kubeClient kubernetes.Interface, odigosClient odigosclientset.OdigosV1alpha1Interface, odigosNs string) (*NodeCollectorResources, error) {
+func getNodeCollectorResources(ctx context.Context, kubeClient kubernetes.Interface, codekarmaClient odigosclientset.CodekarmaV1alpha1Interface, odigosNs string) (*NodeCollectorResources, error) {
 
 	nodeCollector := NodeCollectorResources{}
 
-	cg, err := odigosClient.CollectorsGroups(odigosNs).Get(ctx, consts.OdigosNodeCollectorCollectorGroupName, metav1.GetOptions{})
+	cg, err := codekarmaClient.CollectorsGroups(odigosNs).Get(ctx, consts.OdigosNodeCollectorCollectorGroupName, metav1.GetOptions{})
 	if err == nil {
 		nodeCollector.CollectorsGroup = cg
 	} else if !apierrors.IsNotFound(err) {
@@ -113,7 +113,7 @@ func getNodeCollectorResources(ctx context.Context, kubeClient kubernetes.Interf
 	return &nodeCollector, nil
 }
 
-func GetRelevantOdigosResources(ctx context.Context, kubeClient kubernetes.Interface, odigosClient odigosclientset.OdigosV1alpha1Interface, odigosNs string) (*OdigosResources, error) {
+func GetRelevantOdigosResources(ctx context.Context, kubeClient kubernetes.Interface, codekarmaClient odigosclientset.CodekarmaV1alpha1Interface, odigosNs string) (*OdigosResources, error) {
 
 	odigos := OdigosResources{}
 
@@ -123,25 +123,25 @@ func GetRelevantOdigosResources(ctx context.Context, kubeClient kubernetes.Inter
 	}
 	odigos.OdigosVersion = odigosVersion
 
-	cc, err := getClusterCollectorResources(ctx, kubeClient, odigosClient, odigosNs)
+	cc, err := getClusterCollectorResources(ctx, kubeClient, codekarmaClient, odigosNs)
 	if err != nil {
 		return nil, err
 	}
 	odigos.ClusterCollector = *cc
 
-	nc, err := getNodeCollectorResources(ctx, kubeClient, odigosClient, odigosNs)
+	nc, err := getNodeCollectorResources(ctx, kubeClient, codekarmaClient, odigosNs)
 	if err != nil {
 		return nil, err
 	}
 	odigos.NodeCollector = *nc
 
-	dest, err := odigosClient.Destinations(odigosNs).List(ctx, metav1.ListOptions{})
+	dest, err := codekarmaClient.Destinations(odigosNs).List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}
 	odigos.Destinations = dest
 
-	ics, err := odigosClient.InstrumentationConfigs("").List(ctx, metav1.ListOptions{})
+	ics, err := codekarmaClient.KarmaInstrumentationConfigs("").List(ctx, metav1.ListOptions{})
 	if err != nil {
 		return nil, err
 	}

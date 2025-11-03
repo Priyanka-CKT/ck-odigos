@@ -209,170 +209,170 @@ spec:
 
         # HTTP
         - set(attributes["odigos.category"], "HTTP") where 
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/aiohttp_client" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/asgi" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/boto" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/django" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/falcon" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/fastapi" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/flask" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/httpx" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pyramid" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/starlette" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/tornado" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/urllib" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/requests" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/urllib3" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/wsgi"
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/aiohttp_client" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/asgi" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/boto" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/django" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/falcon" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/fastapi" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/flask" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/httpx" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pyramid" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/starlette" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/tornado" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/urllib" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/requests" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/urllib3" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/wsgi"
         - set(attributes["odigos.sub_category"], attributes["http.method"]) where 
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/aiohttp_client" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/asgi" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/boto" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/django" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/falcon" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/fastapi" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/flask" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/httpx" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pyramid" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/starlette" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/tornado" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/urllib" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/requests" or            
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/urllib3" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/wsgi" 
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/aiohttp_client" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/asgi" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/boto" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/django" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/falcon" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/fastapi" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/flask" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/httpx" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pyramid" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/starlette" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/tornado" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/urllib" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/requests" or            
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/urllib3" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/wsgi" 
         - set(attributes["odigos.sub_category"], attributes["http.request.method"]) where
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/aiohttp_client" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/asgi" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/boto" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/django" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/falcon" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/fastapi" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/flask" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/httpx" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pyramid" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/starlette" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/tornado" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/urllib" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/requests" or            
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/urllib3" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/wsgi"
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/aiohttp_client" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/asgi" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/boto" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/django" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/falcon" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/fastapi" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/flask" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/httpx" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pyramid" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/starlette" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/tornado" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/urllib" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/requests" or            
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/urllib3" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/wsgi"
         - set(attributes["odigos.transaction.type"], "web") where
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/aiohttp_client" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/asgi" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/boto" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/django" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/falcon" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/fastapi" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/flask" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/httpx" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pyramid" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/starlette" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/tornado" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/urllib" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/urllib3" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/requests" or            
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/wsgi"            
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/aiohttp_client" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/asgi" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/boto" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/django" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/falcon" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/fastapi" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/flask" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/httpx" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pyramid" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/starlette" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/tornado" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/urllib" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/urllib3" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/requests" or            
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/wsgi"            
 
         # Database
         - set(attributes["odigos.category"], "Database") where 
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/aiopg" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/asyncpg" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/cassandra" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/dbapi" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/elasticsearch" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/mysql" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/mysqlclient" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/psycopg2" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pymemcache" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pymongo" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pymysql" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/redis" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/sqlalchemy" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/sqlite3" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/tortoiseorm"
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/aiopg" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/asyncpg" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/cassandra" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/dbapi" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/elasticsearch" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/mysql" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/mysqlclient" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/psycopg2" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pymemcache" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pymongo" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pymysql" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/redis" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/sqlalchemy" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/sqlite3" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/tortoiseorm"
         - set(attributes["odigos.sub_category"], attributes["db.system"]) where
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/aiopg" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/asyncpg" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/cassandra" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/dbapi" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/elasticsearch" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/mysql" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/mysqlclient" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/psycopg2" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pymemcache" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pymongo" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pymysql" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/redis" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/sqlalchemy" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/sqlite3" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/tortoiseorm"
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/aiopg" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/asyncpg" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/cassandra" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/dbapi" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/elasticsearch" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/mysql" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/mysqlclient" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/psycopg2" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pymemcache" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pymongo" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pymysql" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/redis" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/sqlalchemy" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/sqlite3" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/tortoiseorm"
         - set(attributes["odigos.transaction.type"], "non-web") where
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/aiopg" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/asyncpg" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/cassandra" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/dbapi" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/elasticsearch" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/mysql" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/mysqlclient" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/psycopg2" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pymemcache" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pymongo" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pymysql" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/redis" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/sqlalchemy" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/sqlite3" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/tortoiseorm"
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/aiopg" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/asyncpg" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/cassandra" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/dbapi" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/elasticsearch" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/mysql" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/mysqlclient" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/psycopg2" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pymemcache" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pymongo" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pymysql" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/redis" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/sqlalchemy" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/sqlite3" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/tortoiseorm"
 
         # Messaging queues
         - set(attributes["odigos.category"], "Messaging queues") where 
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/aio_pika" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/boto3sqs" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/celery" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/confluent_kafka" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/kafka" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pika" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/remoulade"
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/aio_pika" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/boto3sqs" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/celery" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/confluent_kafka" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/kafka" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pika" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/remoulade"
         - set(attributes["odigos.sub_category"], attributes["messaging.system"]) where
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/aio_pika" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/boto3sqs" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/celery" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/confluent_kafka" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/kafka" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pika" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/remoulade"
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/aio_pika" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/boto3sqs" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/celery" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/confluent_kafka" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/kafka" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pika" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/remoulade"
         - set(attributes["odigos.transaction.type"], "non-web") where
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/aio_pika" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/boto3sqs" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/celery" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/confluent_kafka" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/kafka" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/pika" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/remoulade"
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/aio_pika" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/boto3sqs" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/celery" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/confluent_kafka" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/kafka" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/pika" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/remoulade"
 
         # RPC Systems
         - set(attributes["odigos.category"], "RPC Systems") where 
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/botocore" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/grpc"
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/botocore" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/grpc"
         - set(attributes["odigos.sub_category"], attributes["rpc.system"]) where
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/botocore" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/grpc"
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/botocore" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/grpc"
         - set(attributes["odigos.transaction.type"], "web") where
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/botocore" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/grpc"            
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/botocore" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/grpc"            
 
         # Programming Language
         - set(attributes["odigos.category"], "Programming Language") where 
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/asyncio" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/jinja2" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/sklearn"
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/asyncio" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/jinja2" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/sklearn"
         - set(attributes["odigos.sub_category"], attributes["telemetry.sdk.language"]) where
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/asyncio" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/jinja2" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/sklearn"
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/asyncio" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/jinja2" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/sklearn"
         - set(attributes["odigos.transaction.type"], "non-web") where
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/asyncio" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/jinja2" or
-            instrumentation_scope.name == "instrumentation.odigos.io/ebpf/sklearn"            
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/asyncio" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/jinja2" or
+            instrumentation_scope.name == "instrumentation.codekarma.tech/ebpf/sklearn"            
 
           ######## Java
 

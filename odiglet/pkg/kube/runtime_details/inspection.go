@@ -51,13 +51,13 @@ func inspectRuntimesOfRunningPods(ctx context.Context, logger *logr.Logger, labe
 		return errNoPodsFound
 	}
 
-	odigosConfig, err := k8sutils.GetCurrentOdigosConfig(ctx, kubeClient)
+	codekarmaConfig, err := k8sutils.GetCurrentCodekarmaConfig(ctx, kubeClient)
 	if err != nil {
 		logger.Error(err, "failed to get odigos config")
 		return err
 	}
 
-	runtimeResults, err := runtimeInspection(pods, odigosConfig.IgnoredContainers)
+	runtimeResults, err := runtimeInspection(pods, codekarmaConfig.IgnoredContainers)
 	if err != nil {
 		logger.Error(err, "error inspecting pods")
 		return err
@@ -91,6 +91,16 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 				log.Logger.Error(err, "failed to find processes in pod container", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
 				return nil, err
 			}
+
+			log.Logger.V(0).Info("DEBUG INSPECTION: Found processes in pod container", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace, "totalProcesses", len(processes))
+			for i, proc := range processes {
+				cmdLinePreview := proc.CmdLine
+				if len(cmdLinePreview) > 100 {
+					cmdLinePreview = cmdLinePreview[:100] + "..."
+				}
+				log.Logger.V(0).Info("DEBUG INSPECTION: Process details", "pod", pod.Name, "index", i, "pid", proc.ProcessID, "exeName", proc.ExeName, "cmdLine", cmdLinePreview)
+			}
+
 			if len(processes) == 0 {
 				log.Logger.V(0).Info("no processes found in pod container", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
 				continue
@@ -98,15 +108,60 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 
 			programLanguageDetails := common.ProgramLanguageDetails{Language: common.UnknownProgrammingLanguage}
 			var inspectProc *procdiscovery.Details
-			var detectErr error
 
-			for _, proc := range processes {
+			// First, track any unsupported language as fallback (for UI display)
+			var fallbackLanguageDetails *common.ProgramLanguageDetails
+			var fallbackProc *procdiscovery.Details
+
+			// Iterate through all processes and find supported languages (Java or Go)
+			// If no supported language found, we'll use an unsupported one for UI display
+			log.Logger.V(0).Info("DEBUG INSPECTION: Starting language detection loop", "pod", pod.Name, "container", container.Name, "processCount", len(processes))
+			for i, proc := range processes {
 				containerURL := kubeutils.GetPodExternalURL(pod.Status.PodIP, container.Ports)
-				programLanguageDetails, detectErr = inspectors.DetectLanguage(proc, containerURL)
-				if detectErr == nil && programLanguageDetails.Language != common.UnknownProgrammingLanguage {
-					inspectProc = &proc
-					break
+				detectedLang, err := inspectors.DetectLanguage(proc, containerURL)
+
+				if err != nil {
+					log.Logger.V(0).Info("DEBUG INSPECTION: Language detection error", "pod", pod.Name, "index", i, "pid", proc.ProcessID, "error", err.Error())
+					continue
 				}
+
+				log.Logger.V(0).Info("DEBUG INSPECTION: Process language detected", "pod", pod.Name, "index", i, "pid", proc.ProcessID, "language", detectedLang.Language)
+
+				if err == nil && detectedLang.Language != common.UnknownProgrammingLanguage {
+					// Check if this is a supported language (Java or Go)
+					if isSupportedLanguage(detectedLang.Language) {
+						log.Logger.V(0).Info("DEBUG INSPECTION: ✅ Found SUPPORTED language - will use this!", "pod", pod.Name, "container", container.Name, "language", detectedLang.Language, "pid", proc.ProcessID)
+						// Found a supported language - use it immediately
+						programLanguageDetails = detectedLang
+						inspectProc = &proc
+						break
+					} else if fallbackLanguageDetails == nil {
+						log.Logger.V(0).Info("DEBUG INSPECTION: ⚠️ Found UNSUPPORTED language - saving as fallback", "pod", pod.Name, "container", container.Name, "language", detectedLang.Language, "pid", proc.ProcessID)
+						// Store first unsupported language as fallback (e.g., Python, Node.js)
+						// This will be used if no Java/Go is found, so UI can show "detected but not supported"
+						fallbackLanguageDetails = &detectedLang
+						fallbackProc = &proc
+					}
+				}
+			}
+
+			log.Logger.V(0).Info("DEBUG INSPECTION: Language detection loop completed", "pod", pod.Name, "foundSupported", inspectProc != nil, "haveFallback", fallbackLanguageDetails != nil)
+
+			// If no supported language was found but we have a fallback unsupported language,
+			// use it so the UI can display "language not supported" instead of "unknown"
+			if inspectProc == nil && fallbackLanguageDetails != nil {
+				log.Logger.V(0).Info("DEBUG INSPECTION: Using fallback unsupported language", "pod", pod.Name, "container", container.Name, "language", fallbackLanguageDetails.Language)
+				programLanguageDetails = *fallbackLanguageDetails
+				inspectProc = fallbackProc
+				log.Logger.V(0).Info("⚠️ no supported language found, using unsupported language for UI display",
+					"pod", pod.Name,
+					"container", container.Name,
+					"namespace", pod.Namespace,
+					"language", programLanguageDetails.Language)
+			} else if inspectProc != nil {
+				log.Logger.V(0).Info("DEBUG INSPECTION: ✅ Final result - using supported language", "pod", pod.Name, "container", container.Name, "language", programLanguageDetails.Language)
+			} else {
+				log.Logger.V(0).Info("DEBUG INSPECTION: ❌ Final result - no language detected at all", "pod", pod.Name, "container", container.Name)
 			}
 
 			envs := make([]odigosv1.EnvVar, 0)
@@ -114,19 +169,26 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 			var libcType *common.LibCType
 
 			if inspectProc == nil {
-				log.Logger.V(0).Info("unable to detect language for any process", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
+				log.Logger.V(0).Info("unable to detect supported language (Java or Go) for any process", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace, "totalProcesses", len(processes))
 				programLanguageDetails.Language = common.UnknownProgrammingLanguage
 			} else {
 				if len(processes) > 1 {
-					log.Logger.V(0).Info("multiple processes found in pod container, only taking the first one with detected language into account", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
+					log.Logger.V(0).Info("multiple processes found in pod container, detected supported language", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace, "totalProcesses", len(processes), "detectedLanguage", programLanguageDetails.Language)
 				}
 
 				// Convert map to slice for k8s format
 				envs = make([]odigosv1.EnvVar, 0, len(inspectProc.Environments.DetailedEnvs))
 
+				// CRITICAL: For env vars, we get the values from OverwriteEnvs which come from KarmaInstrumentedApplication.Spec
+				// These are the ORIGINAL values (without any patching by instrumentor).
+				// During helm upgrade, we want to PRESERVE any previously patched values (e.g., with ck-agent-universal.jar).
+				// So we store these original values here - they will be used by the instrumentor to determine what to patch.
 				for envName, envValue := range inspectProc.Environments.OverwriteEnvs {
 					envs = append(envs, odigosv1.EnvVar{Name: envName, Value: envValue})
 				}
+
+				log.Logger.V(0).Info("DEBUG INSPECTION: Collected env vars from process",
+					"pod", pod.Name, "container", container.Name, "envCount", len(envs))
 
 				// Languages that can be detected using environment variables, e.g Python<>newrelic
 				for envName := range inspectProc.Environments.DetailedEnvs {
@@ -147,7 +209,7 @@ func runtimeInspection(pods []corev1.Pod, ignoredContainers []string) ([]odigosv
 					if err == nil {
 						libcType = typeFound
 					} else {
-							log.Logger.Error(err, "error inspecting libc type", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
+						log.Logger.Error(err, "error inspecting libc type", "pod", pod.Name, "container", container.Name, "namespace", pod.Namespace)
 					}
 				}
 			}
@@ -202,16 +264,69 @@ func persistRuntimeResults(ctx context.Context, results []odigosv1.RuntimeDetail
 		},
 	}
 
+	// Check if all languages are supported before creating the InstrumentedApplication
+	containsUnsupportedLanguage := false
+	for _, result := range results {
+		if !isSupportedLanguage(result.Language) {
+			containsUnsupportedLanguage = true
+			log.Logger.Info("Detected unsupported language, skipping instrumentation",
+				"language", result.Language,
+				"name", owner.GetName(),
+				"namespace", owner.GetNamespace())
+		} else {
+			log.Logger.Info("Detected supported language, will create InstrumentedApplication",
+				"language", result.Language,
+				"name", owner.GetName(),
+				"namespace", owner.GetNamespace())
+			containsUnsupportedLanguage = false
+		}
+	}
+
+	// If only unsupported languages were detected, don't create the InstrumentedApplication
+	if len(results) > 0 && containsUnsupportedLanguage {
+		// We still want to create the InstrumentedApplication to track the detection,
+		// but the UI will show that this application cannot be instrumented because
+		// only Java and Go languages are supported
+	}
+
 	err := controllerutil.SetControllerReference(owner, updatedIa, scheme)
 	if err != nil {
 		log.Logger.Error(err, "Failed to set controller reference")
 		return err
 	}
 
-	operationResult, err := controllerutil.CreateOrPatch(ctx, kubeClient, updatedIa, func() error {
-		updatedIa.Spec.RuntimeDetails = results
-		return nil
-	})
+	// Check if we should delay updating KarmaInstrumentedApplication Spec
+	// If we only detected unsupported languages, we might be in a pod restart scenario
+	// where Java hasn't started yet - delay the update to prevent wrong Spec
+	shouldDelayUpdate := true // Start with true, only set to false if ANY supported language found
+	hasSupportedLanguage := false
+	for _, result := range results {
+		if isSupportedLanguage(result.Language) {
+			hasSupportedLanguage = true
+			log.Logger.V(0).Info("DEBUG INSPECTION: Detected supported language, will update KarmaInstrumentedApplication Spec",
+				"language", result.Language, "workload", owner.GetName(), "container", result.ContainerName)
+			shouldDelayUpdate = false
+			break // Found at least one supported language, no need to delay
+		}
+	}
+
+	// Only delay if NO supported languages were found
+	if !hasSupportedLanguage {
+		log.Logger.V(0).Info("DEBUG INSPECTION: No supported languages found, will delay KarmaInstrumentedApplication update",
+			"workload", owner.GetName(), "reason", "likely pod restart - Java/Go not started yet")
+	}
+
+	var operationResult controllerutil.OperationResult
+	if shouldDelayUpdate {
+		log.Logger.V(0).Info("DEBUG INSPECTION: Skipping KarmaInstrumentedApplication Spec update - will retry later",
+			"workload", owner.GetName(), "reason", "unsupported language detected, likely pod restart")
+		operationResult = controllerutil.OperationResultNone
+	} else {
+		operationResult, err = controllerutil.CreateOrPatch(ctx, kubeClient, updatedIa, func() error {
+			updatedIa.Spec.RuntimeDetails = results
+			return nil
+		})
+	}
 
 	if err != nil {
 		log.Logger.Error(err, "Failed to update runtime info", "name", owner.GetName(), "kind",
@@ -223,6 +338,16 @@ func persistRuntimeResults(ctx context.Context, results []odigosv1.RuntimeDetail
 			owner.GetObjectKind().GroupVersionKind().Kind, "namespace", owner.GetNamespace())
 	}
 	return nil
+}
+
+// isSupportedLanguage returns true if the language is supported for instrumentation
+func isSupportedLanguage(language common.ProgrammingLanguage) bool {
+	switch language {
+	case common.JavaProgrammingLanguage, common.GoProgrammingLanguage:
+		return true
+	default:
+		return false
+	}
 }
 
 func GetRuntimeDetails(ctx context.Context, kubeClient client.Client, podWorkload *workload.PodWorkload) (*odigosv1.InstrumentedApplication, error) {

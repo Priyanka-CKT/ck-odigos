@@ -130,7 +130,8 @@ export const SourcesList: React.FC<Props> = ({
 
         const isNamespaceSelected = selectedNamespace === namespace && !selectAllForNamespace;
         const isNamespaceCanSelect = namespaceLoaded && !!available.length;
-        const isNamespaceAllSourcesSelected = isNamespaceCanSelect && selected.length === sources.length;
+        // Since we removed the namespace-level checkbox, we don't need to track if all sources are selected at namespace level
+        const isNamespaceAllSourcesSelected = false;
 
         const filtered = filterSources(namespace, { cancelSearch: true });
         const hasFilteredSources = !!filtered.length;
@@ -139,12 +140,11 @@ export const SourcesList: React.FC<Props> = ({
           <Group data-id={`namespace-${namespace}`} key={`namespace-${namespace}`} $selected={isNamespaceAllSourcesSelected} $isOpen={isNamespaceSelected && hasFilteredSources}>
             <NamespaceItem $selected={isNamespaceAllSourcesSelected} onClick={() => onSelectNamespace(namespace)}>
               <FlexRow>
-                <Checkbox disabled={namespaceLoaded && !isNamespaceCanSelect} initialValue={isNamespaceAllSourcesSelected} onChange={(bool) => onSelectAll(bool, namespace)} />
                 <Text>{namespace}</Text>
               </FlexRow>
 
               <FlexRow>
-                <Toggle title='Include Future Sources' initialValue={futureApps} onChange={(bool) => onSelectFutureApps(bool, namespace)} />
+                <Toggle title='Include Future Applications' initialValue={futureApps} onChange={(bool) => onSelectFutureApps(bool, namespace)} disabled={true} />
                 <Divider orientation='vertical' length='12px' margin='0' />
                 <SelectionCount size={10} color={theme.text.grey}>
                   {namespaceLoaded ? `${selected.length}/${sources.length}` : null}
@@ -178,7 +178,7 @@ export const SourcesList: React.FC<Props> = ({
                 </RelativeWrapper>
               ) : (
                 <NoDataFoundWrapper>
-                  <NoDataFound title='No sources available in this namespace' subTitle='Try searching again or select another namespace.' />
+                  <NoDataFound title='No Applications available in this namespace' subTitle='Try searching again or select another namespace.' />
                 </NoDataFoundWrapper>
               ))}
           </Group>

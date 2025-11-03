@@ -60,10 +60,10 @@ const ButtonText = styled(Text)`
 
 // Default options for the dropdown
 const DEFAULT_OPTIONS: DropdownOption[] = [
-  { id: OVERVIEW_ENTITY_TYPES.RULE, value: 'Instrumentation Rule' },
-  { id: OVERVIEW_ENTITY_TYPES.SOURCE, value: 'Source' },
-  { id: OVERVIEW_ENTITY_TYPES.ACTION, value: 'Action' },
-  { id: OVERVIEW_ENTITY_TYPES.DESTINATION, value: 'Destination' },
+  // { id: OVERVIEW_ENTITY_TYPES.RULE, value: 'Instrumentation Rule' },
+  { id: OVERVIEW_ENTITY_TYPES.SOURCE, value: 'Application' },
+  // { id: OVERVIEW_ENTITY_TYPES.ACTION, value: 'Action' },
+  // { id: OVERVIEW_ENTITY_TYPES.DESTINATION, value: 'Destination' },
 ];
 
 interface Props {
@@ -99,11 +99,11 @@ export const AddEntity: React.FC<Props> = ({ options = DEFAULT_OPTIONS, placehol
       {isDropdownOpen && (
         <DropdownListContainer>
           {options.map((option) => {
-            const Icon = getEntityIcon(option.id as OVERVIEW_ENTITY_TYPES);
+            const IconComponent = getEntityIcon(option.id as OVERVIEW_ENTITY_TYPES);
 
             return (
               <DropdownItem key={option.id} data-id={`add-${option.id}`} $selected={currentModal === option.id} onClick={() => handleSelect(option)}>
-                <Icon />
+                {IconComponent && <IconComponent />}
                 <Text size={14}>{option.value}</Text>
               </DropdownItem>
             );

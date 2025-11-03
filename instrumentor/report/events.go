@@ -85,7 +85,7 @@ func report(c client.Client, installationId string) error {
 		return err
 	}
 
-	var apps odigosv1.InstrumentedApplicationList
+	var apps odigosv1.KarmaInstrumentedApplicationList
 	err = c.List(ctx, &apps)
 	if err != nil {
 		return err

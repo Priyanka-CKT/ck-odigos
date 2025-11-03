@@ -20,8 +20,8 @@ export const useDestinationCRUD = (params?: Params) => {
       type,
       title,
       message,
-      crdType: OVERVIEW_ENTITY_TYPES.DESTINATION,
-      target: id ? getSseTargetFromId(id, OVERVIEW_ENTITY_TYPES.DESTINATION) : undefined,
+      crdType: 'destination' as any,
+      target: id ? getSseTargetFromId(id, 'destination' as any) : undefined,
     });
   };
 
@@ -66,7 +66,7 @@ export const useDestinationCRUD = (params?: Params) => {
     onError: (error) => handleError(ACTION.DELETE, error.message),
     onCompleted: (res, req) => {
       const id = req?.variables?.id;
-      removeNotifications(getSseTargetFromId(id, OVERVIEW_ENTITY_TYPES.DESTINATION));
+      removeNotifications(getSseTargetFromId(id, 'destination' as any));
       handleComplete(ACTION.DELETE, `destination "${id}" was deleted`);
     },
   });

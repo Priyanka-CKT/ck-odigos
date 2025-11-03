@@ -29,7 +29,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/log"
 )
 
-type InstrumentedApplicationReconciler struct {
+type KarmaInstrumentedApplicationReconciler struct {
 	client.Client
 	Scheme               *runtime.Scheme
 	ImagePullSecrets     []string
@@ -38,7 +38,7 @@ type InstrumentedApplicationReconciler struct {
 	DisableNameProcessor bool
 }
 
-func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
+func (r *KarmaInstrumentedApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	logger := log.FromContext(ctx)
 	logger.V(0).Info("Reconciling InstrumentedApps")
 	err := datacollection.Sync(ctx, r.Client, r.Scheme, r.ImagePullSecrets, r.OdigosVersion, r.K8sVersion, r.DisableNameProcessor)
@@ -49,9 +49,9 @@ func (r *InstrumentedApplicationReconciler) Reconcile(ctx context.Context, req c
 	return ctrl.Result{}, nil
 }
 
-func (r *InstrumentedApplicationReconciler) SetupWithManager(mgr ctrl.Manager) error {
+func (r *KarmaInstrumentedApplicationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
-		For(&odigosv1.InstrumentedApplication{}).
+		For(&odigosv1.KarmaInstrumentedApplication{}).
 		// this controller only cares about the instrumented application existence.
 		// when it is created or removed, the node collector config map needs to be updated to scrape logs for it's pods.
 		WithEventFilter(&predicate.ExistencePredicate{}).

@@ -20,13 +20,17 @@ export const ErrorDropdown: React.FC<Props> = ({ title = 'Error Message', value,
   const options = useMemo(() => {
     const payload: DropdownOption[] = [];
 
-    sources.forEach(({ instrumentedApplicationDetails: { conditions } }) => {
-      conditions.forEach(({ type, status, message }) => {
-        if (status === BACKEND_BOOLEAN.FALSE && !payload.find((opt) => opt.id === message)) {
-          payload.push({ id: message, value: message });
+    if (sources && Array.isArray(sources)) {
+      sources.forEach((source) => {
+        if (source.instrumentedApplicationDetails?.conditions && Array.isArray(source.instrumentedApplicationDetails.conditions)) {
+          source.instrumentedApplicationDetails.conditions.forEach(({ status, message }) => {
+            if (status === BACKEND_BOOLEAN.FALSE && message && !payload.find((opt) => opt.id === message)) {
+              payload.push({ id: message, value: message });
+            }
+          });
         }
       });
-    });
+    }
 
     return payload;
   }, [sources]);

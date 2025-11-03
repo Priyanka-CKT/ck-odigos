@@ -73,7 +73,10 @@ export const useSourceCRUD = (params?: Params) => {
 
   const persistNamespaces = async (items: { [key: string]: boolean }) => {
     for (const [namespace, futureSelected] of Object.entries(items)) {
-      await persistNamespace({ name: namespace, futureSelected });
+      // Only persist namespace if futureSelected is true
+      if (futureSelected) {
+        await persistNamespace({ name: namespace, futureSelected });
+      }
     }
   };
 

@@ -49,11 +49,11 @@ func runDeleteWatcher(ctx context.Context, cw *deleteWatcher) error {
 	if err != nil {
 		return err
 	}
-	destsWatcher, err := kube.DefaultClient.OdigosClient.Destinations(cw.odigosNS).Watch(ctx, metav1.ListOptions{})
+	destsWatcher, err := kube.DefaultClient.CodekarmaClient.Destinations(cw.odigosNS).Watch(ctx, metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
-	sourcesWatcher, err := kube.DefaultClient.OdigosClient.InstrumentedApplications("").Watch(ctx, metav1.ListOptions{})
+	sourcesWatcher, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentedApplications("").Watch(ctx, metav1.ListOptions{})
 	if err != nil {
 		return err
 	}
@@ -124,7 +124,7 @@ func runWatcherLoop(ctx context.Context, w watchers, notifyChan chan<- deleteNot
 			}
 			switch event.Type {
 			case watch.Deleted:
-				app := event.Object.(*v1alpha1.InstrumentedApplication)
+				app := event.Object.(*v1alpha1.KarmaInstrumentedApplication)
 				name, kind, err := commonutils.ExtractWorkloadInfoFromRuntimeObjectName(app.Name)
 				if err != nil {
 					fmt.Printf("error getting workload info: %v\n", err)

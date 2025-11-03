@@ -46,7 +46,7 @@ spec:
         name: nodejs-very-old-version
         resources:
           limits:
-            instrumentation.odigos.io/javascript-native-community: "1"
+            instrumentation.codekarma.tech/javascript-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 2 # the deployment spec changed when odigos resource was added
@@ -74,7 +74,7 @@ spec:
       - name: nodejs-minimum-version
         resources:
           limits:
-            instrumentation.odigos.io/javascript-native-community: "1"
+            instrumentation.codekarma.tech/javascript-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 2 # the deployment spec changed when odigos resource was added
@@ -102,7 +102,7 @@ spec:
       - name: nodejs-latest-version
         resources:
           limits:
-            instrumentation.odigos.io/javascript-native-community: "1"
+            instrumentation.codekarma.tech/javascript-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 2 # the deployment spec changed when odigos resource was added
@@ -130,10 +130,10 @@ spec:
       - name: nodejs-dockerfile-env
         resources:
           limits:
-            instrumentation.odigos.io/javascript-native-community: "1"
+            instrumentation.codekarma.tech/javascript-native-community: "1"
         env:
         - name: NODE_OPTIONS
-          value: "--require /app/execute_before.js --max-old-space-size=256 --require /var/odigos/nodejs/autoinstrumentation.js"
+          value: "--require /app/execute_before.js --max-old-space-size=256 --require /var/codekarma/nodejs/autoinstrumentation.js"
 status:
   availableReplicas: 1
   observedGeneration: 2 # the deployment spec changed when odigos resource was added
@@ -161,10 +161,10 @@ spec:
       - name: nodejs-manifest-env
         resources:
           limits:
-            instrumentation.odigos.io/javascript-native-community: "1"
+            instrumentation.codekarma.tech/javascript-native-community: "1"
         env:
         - name: NODE_OPTIONS
-          value: "--require /app/execute_before.js --max-old-space-size=256 --require /var/odigos/nodejs/autoinstrumentation.js"
+          value: "--require /app/execute_before.js --max-old-space-size=256 --require /var/codekarma/nodejs/autoinstrumentation.js"
 status:
   availableReplicas: 1
   observedGeneration: 2 # the deployment spec changed when odigos resource was added
@@ -219,10 +219,10 @@ spec:
       - name: language-change
         resources:
           limits:
-            instrumentation.odigos.io/javascript-native-community: "1"
+            instrumentation.codekarma.tech/javascript-native-community: "1"
         env:
         - name: NODE_OPTIONS
-          value: "--require /app/execute_before.js --max-old-space-size=256 --require /var/odigos/nodejs/autoinstrumentation.js"
+          value: "--require /app/execute_before.js --max-old-space-size=256 --require /var/codekarma/nodejs/autoinstrumentation.js"
 status:
   availableReplicas: 1
   observedGeneration: 2 # the deployment spec changed when odigos resource was added
@@ -254,7 +254,7 @@ spec:
               protocol: TCP
           resources:
             limits:
-              instrumentation.odigos.io/java-native-community: "1"
+              instrumentation.codekarma.tech/java-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 2
@@ -286,7 +286,7 @@ spec:
               protocol: TCP
           resources:
             limits:
-              instrumentation.odigos.io/java-native-community: "1"
+              instrumentation.codekarma.tech/java-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 2
@@ -318,10 +318,10 @@ spec:
               protocol: TCP
           resources:
             limits:
-              instrumentation.odigos.io/java-native-community: "1"
+              instrumentation.codekarma.tech/java-native-community: "1"
           env:
             - name: JAVA_OPTS
-              value: "-Dthis.does.not.exist=true -javaagent:/var/odigos/java/javaagent.jar"
+              value: "-Dthis.does.not.exist=true -javaagent:/var/codekarma/java/javaagent.jar"
 
 status:
   availableReplicas: 1
@@ -354,10 +354,10 @@ spec:
               protocol: TCP
           resources:
             limits:
-              instrumentation.odigos.io/java-native-community: "1"
+              instrumentation.codekarma.tech/java-native-community: "1"
           env:
             - name: JAVA_OPTS
-              value: "-Dnot.work=true -javaagent:/var/odigos/java/javaagent.jar"
+              value: "-Dnot.work=true -javaagent:/var/codekarma/java/javaagent.jar"
 
 status:
   availableReplicas: 1
@@ -390,7 +390,7 @@ spec:
               protocol: TCP
           resources:
             limits:
-              instrumentation.odigos.io/java-native-community: "1"
+              instrumentation.codekarma.tech/java-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 2
@@ -422,7 +422,7 @@ spec:
               protocol: TCP
           resources:
             limits:
-              instrumentation.odigos.io/java-native-community: "1"
+              instrumentation.codekarma.tech/java-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 2
@@ -451,7 +451,7 @@ spec:
         name: python-latest-version
         resources:
           limits:
-            instrumentation.odigos.io/python-native-community: "1"
+            instrumentation.codekarma.tech/python-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 2 # the deployment spec changed when odigos resource was added
@@ -480,12 +480,12 @@ spec:
         name: python-alpine
         resources:
           limits:
-            instrumentation.odigos.io/python-native-community: "1"
+            instrumentation.codekarma.tech/python-native-community: "1"
         env:
         - name: DJANGO_SETTINGS_MODULE
           value: "myapp.settings"             
         - name: PYTHONPATH
-          value: "/app:/var/odigos/python:/var/odigos/python/opentelemetry/instrumentation/auto_instrumentation"
+          value: "/app:/var/codekarma/python:/var/codekarma/python/opentelemetry/instrumentation/auto_instrumentation"
 status:
   availableReplicas: 1
   observedGeneration: 2 # the deployment spec changed when odigos resource was added
@@ -540,7 +540,7 @@ spec:
         name: python-min-version
         resources:
           limits:
-            instrumentation.odigos.io/python-native-community: "1"
+            instrumentation.codekarma.tech/python-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 2 # the deployment spec changed when odigos resource was added
@@ -569,7 +569,7 @@ spec:
           name: dotnet-musl
           resources:
             limits:
-              instrumentation.odigos.io/musl-dotnet-native-community: "1"
+              instrumentation.codekarma.tech/musl-dotnet-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 2 # the deployment spec changed when odigos resource was added

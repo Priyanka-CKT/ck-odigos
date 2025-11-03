@@ -2,7 +2,7 @@ import React, { Fragment, useCallback, useState } from 'react';
 import { SVG } from '@/assets';
 import { FlexColumn, FlexRow } from '@/styles';
 import styled, { css } from 'styled-components';
-import { ActiveStatus, Divider, ExtendIcon, IconButton, IconWrapped, MonitorsIcons, Text } from '@/reuseable-components';
+import { ActiveStatus, Divider, ExtendIcon, IconButton, IconWrapped, Text } from '@/reuseable-components';
 
 interface Props {
   title: string;
@@ -10,10 +10,9 @@ interface Props {
   icon?: SVG;
   iconSrc?: string;
   hoverText?: string;
-  monitors?: string[];
-  monitorsWithLabels?: boolean;
   isActive?: boolean;
   isError?: boolean;
+  isDisabled?: boolean;
   withExtend?: boolean;
   isExtended?: boolean;
   renderExtended?: () => JSX.Element;
@@ -25,7 +24,7 @@ const ControlledVisibility = styled.div`
   visibility: hidden;
 `;
 
-const Container = styled.div<{ $withClick: boolean; $isError: Props['isError'] }>`
+const Container = styled.div<{ $withClick: boolean; $isError: Props['isError']; $isDisabled: boolean }>`
   display: flex;
   flex-direction: column;
   align-self: stretch;
@@ -33,6 +32,7 @@ const Container = styled.div<{ $withClick: boolean; $isError: Props['isError'] }
   width: calc(100% - 32px);
   border-radius: 16px;
   background-color: ${({ $isError, theme }) => ($isError ? '#281515' : theme.colors.white_opacity['004'])};
+  opacity: ${({ $isDisabled }) => ($isDisabled ? 0.5 : 1)};
 
   ${({ $withClick, $isError, theme }) =>
     $withClick &&
@@ -89,10 +89,9 @@ export const DataTab: React.FC<Props> = ({
   icon,
   iconSrc,
   hoverText,
-  monitors,
-  monitorsWithLabels,
   isActive,
   isError,
+  isDisabled,
   withExtend,
   isExtended,
   renderExtended,
@@ -102,19 +101,6 @@ export const DataTab: React.FC<Props> = ({
 }) => {
   const [extend, setExtend] = useState(isExtended || false);
 
-  const renderMonitors = useCallback(
-    (withSeperator: boolean) => {
-      if (!monitors || !monitors.length) return null;
-
-      return (
-        <>
-          {withSeperator && <SubTitle>{'•'}</SubTitle>}
-          <MonitorsIcons monitors={monitors} withLabels={monitorsWithLabels} size={10} />
-        </>
-      );
-    },
-    [monitors],
-  );
 
   const renderActiveStatus = useCallback(
     (withSeperator: boolean) => {
@@ -131,7 +117,7 @@ export const DataTab: React.FC<Props> = ({
   );
 
   return (
-    <Container $isError={isError} $withClick={!!onClick} onClick={onClick} {...props}>
+    <Container $isError={isError} $withClick={!!onClick} $isDisabled={!!isDisabled} onClick={onClick} {...props}>
       <FlexRow $gap={8}>
         <IconWrapped icon={icon} src={iconSrc} isError={isError} />
 
@@ -139,8 +125,7 @@ export const DataTab: React.FC<Props> = ({
           <Title>{title}</Title>
           <SubTitleWrapper>
             {subTitle && <SubTitle>{subTitle}</SubTitle>}
-            {renderMonitors(!!subTitle)}
-            {renderActiveStatus(!!monitors?.length)}
+            {renderActiveStatus(!!subTitle)}
           </SubTitleWrapper>
         </FlexColumn>
 

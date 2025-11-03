@@ -66,7 +66,7 @@ func parseFlags() Flags {
 	defaultKubeConfig := env.GetDefaultKubeConfigPath()
 
 	var flags Flags
-	flag.BoolVar(&flags.Version, "version", false, "Print Odigos UI version.")
+	flag.BoolVar(&flags.Version, "version", false, "Print KarmaControl UI version.")
 	flag.StringVar(&flags.Address, "address", "localhost", "Address to listen on")
 	flag.IntVar(&flags.Port, "port", defaultPort, "Port to listen on")
 	flag.IntVar(&flags.LegacyPort, "legacy-port", legacyPort, "Port to listen on for legacy UI")
@@ -159,7 +159,7 @@ func startHTTPDepServer(flags *Flags, odigosMetrics *collectormetrics.OdigosMetr
 	// Serve React app
 	dist, err := fs.Sub(depUIFS, "webapp/dep-out")
 	if err != nil {
-		return nil, fmt.Errorf("error reading webapp/def-out directory: %s", err)
+		return nil, fmt.Errorf("error reading webapp/dep-out directory: %s", err)
 	}
 
 	// Serve React app if page not found serve index.html
@@ -187,11 +187,11 @@ func startHTTPDepServer(flags *Flags, odigosMetrics *collectormetrics.OdigosMetr
 		apis.DELETE("/destinations/:id", func(c *gin.Context) { endpoints.DeleteDestination(c, flags.Namespace) })
 
 		// Instrumentation Rules
-		apis.GET("/instrumentation-rules", func(c *gin.Context) { endpoints.GetInstrumentationRules(c, flags.Namespace) })
-		apis.GET("/instrumentation-rules/:id", func(c *gin.Context) { endpoints.GetInstrumentationRule(c, flags.Namespace, c.Param("id")) })
-		apis.POST("/instrumentation-rules", func(c *gin.Context) { endpoints.CreateInstrumentationRule(c, flags.Namespace) })
-		apis.DELETE("/instrumentation-rules/:id", func(c *gin.Context) { endpoints.DeleteInstrumentationRule(c, flags.Namespace, c.Param("id")) })
-		apis.PUT("/instrumentation-rules/:id", func(c *gin.Context) { endpoints.UpdateInstrumentationRule(c, flags.Namespace, c.Param("id")) })
+		apis.GET("/instrumentation-rules", func(c *gin.Context) { endpoints.GetKarmaInstrumentationRules(c, flags.Namespace) })
+		apis.GET("/instrumentation-rules/:id", func(c *gin.Context) { endpoints.GetKarmaInstrumentationRule(c, flags.Namespace, c.Param("id")) })
+		apis.POST("/instrumentation-rules", func(c *gin.Context) { endpoints.CreateKarmaInstrumentationRule(c, flags.Namespace) })
+		apis.DELETE("/instrumentation-rules/:id", func(c *gin.Context) { endpoints.DeleteKarmaInstrumentationRule(c, flags.Namespace, c.Param("id")) })
+		apis.PUT("/instrumentation-rules/:id", func(c *gin.Context) { endpoints.UpdateKarmaInstrumentationRule(c, flags.Namespace, c.Param("id")) })
 
 		// Describe
 		apis.GET("/describe/odigos", func(c *gin.Context) {
@@ -318,9 +318,9 @@ func main() {
 	}
 
 	// Start watchers
-	err = watchers.StartInstrumentedApplicationWatcher(ctx, "")
+	err = watchers.StartKarmaInstrumentedApplicationWatcher(ctx, "")
 	if err != nil {
-		log.Printf("Error starting InstrumentedApplication watcher: %v", err)
+		log.Printf("Error starting KarmaInstrumentedApplication watcher: %v", err)
 	}
 
 	err = watchers.StartDestinationWatcher(ctx, flags.Namespace)
@@ -328,15 +328,15 @@ func main() {
 		log.Printf("Error starting Destination watcher: %v", err)
 	}
 
-	err = watchers.StartInstrumentationInstanceWatcher(ctx, "")
+	err = watchers.StartKarmaInstrumentationInstanceWatcher(ctx, "")
 	if err != nil {
-		log.Printf("Error starting InstrumentationInstance watcher: %v", err)
+		log.Printf("Error starting KarmaInstrumentationInstance watcher: %v", err)
 	}
 
 	r.GET("/api/events", sse.HandleSSEConnections)
 	d.GET("/api/events", sse.HandleSSEConnections)
 
-	log.Printf("Odigos UI is available at: http://%s:%d", flags.Address, flags.Port)
+	log.Printf("KarmaControl UI is available at: http://%s:%d", flags.Address, flags.Port)
 
 	go func() {
 		err = r.Run(fmt.Sprintf("%s:%d", flags.Address, flags.Port))
@@ -346,7 +346,7 @@ func main() {
 	}()
 
 	go func() {
-		log.Printf("Odigos Legacy UI is available at: http://%s:%d", flags.Address, flags.LegacyPort)
+		log.Printf("KarmaControl Legacy UI is available at: http://%s:%d", flags.Address, flags.LegacyPort)
 		err = d.Run(fmt.Sprintf("%s:%d", flags.Address, flags.LegacyPort))
 		if err != nil {
 			log.Fatalf("Error starting server: %s", err)
@@ -354,7 +354,7 @@ func main() {
 	}()
 
 	<-ch
-	log.Println("Shutting down Odigos UI...")
+	log.Println("Shutting down KarmaControl UI...")
 	cancel()
 	wg.Wait()
 }

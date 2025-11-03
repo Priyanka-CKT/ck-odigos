@@ -35,7 +35,7 @@ export const RuleModal: React.FC<Props> = ({ isOpen, onClose }) => {
     const isFormOk = validateForm({ withAlert: true, alertTitle: ACTION.CREATE });
     if (!isFormOk) return null;
 
-    await createInstrumentationRule(formData);
+    await createInstrumentationRule();
     handleClose();
   };
 
@@ -59,7 +59,7 @@ export const RuleModal: React.FC<Props> = ({ isOpen, onClose }) => {
     >
       <ModalBody>
         <SectionTitle title='Define Instrumentation Rule' description='Define how telemetry is recorded from your application. Choose a rule type and configure the details.' />
-        <NotificationNote type={NOTIFICATION_TYPE.INFO} message='We currently support one rule. We’ll be adding new rule types in the near future.' style={{ marginTop: '24px' }} />
+        <NotificationNote type={NOTIFICATION_TYPE.INFO} message="We currently support one rule. We'll be adding new rule types in the near future." style={{ marginTop: '24px' }} />
         <AutocompleteInput disabled options={RULE_OPTIONS} selectedOption={selectedItem} onOptionSelect={handleSelect} style={{ marginTop: '12px' }} />
 
         {!!selectedItem?.type ? (

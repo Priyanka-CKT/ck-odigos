@@ -6,7 +6,7 @@ rules:
   - apiGroups:
     - ""
     resourceNames:
-    - odigos-config
+    - ck-config
     resources:
     - configmaps
     verbs:

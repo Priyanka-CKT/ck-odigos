@@ -15,27 +15,27 @@ import (
 
 const (
 	containerDir   = "/instrumentations"
-	hostDir        = "/var/odigos"
+	hostDir        = "/var/codekarma"
 	chrootDir      = "/host"
 	semanagePath   = "/sbin/semanage"
 	restoreconPath = "/sbin/restorecon"
 )
 
 func CopyAgentsDirectoryToHost() error {
-	// remove the current content of /var/odigos
+	// remove the current content of /var/codekarma
 	// as we want a fresh copy of instrumentation agents with no files leftover from previous odigos versions.
-	// we cannot remove /var/odigos itself: "unlinkat /var/odigos: device or resource busy"
+	// we cannot remove /var/codekarma itself: "unlinkat /var/codekarma: device or resource busy"
 	// so we will just remove it's content
 
 	// We kept the following list of files to avoid removing instrumentations that are already loaded in the process memory
 	filesToKeep := map[string]struct{}{
-		"/var/odigos/nodejs-ebpf/build/Release/dtrace-injector-native.node":                            {},
-		"/var/odigos/nodejs-ebpf/build/Release/obj.target/dtrace-injector-native.node":                 {},
-		"/var/odigos/nodejs-ebpf/build/Release/.deps/Release/dtrace-injector-native.node.d":            {},
-		"/var/odigos/nodejs-ebpf/build/Release/.deps/Release/obj.target/dtrace-injector-native.node.d": {},
-		"/var/odigos/java-ebpf/tracing_probes.so":                                                      {},
-		"/var/odigos/java-ext-ebpf/end_span_usdt.so":                                                   {},
-		"/var/odigos/python-ebpf/pythonUSDT.abi3.so":                                                   {},
+		"/var/codekarma/nodejs-ebpf/build/Release/dtrace-injector-native.node":                            {},
+		"/var/codekarma/nodejs-ebpf/build/Release/obj.target/dtrace-injector-native.node":                 {},
+		"/var/codekarma/nodejs-ebpf/build/Release/.deps/Release/dtrace-injector-native.node.d":            {},
+		"/var/codekarma/nodejs-ebpf/build/Release/.deps/Release/obj.target/dtrace-injector-native.node.d": {},
+		"/var/codekarma/java-ebpf/tracing_probes.so":                                                      {},
+		"/var/codekarma/java-ext-ebpf/end_span_usdt.so":                                                   {},
+		"/var/codekarma/python-ebpf/pythonUSDT.abi3.so":                                                   {},
 	}
 
 	updatedFilesToKeepMap, err := removeChangedFilesFromKeepMap(filesToKeep, containerDir, hostDir)
@@ -59,7 +59,7 @@ func CopyAgentsDirectoryToHost() error {
 	_, err = exec.LookPath(filepath.Join(chrootDir, semanagePath))
 	if err == nil {
 		// Run the semanage command to add the new directory to the container_ro_file_t context
-		cmd := exec.Command(semanagePath, "fcontext", "-a", "-t", "container_ro_file_t", "/var/odigos(/.*)?")
+		cmd := exec.Command(semanagePath, "fcontext", "-a", "-t", "container_ro_file_t", "/var/codekarma(/.*)?")
 		syscall.Chroot(chrootDir)
 		err = cmd.Run()
 		if err != nil {
@@ -71,7 +71,7 @@ func CopyAgentsDirectoryToHost() error {
 	_, err = exec.LookPath(filepath.Join(chrootDir, restoreconPath))
 	if err == nil {
 		// Run the restorecon command to apply the new context
-		cmd := exec.Command(restoreconPath, "-r", "/var/odigos")
+		cmd := exec.Command(restoreconPath, "-r", "/var/codekarma")
 		syscall.Chroot(chrootDir)
 		err = cmd.Run()
 		if err != nil {

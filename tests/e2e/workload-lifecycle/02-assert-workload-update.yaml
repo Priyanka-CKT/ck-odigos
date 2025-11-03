@@ -42,7 +42,7 @@ spec:
         name: nodejs-very-old-version
         resources:
           limits:
-            instrumentation.odigos.io/javascript-native-community: "1"
+            instrumentation.codekarma.tech/javascript-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -68,7 +68,7 @@ spec:
       - name: nodejs-minimum-version
         resources:
           limits:
-            instrumentation.odigos.io/javascript-native-community: "1"
+            instrumentation.codekarma.tech/javascript-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -94,7 +94,7 @@ spec:
       - name: nodejs-latest-version
         resources:
           limits:
-            instrumentation.odigos.io/javascript-native-community: "1"
+            instrumentation.codekarma.tech/javascript-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -120,10 +120,10 @@ spec:
       - name: nodejs-dockerfile-env
         resources:
           limits:
-            instrumentation.odigos.io/javascript-native-community: "1"
+            instrumentation.codekarma.tech/javascript-native-community: "1"
         env:
         - name: NODE_OPTIONS
-          value: "--require /app/execute_before.js --max-old-space-size=256 --require /var/odigos/nodejs/autoinstrumentation.js"
+          value: "--require /app/execute_before.js --max-old-space-size=256 --require /var/codekarma/nodejs/autoinstrumentation.js"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -149,10 +149,10 @@ spec:
       - name: nodejs-manifest-env
         resources:
           limits:
-            instrumentation.odigos.io/javascript-native-community: "1"
+            instrumentation.codekarma.tech/javascript-native-community: "1"
         env:
         - name: NODE_OPTIONS
-          value: "--require /app/execute_before.js --max-old-space-size=256 --require /var/odigos/nodejs/autoinstrumentation.js"
+          value: "--require /app/execute_before.js --max-old-space-size=256 --require /var/codekarma/nodejs/autoinstrumentation.js"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -233,7 +233,7 @@ spec:
           name: java-supported-version
           resources:
             limits:
-              instrumentation.odigos.io/java-native-community: "1"
+              instrumentation.codekarma.tech/java-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -260,7 +260,7 @@ spec:
           name: java-azul
           resources:
             limits:
-              instrumentation.odigos.io/java-native-community: "1"
+              instrumentation.codekarma.tech/java-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -287,7 +287,7 @@ spec:
           name: java-supported-docker-env
           resources:
             limits:
-              instrumentation.odigos.io/java-native-community: "1"
+              instrumentation.codekarma.tech/java-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -315,7 +315,7 @@ spec:
           name: java-supported-manifest-env
           resources:
             limits:
-              instrumentation.odigos.io/java-native-community: "1"
+              instrumentation.codekarma.tech/java-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -342,7 +342,7 @@ spec:
           name: java-latest-version
           resources:
             limits:
-              instrumentation.odigos.io/java-native-community: "1"
+              instrumentation.codekarma.tech/java-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -369,7 +369,7 @@ spec:
           name: java-old-version
           resources:
             limits:
-              instrumentation.odigos.io/java-native-community: "1"
+              instrumentation.codekarma.tech/java-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -396,7 +396,7 @@ spec:
         name: python-latest-version
         resources:
           limits:
-            instrumentation.odigos.io/python-native-community: "1"
+            instrumentation.codekarma.tech/python-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -423,7 +423,7 @@ spec:
         name: python-alpine
         resources:
           limits:
-            instrumentation.odigos.io/python-native-community: "1"
+            instrumentation.codekarma.tech/python-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 4
@@ -450,7 +450,7 @@ spec:
         name: python-min-version
         resources:
           limits:
-            instrumentation.odigos.io/python-native-community: "1"
+            instrumentation.codekarma.tech/python-native-community: "1"
 status:
   availableReplicas: 1
   observedGeneration: 4

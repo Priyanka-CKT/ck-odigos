@@ -64,6 +64,14 @@ RUN ARCH_SUFFIX=$(cat /tmp/arch_suffix) && \
     rm opentelemetry-dotnet-instrumentation-linux-glibc-${ARCH_SUFFIX}.zip
 
 FROM --platform=$BUILDPLATFORM keyval/odiglet-base:v1.7 AS builder
+# Add GitHub authentication
+ARG GITHUB_TOKEN
+# Configure Git to use the token only for your specific repository
+RUN git config --global url."https://${GITHUB_TOKEN}@github.com/codekarma-tech/ck-go-agent".insteadOf "https://github.com/codekarma-tech/ck-go-agent"
+
+# Set GOPRIVATE for your specific repository
+RUN go env -w GOPRIVATE=github.com/codekarma-tech/ck-go-agent
+
 WORKDIR /go/src/github.com/odigos-io/odigos
 # Copyy local modules required by the build
 COPY api/ api/
@@ -87,8 +95,9 @@ WORKDIR /instrumentations
 
 # Java
 ARG JAVA_OTEL_VERSION=v2.6.0
-ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/$JAVA_OTEL_VERSION/opentelemetry-javaagent.jar /instrumentations/java/javaagent.jar
-RUN chmod 644 /instrumentations/java/javaagent.jar
+# ADD https://github.com/open-telemetry/opentelemetry-java-instrumentation/releases/download/$JAVA_OTEL_VERSION/opentelemetry-javaagent.jar /instrumentations/java/javaagent.jar
+ADD https://ckn-agents.s3.us-east-1.amazonaws.com/agents/ck-agent-universal.jar /instrumentations/java/ck-agent-universal.jar
+RUN chmod 644 /instrumentations/java/ck-agent-universal.jar
 
 # Python
 COPY --from=python-builder /python-instrumentation/workspace /instrumentations/python

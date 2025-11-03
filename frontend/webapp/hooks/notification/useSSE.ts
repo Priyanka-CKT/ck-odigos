@@ -44,6 +44,12 @@ export const useSSE = () => {
 
         // Dispatch the notification to the store
         addNotification(notification);
+        
+        // Add logging to debug SSE events
+        console.log('SSE event received:', data);
+        console.log('Refreshing compute platform data');
+        
+        // Refresh the compute platform data
         refetchComputePlatform();
 
         // Reset retry count on successful connection

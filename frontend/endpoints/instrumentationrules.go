@@ -9,17 +9,17 @@ import (
 )
 
 // This type is used to hide the details of the k8s manifest and expose a generic object
-type InstrumentationRule struct {
-	odigosv1alpha1.InstrumentationRuleSpec
+type KarmaInstrumentationRule struct {
+	odigosv1alpha1.KarmaInstrumentationRuleSpec
 
 	// how the rule can be referenced in the REST api.
 	// this is the name of the CR in k8s
 	RuleId string `json:"ruleId"`
 }
 
-func GetInstrumentationRules(c *gin.Context, odigosns string) {
+func GetKarmaInstrumentationRules(c *gin.Context, odigosns string) {
 
-	instrumentationRules, err := kube.DefaultClient.OdigosClient.InstrumentationRules(odigosns).List(c, metav1.ListOptions{})
+	instrumentationRules, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationRules(odigosns).List(c, metav1.ListOptions{})
 	if err != nil {
 		c.JSON(500, gin.H{
 			"message": "error getting instrumentation rules",
@@ -27,10 +27,10 @@ func GetInstrumentationRules(c *gin.Context, odigosns string) {
 		return
 	}
 
-	rules := make([]InstrumentationRule, 0, len(instrumentationRules.Items))
+	rules := make([]KarmaInstrumentationRule, 0, len(instrumentationRules.Items))
 	for _, rule := range instrumentationRules.Items {
-		rules = append(rules, InstrumentationRule{
-			InstrumentationRuleSpec: rule.Spec,
+		rules = append(rules, KarmaInstrumentationRule{
+			KarmaInstrumentationRuleSpec: rule.Spec,
 			RuleId:                  rule.Name,
 		})
 	}
@@ -39,8 +39,8 @@ func GetInstrumentationRules(c *gin.Context, odigosns string) {
 	c.JSON(200, rules)
 }
 
-func GetInstrumentationRule(c *gin.Context, odigosns string, ruleId string) {
-	rule, err := kube.DefaultClient.OdigosClient.InstrumentationRules(odigosns).Get(c, ruleId, metav1.GetOptions{})
+func GetKarmaInstrumentationRule(c *gin.Context, odigosns string, ruleId string) {
+	rule, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationRules(odigosns).Get(c, ruleId, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			c.JSON(404, gin.H{
@@ -54,14 +54,14 @@ func GetInstrumentationRule(c *gin.Context, odigosns string, ruleId string) {
 		return
 	}
 
-	c.JSON(200, InstrumentationRule{
-		InstrumentationRuleSpec: rule.Spec,
+	c.JSON(200, KarmaInstrumentationRule{
+		KarmaInstrumentationRuleSpec: rule.Spec,
 		RuleId:                  rule.Name,
 	})
 }
 
-func CreateInstrumentationRule(c *gin.Context, odigosns string) {
-	var rule odigosv1alpha1.InstrumentationRuleSpec
+func CreateKarmaInstrumentationRule(c *gin.Context, odigosns string) {
+	var rule odigosv1alpha1.KarmaInstrumentationRuleSpec
 	if err := c.BindJSON(&rule); err != nil {
 		c.JSON(400, gin.H{
 			"message": "invalid request body",
@@ -70,7 +70,7 @@ func CreateInstrumentationRule(c *gin.Context, odigosns string) {
 	}
 
 	// create the rule
-	createdRule, err := kube.DefaultClient.OdigosClient.InstrumentationRules(odigosns).Create(c, &odigosv1alpha1.InstrumentationRule{
+	createdRule, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationRules(odigosns).Create(c, &odigosv1alpha1.KarmaInstrumentationRule{
 		ObjectMeta: metav1.ObjectMeta{
 			GenerateName: "ui-instrumentation-rule-",
 		},
@@ -83,14 +83,14 @@ func CreateInstrumentationRule(c *gin.Context, odigosns string) {
 		return
 	}
 
-	c.JSON(201, InstrumentationRule{
-		InstrumentationRuleSpec: createdRule.Spec,
+	c.JSON(201, KarmaInstrumentationRule{
+		KarmaInstrumentationRuleSpec: createdRule.Spec,
 		RuleId:                  createdRule.Name,
 	})
 }
 
-func DeleteInstrumentationRule(c *gin.Context, odigosns string, ruleId string) {
-	err := kube.DefaultClient.OdigosClient.InstrumentationRules(odigosns).Delete(c, ruleId, metav1.DeleteOptions{})
+func DeleteKarmaInstrumentationRule(c *gin.Context, odigosns string, ruleId string) {
+	err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationRules(odigosns).Delete(c, ruleId, metav1.DeleteOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			c.JSON(404, gin.H{
@@ -107,8 +107,8 @@ func DeleteInstrumentationRule(c *gin.Context, odigosns string, ruleId string) {
 	c.JSON(204, nil)
 }
 
-func UpdateInstrumentationRule(c *gin.Context, odigosns string, ruleId string) {
-	var rule odigosv1alpha1.InstrumentationRuleSpec
+func UpdateKarmaInstrumentationRule(c *gin.Context, odigosns string, ruleId string) {
+	var rule odigosv1alpha1.KarmaInstrumentationRuleSpec
 	if err := c.BindJSON(&rule); err != nil {
 		c.JSON(400, gin.H{
 			"message": "invalid request body",
@@ -117,7 +117,7 @@ func UpdateInstrumentationRule(c *gin.Context, odigosns string, ruleId string) {
 	}
 
 	// get existing rule
-	existingRule, err := kube.DefaultClient.OdigosClient.InstrumentationRules(odigosns).Get(c, ruleId, metav1.GetOptions{})
+	existingRule, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationRules(odigosns).Get(c, ruleId, metav1.GetOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			c.JSON(404, gin.H{
@@ -134,7 +134,7 @@ func UpdateInstrumentationRule(c *gin.Context, odigosns string, ruleId string) {
 	existingRule.Spec = rule
 
 	// update the rule
-	updatedRule, err := kube.DefaultClient.OdigosClient.InstrumentationRules(odigosns).Update(c, existingRule, metav1.UpdateOptions{})
+	updatedRule, err := kube.DefaultClient.CodekarmaClient.KarmaInstrumentationRules(odigosns).Update(c, existingRule, metav1.UpdateOptions{})
 	if err != nil {
 		if apierrors.IsNotFound(err) {
 			c.JSON(404, gin.H{
@@ -148,8 +148,8 @@ func UpdateInstrumentationRule(c *gin.Context, odigosns string, ruleId string) {
 		return
 	}
 
-	c.JSON(200, InstrumentationRule{
-		InstrumentationRuleSpec: updatedRule.Spec,
+	c.JSON(200, KarmaInstrumentationRule{
+		KarmaInstrumentationRuleSpec: updatedRule.Spec,
 		RuleId:                  updatedRule.Name,
 	})
 }

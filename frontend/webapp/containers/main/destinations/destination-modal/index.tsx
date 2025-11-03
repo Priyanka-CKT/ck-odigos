@@ -60,13 +60,17 @@ export const DestinationModal: React.FC<AddDestinationModalProps> = ({ isOnboard
   };
 
   const handleSubmit = async () => {
-    const isFormOk = validateForm({ withAlert: !isOnboarding, alertTitle: ACTION.CREATE });
+    const isFormOk = validateForm({ withAlert: !isOnboarding, alertTitle: ACTION.CREATE }).isValid;
     if (!isFormOk) return null;
 
     if (isOnboarding) {
       const destinationTypeDetails = dynamicFields.map((field) => ({
         title: field.title,
-        value: field.componentType === INPUT_TYPES.DROPDOWN ? field.value.value : field.value,
+        value: field.componentType === INPUT_TYPES.DROPDOWN 
+          ? (typeof field.value === 'object' && field.value !== null && 'value' in field.value 
+              ? field.value.value 
+              : String(field.value))
+          : String(field.value),
       }));
 
       destinationTypeDetails.unshift({
@@ -139,7 +143,7 @@ export const DestinationModal: React.FC<AddDestinationModalProps> = ({ isOnboard
               destination={selectedItem}
               formData={formData}
               formErrors={formErrors}
-              validateForm={validateForm}
+              validateForm={() => validateForm().isValid}
               handleFormChange={handleFormChange}
               dynamicFields={dynamicFields}
               setDynamicFields={setDynamicFields}

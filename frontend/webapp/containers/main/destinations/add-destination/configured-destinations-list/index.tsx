@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { TrashIcon } from '@/assets';
 import styled from 'styled-components';
-import { extractMonitors } from '@/utils';
 import { DeleteWarning } from '@/components';
 import { IAppState, useAppStore } from '@/store';
 import { OVERVIEW_ENTITY_TYPES, type ConfiguredDestination } from '@/types';
@@ -28,8 +27,6 @@ const ListItem: React.FC<{ item: ConfiguredDestination; isLastItem: boolean }> =
       <DataTab
         title={item.displayName}
         iconSrc={item.imageUrl}
-        monitors={extractMonitors(item.exportedSignals)}
-        monitorsWithLabels
         withExtend
         renderExtended={() => <DataCardFields data={item.destinationTypeDetails} />}
         renderActions={() => (
@@ -42,7 +39,7 @@ const ListItem: React.FC<{ item: ConfiguredDestination; isLastItem: boolean }> =
       <DeleteWarning
         isOpen={deleteWarning}
         name={item.displayName || item.type}
-        type={OVERVIEW_ENTITY_TYPES.DESTINATION}
+        type={'destination' as any}
         isLastItem={isLastItem}
         onApprove={() => removeConfiguredDestination(item)}
         onDeny={() => setDeleteWarning(false)}

@@ -2,9 +2,11 @@ import React from 'react';
 import { useAppStore } from '@/store';
 import styled from 'styled-components';
 import { ErrorTriangleIcon, SVG } from '@/assets';
-import { Checkbox, DataTab } from '@/reuseable-components';
+import { Checkbox, DataTab, Tooltip, WarningIconTooltip } from '@/reuseable-components';
 import { Handle, type Node, type NodeProps, Position } from '@xyflow/react';
 import { type ActionDataParsed, type ActualDestination, type InstrumentationRuleSpec, type K8sActualSource, NODE_TYPES, NOTIFICATION_TYPE, OVERVIEW_ENTITY_TYPES, STATUSES, WorkloadId } from '@/types';
+import { WORKLOAD_PROGRAMMING_LANGUAGES } from '@/utils';
+import theme from '@/styles/theme';
 
 interface Props
   extends NodeProps<
@@ -30,11 +32,45 @@ const Container = styled.div<{ $nodeWidth: Props['data']['nodeWidth'] }>`
   width: ${({ $nodeWidth }) => `${$nodeWidth}px`};
 `;
 
+// Add a styled wrapper with conditional background color for unsupported languages
+const UnsupportedLanguageWrapper = styled.div<{ $isUnsupported: boolean }>`
+  border-radius: 8px;
+  padding: 2px;
+  background-color: ${({ $isUnsupported }) => 
+    $isUnsupported ? `${theme.text.warning}10` : 'transparent'};
+  border: ${({ $isUnsupported }) => 
+    $isUnsupported ? `1px solid ${theme.text.warning}30` : 'none'};
+`;
+
 const BaseNode: React.FC<Props> = ({ id: nodeId, data }) => {
-  const { nodeWidth, type, status, title, subTitle, icon, iconSrc, monitors, isActive, raw } = data;
-  const isError = status === STATUSES.UNHEALTHY;
+  const { nodeWidth, type, status, title, subTitle, icon, iconSrc, isActive, raw } = data;
+  
+  // We'll handle unsupported languages separately from other errors
+  const isOtherError = status === STATUSES.UNHEALTHY;
 
   const { configuredSources, setConfiguredSources } = useAppStore((state) => state);
+
+  // Check if this is a source with an unsupported language
+  const isUnsupportedLanguage = React.useMemo(() => {
+    if (type === OVERVIEW_ENTITY_TYPES.SOURCE && (raw as K8sActualSource).instrumentedApplicationDetails?.containers) {
+      const source = raw as K8sActualSource;
+      const containers = source.instrumentedApplicationDetails?.containers || [];
+      
+      // Check if any container has an unsupported language
+      return containers.some(container => {
+        const language = container.language as WORKLOAD_PROGRAMMING_LANGUAGES;
+        return [
+          WORKLOAD_PROGRAMMING_LANGUAGES.JAVASCRIPT,
+          WORKLOAD_PROGRAMMING_LANGUAGES.DOTNET,
+          WORKLOAD_PROGRAMMING_LANGUAGES.PYTHON,
+          WORKLOAD_PROGRAMMING_LANGUAGES.MYSQL,
+          WORKLOAD_PROGRAMMING_LANGUAGES.NGINX,
+          WORKLOAD_PROGRAMMING_LANGUAGES.UNKNOWN,
+        ].includes(language as WORKLOAD_PROGRAMMING_LANGUAGES);
+      });
+    }
+    return false;
+  }, [type, raw]);
 
   const renderActions = () => {
     const getSourceLocation = () => {
@@ -60,20 +96,44 @@ const BaseNode: React.FC<Props> = ({ id: nodeId, data }) => {
 
     return (
       <>
-        {/* TODO: handle instrumentation rules for sources */}
-        {isError ? (
+        {/* 
+          Display indicators based on status:
+          - For unsupported languages: yellow warning icon with tooltip
+          - For other errors: red error icon
+        */}
+        {isUnsupportedLanguage ? (
+          <WarningIconTooltip 
+            message="Only Java and Go applications are currently supported for instrumentation."
+            size={20}
+          />
+        ) : isOtherError ? (
           <ErrorTriangleIcon size={20} />
-        ) : // : type === 'source' && SOME_INDICATOR_THAT_THIS_IS_INSTRUMENTED ? ( <Image src={getEntityIcon(OVERVIEW_ENTITY_TYPES.RULE)} alt='' width={18} height={18} /> )
-        null}
+        ) : null}
 
         {type === 'source' ? <Checkbox initialValue={getSourceLocation().index !== -1} onChange={onSelectSource} /> : null}
       </>
     );
   };
 
+  // If this is an unsupported language, we don't want to show it as an error with red styling
+  const displayedAsError = isOtherError && !isUnsupportedLanguage;
+
+  // Return the node with conditional styling based on language support
   return (
     <Container data-id={nodeId} $nodeWidth={nodeWidth} className='nowheel nodrag'>
-      <DataTab title={title} subTitle={subTitle} icon={icon} iconSrc={iconSrc} monitors={monitors} isActive={isActive} isError={isError} onClick={() => {}} renderActions={renderActions} />
+      <UnsupportedLanguageWrapper $isUnsupported={isUnsupportedLanguage}>
+        <DataTab 
+          title={title} 
+          subTitle={subTitle} 
+          icon={icon} 
+          iconSrc={iconSrc} 
+          isActive={isActive} 
+          isDisabled={isActive === false}
+          isError={displayedAsError} 
+          onClick={() => {}} 
+          renderActions={renderActions} 
+        />
+      </UnsupportedLanguageWrapper>
       <Handle type='target' position={Position.Left} style={{ visibility: 'hidden' }} />
       <Handle type='source' position={Position.Right} style={{ visibility: 'hidden' }} />
     </Container>

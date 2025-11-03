@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/odigos-io/odigos/common/consts"
 	"github.com/odigos-io/odigos/frontend/kube"
@@ -19,7 +20,8 @@ const (
 )
 
 type GetConfigResponse struct {
-	Installation InstallationStatus `json:"installation"`
+	Installation  InstallationStatus `json:"installation"`
+	NexusEndpoint string             `json:"nexusEndpoint"`
 }
 
 func GetConfig(c context.Context) GetConfigResponse {
@@ -31,12 +33,15 @@ func GetConfig(c context.Context) GetConfigResponse {
 	} else {
 		response.Installation = Finished
 	}
-	return response
 
+	// Read CK_NEXUS_ENDPOINT from environment
+	response.NexusEndpoint = os.Getenv("CK_NEXUS_ENDPOINT")
+
+	return response
 }
 
 func isDestinationChosen(ctx context.Context) bool {
-	dests, err := kube.DefaultClient.OdigosClient.Destinations("").List(ctx, metav1.ListOptions{})
+	dests, err := kube.DefaultClient.CodekarmaClient.Destinations("").List(ctx, metav1.ListOptions{})
 	if err != nil {
 		log.Printf("Error listing destinations: %v\n", err)
 		return false

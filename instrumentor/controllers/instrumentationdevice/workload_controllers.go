@@ -18,7 +18,7 @@ type DeploymentReconciler struct {
 
 func (r *DeploymentReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	instrumentedAppName := workload.CalculateWorkloadRuntimeObjectName(req.Name, workload.WorkloadKindDeployment)
-	err := reconcileSingleInstrumentedApplicationByName(ctx, r.Client, instrumentedAppName, req.Namespace)
+	err := reconcileSingleKarmaInstrumentedApplicationByName(ctx, r.Client, instrumentedAppName, req.Namespace)
 	return utils.K8SUpdateErrorHandler(err)
 }
 
@@ -28,7 +28,7 @@ type DaemonSetReconciler struct {
 
 func (r *DaemonSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	instrumentedAppName := workload.CalculateWorkloadRuntimeObjectName(req.Name, workload.WorkloadKindDaemonSet)
-	err := reconcileSingleInstrumentedApplicationByName(ctx, r.Client, instrumentedAppName, req.Namespace)
+	err := reconcileSingleKarmaInstrumentedApplicationByName(ctx, r.Client, instrumentedAppName, req.Namespace)
 	return utils.K8SUpdateErrorHandler(err)
 }
 
@@ -38,12 +38,12 @@ type StatefulSetReconciler struct {
 
 func (r *StatefulSetReconciler) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
 	instrumentedAppName := workload.CalculateWorkloadRuntimeObjectName(req.Name, workload.WorkloadKindStatefulSet)
-	err := reconcileSingleInstrumentedApplicationByName(ctx, r.Client, instrumentedAppName, req.Namespace)
+	err := reconcileSingleKarmaInstrumentedApplicationByName(ctx, r.Client, instrumentedAppName, req.Namespace)
 	return utils.K8SUpdateErrorHandler(err)
 }
 
-func reconcileSingleInstrumentedApplicationByName(ctx context.Context, k8sClient client.Client, instrumentedAppName string, namespace string) error {
-	var instrumentedApplication odigosv1.InstrumentedApplication
+func reconcileSingleKarmaInstrumentedApplicationByName(ctx context.Context, k8sClient client.Client, instrumentedAppName string, namespace string) error {
+	var instrumentedApplication odigosv1.KarmaInstrumentedApplication
 	err := k8sClient.Get(ctx, types.NamespacedName{Name: instrumentedAppName, Namespace: namespace}, &instrumentedApplication)
 	if err != nil {
 		if apierrors.IsNotFound(err) {
@@ -58,7 +58,7 @@ func reconcileSingleInstrumentedApplicationByName(ctx context.Context, k8sClient
 			return err
 		}
 	}
-	isNodeCollectorReady := isDataCollectionReady(ctx, k8sClient)
+	isNodeCollectorReady := true
 
 	return reconcileSingleWorkload(ctx, k8sClient, &instrumentedApplication, isNodeCollectorReady)
 }

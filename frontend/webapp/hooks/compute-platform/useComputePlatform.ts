@@ -15,7 +15,9 @@ type UseComputePlatformHook = {
 };
 
 export const useComputePlatform = (): UseComputePlatformHook => {
-  const { data, loading, error, refetch } = useQuery<ComputePlatform>(GET_COMPUTE_PLATFORM);
+  const { data, loading, error, refetch } = useQuery<ComputePlatform>(GET_COMPUTE_PLATFORM, {
+    pollInterval: 5000,
+  });
   const { addNotification } = useNotificationStore();
   const filters = useFilterStore();
 
@@ -72,10 +74,6 @@ export const useComputePlatform = (): UseComputePlatformHook => {
       k8sActualSources = k8sActualSources.filter(
         (source) => !!filters.languages.find((language) => !!source.instrumentedApplicationDetails?.containers?.find((cont) => cont.language === language.id)),
       );
-    }
-    if (!!filters.monitors.length) {
-      destinations = destinations.filter((destination) => !!filters.monitors.find((metric) => destination.exportedSignals[metric.id]));
-      actions = actions.filter((action) => !!filters.monitors.find((metric) => action.spec.signals.find((str) => str.toLowerCase() === metric.id)));
     }
 
     return {

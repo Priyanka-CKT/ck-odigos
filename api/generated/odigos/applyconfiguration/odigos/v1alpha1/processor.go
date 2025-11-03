@@ -40,7 +40,7 @@ func Processor(name, namespace string) *ProcessorApplyConfiguration {
 	b.WithName(name)
 	b.WithNamespace(namespace)
 	b.WithKind("Processor")
-	b.WithAPIVersion("odigos.io/v1alpha1")
+	b.WithAPIVersion("codekarma.tech/v1alpha1")
 	return b
 }
 

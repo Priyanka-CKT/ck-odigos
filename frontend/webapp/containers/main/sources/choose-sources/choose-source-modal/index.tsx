@@ -24,7 +24,7 @@ export const AddSourceModal: React.FC<Props> = ({ isOpen, onClose }) => {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      header={{ title: 'Add Source' }}
+      header={{ title: 'Add Applications' }}
       actionComponent={
         <NavigationButtons
           buttons={[

@@ -10,29 +10,29 @@ import (
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
-func TestUpdateInstrumentationConfigForWorkload_SingleLanguage(t *testing.T) {
+func TestUpdateKarmaInstrumentationConfigForWorkload_SingleLanguage(t *testing.T) {
 
-	ic := odigosv1.InstrumentationConfig{
+	ic := odigosv1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{},
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{},
 	}
-	ia := odigosv1.InstrumentedApplication{
+	ia := odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{{
 				ContainerName: "test-container",
 				Language:      common.JavascriptProgrammingLanguage,
 			}},
 		},
 	}
-	rules := &odigosv1.InstrumentationRuleList{}
-	err := updateInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
+	rules := &odigosv1.KarmaInstrumentationRuleList{}
+	err := updateKarmaInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -44,21 +44,21 @@ func TestUpdateInstrumentationConfigForWorkload_SingleLanguage(t *testing.T) {
 	}
 }
 
-func TestUpdateInstrumentationConfigForWorkload_MultipleLanguages(t *testing.T) {
+func TestUpdateKarmaInstrumentationConfigForWorkload_MultipleLanguages(t *testing.T) {
 
-	ic := odigosv1.InstrumentationConfig{
+	ic := odigosv1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{},
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{},
 	}
-	ia := odigosv1.InstrumentedApplication{
+	ia := odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 				{
 					ContainerName: "test-container-1",
@@ -71,8 +71,8 @@ func TestUpdateInstrumentationConfigForWorkload_MultipleLanguages(t *testing.T) 
 			},
 		},
 	}
-	rules := &odigosv1.InstrumentationRuleList{}
-	err := updateInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
+	rules := &odigosv1.KarmaInstrumentationRuleList{}
+	err := updateKarmaInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -87,21 +87,21 @@ func TestUpdateInstrumentationConfigForWorkload_MultipleLanguages(t *testing.T) 
 	}
 }
 
-func TestUpdateInstrumentationConfigForWorkload_IgnoreUnknownLanguage(t *testing.T) {
+func TestUpdateKarmaInstrumentationConfigForWorkload_IgnoreUnknownLanguage(t *testing.T) {
 
-	ic := odigosv1.InstrumentationConfig{
+	ic := odigosv1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{},
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{},
 	}
-	ia := odigosv1.InstrumentedApplication{
+	ia := odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 				{
 					ContainerName: "test-container-1",
@@ -118,8 +118,8 @@ func TestUpdateInstrumentationConfigForWorkload_IgnoreUnknownLanguage(t *testing
 			},
 		},
 	}
-	rules := &odigosv1.InstrumentationRuleList{}
-	err := updateInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
+	rules := &odigosv1.KarmaInstrumentationRuleList{}
+	err := updateKarmaInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -131,26 +131,26 @@ func TestUpdateInstrumentationConfigForWorkload_IgnoreUnknownLanguage(t *testing
 	}
 }
 
-func TestUpdateInstrumentationConfigForWorkload_NoLanguages(t *testing.T) {
+func TestUpdateKarmaInstrumentationConfigForWorkload_NoLanguages(t *testing.T) {
 
-	ic := odigosv1.InstrumentationConfig{
+	ic := odigosv1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{},
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{},
 	}
-	ia := odigosv1.InstrumentedApplication{
+	ia := odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{},
 		},
 	}
-	rules := &odigosv1.InstrumentationRuleList{}
-	err := updateInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
+	rules := &odigosv1.KarmaInstrumentationRuleList{}
+	err := updateKarmaInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -159,21 +159,21 @@ func TestUpdateInstrumentationConfigForWorkload_NoLanguages(t *testing.T) {
 	}
 }
 
-func TestUpdateInstrumentationConfigForWorkload_SameLanguageMultipleContainers(t *testing.T) {
+func TestUpdateKarmaInstrumentationConfigForWorkload_SameLanguageMultipleContainers(t *testing.T) {
 
-	ic := odigosv1.InstrumentationConfig{
+	ic := odigosv1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{},
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{},
 	}
-	ia := odigosv1.InstrumentedApplication{
+	ia := odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 				{
 					ContainerName: "test-container-1",
@@ -186,8 +186,8 @@ func TestUpdateInstrumentationConfigForWorkload_SameLanguageMultipleContainers(t
 			},
 		},
 	}
-	rules := &odigosv1.InstrumentationRuleList{}
-	err := updateInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
+	rules := &odigosv1.KarmaInstrumentationRuleList{}
+	err := updateKarmaInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -199,21 +199,21 @@ func TestUpdateInstrumentationConfigForWorkload_SameLanguageMultipleContainers(t
 	}
 }
 
-func TestUpdateInstrumentationConfigForWorkload_SingleMatchingRule(t *testing.T) {
+func TestUpdateKarmaInstrumentationConfigForWorkload_SingleMatchingRule(t *testing.T) {
 
-	ic := odigosv1.InstrumentationConfig{
+	ic := odigosv1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{},
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{},
 	}
-	ia := odigosv1.InstrumentedApplication{
+	ia := odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 				{
 					ContainerName: "test-container",
@@ -222,10 +222,10 @@ func TestUpdateInstrumentationConfigForWorkload_SingleMatchingRule(t *testing.T)
 			},
 		},
 	}
-	rules := &odigosv1.InstrumentationRuleList{
-		Items: []odigosv1.InstrumentationRule{
+	rules := &odigosv1.KarmaInstrumentationRuleList{
+		Items: []odigosv1.KarmaInstrumentationRule{
 			{
-				Spec: odigosv1.InstrumentationRuleSpec{
+				Spec: odigosv1.KarmaInstrumentationRuleSpec{
 					PayloadCollection: &instrumentationrules.PayloadCollection{
 						HttpRequest: &instrumentationrules.HttpPayloadCollection{
 							MimeTypes:           &[]string{"application/json"},
@@ -237,7 +237,7 @@ func TestUpdateInstrumentationConfigForWorkload_SingleMatchingRule(t *testing.T)
 			},
 		},
 	}
-	err := updateInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
+	err := updateKarmaInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -258,21 +258,21 @@ func TestUpdateInstrumentationConfigForWorkload_SingleMatchingRule(t *testing.T)
 	}
 }
 
-func TestUpdateInstrumentationConfigForWorkload_InWorkloadList(t *testing.T) {
+func TestUpdateKarmaInstrumentationConfigForWorkload_InWorkloadList(t *testing.T) {
 
-	ic := odigosv1.InstrumentationConfig{
+	ic := odigosv1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{},
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{},
 	}
-	ia := odigosv1.InstrumentedApplication{
+	ia := odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 				{
 					ContainerName: "test-container",
@@ -282,10 +282,10 @@ func TestUpdateInstrumentationConfigForWorkload_InWorkloadList(t *testing.T) {
 		},
 	}
 
-	rules := &odigosv1.InstrumentationRuleList{
-		Items: []odigosv1.InstrumentationRule{
+	rules := &odigosv1.KarmaInstrumentationRuleList{
+		Items: []odigosv1.KarmaInstrumentationRule{
 			{
-				Spec: odigosv1.InstrumentationRuleSpec{
+				Spec: odigosv1.KarmaInstrumentationRuleSpec{
 					Workloads: &[]workload.PodWorkload{
 						{
 							Name:      "test",
@@ -303,7 +303,7 @@ func TestUpdateInstrumentationConfigForWorkload_InWorkloadList(t *testing.T) {
 		},
 	}
 
-	err := updateInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
+	err := updateKarmaInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -315,21 +315,21 @@ func TestUpdateInstrumentationConfigForWorkload_InWorkloadList(t *testing.T) {
 	}
 }
 
-func TestUpdateInstrumentationConfigForWorkload_NotInWorkloadList(t *testing.T) {
+func TestUpdateKarmaInstrumentationConfigForWorkload_NotInWorkloadList(t *testing.T) {
 
-	ic := odigosv1.InstrumentationConfig{
+	ic := odigosv1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{},
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{},
 	}
-	ia := odigosv1.InstrumentedApplication{
+	ia := odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 				{
 					ContainerName: "test-container",
@@ -339,10 +339,10 @@ func TestUpdateInstrumentationConfigForWorkload_NotInWorkloadList(t *testing.T) 
 		},
 	}
 
-	rules := &odigosv1.InstrumentationRuleList{
-		Items: []odigosv1.InstrumentationRule{
+	rules := &odigosv1.KarmaInstrumentationRuleList{
+		Items: []odigosv1.KarmaInstrumentationRule{
 			{
-				Spec: odigosv1.InstrumentationRuleSpec{
+				Spec: odigosv1.KarmaInstrumentationRuleSpec{
 					Workloads: &[]workload.PodWorkload{
 						{
 							Name:      "someotherdeployment",
@@ -360,7 +360,7 @@ func TestUpdateInstrumentationConfigForWorkload_NotInWorkloadList(t *testing.T) 
 		},
 	}
 
-	err := updateInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
+	err := updateKarmaInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -373,21 +373,21 @@ func TestUpdateInstrumentationConfigForWorkload_NotInWorkloadList(t *testing.T) 
 	}
 }
 
-func TestUpdateInstrumentationConfigForWorkload_DisabledRule(t *testing.T) {
+func TestUpdateKarmaInstrumentationConfigForWorkload_DisabledRule(t *testing.T) {
 
-	ic := odigosv1.InstrumentationConfig{
+	ic := odigosv1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{},
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{},
 	}
-	ia := odigosv1.InstrumentedApplication{
+	ia := odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 				{
 					ContainerName: "test-container",
@@ -397,10 +397,10 @@ func TestUpdateInstrumentationConfigForWorkload_DisabledRule(t *testing.T) {
 		},
 	}
 
-	rules := &odigosv1.InstrumentationRuleList{
-		Items: []odigosv1.InstrumentationRule{
+	rules := &odigosv1.KarmaInstrumentationRuleList{
+		Items: []odigosv1.KarmaInstrumentationRule{
 			{
-				Spec: odigosv1.InstrumentationRuleSpec{
+				Spec: odigosv1.KarmaInstrumentationRuleSpec{
 					Disabled: true,
 					PayloadCollection: &instrumentationrules.PayloadCollection{
 						HttpRequest: &instrumentationrules.HttpPayloadCollection{
@@ -412,7 +412,7 @@ func TestUpdateInstrumentationConfigForWorkload_DisabledRule(t *testing.T) {
 		},
 	}
 
-	err := updateInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
+	err := updateKarmaInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -425,21 +425,21 @@ func TestUpdateInstrumentationConfigForWorkload_DisabledRule(t *testing.T) {
 	}
 }
 
-func TestUpdateInstrumentationConfigForWorkload_MultipleDefaultRules(t *testing.T) {
+func TestUpdateKarmaInstrumentationConfigForWorkload_MultipleDefaultRules(t *testing.T) {
 
-	ic := odigosv1.InstrumentationConfig{
+	ic := odigosv1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{},
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{},
 	}
-	ia := odigosv1.InstrumentedApplication{
+	ia := odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 				{
 					ContainerName: "test-container",
@@ -449,10 +449,10 @@ func TestUpdateInstrumentationConfigForWorkload_MultipleDefaultRules(t *testing.
 		},
 	}
 
-	rules := &odigosv1.InstrumentationRuleList{
-		Items: []odigosv1.InstrumentationRule{
+	rules := &odigosv1.KarmaInstrumentationRuleList{
+		Items: []odigosv1.KarmaInstrumentationRule{
 			{
-				Spec: odigosv1.InstrumentationRuleSpec{
+				Spec: odigosv1.KarmaInstrumentationRuleSpec{
 					PayloadCollection: &instrumentationrules.PayloadCollection{
 						HttpRequest: &instrumentationrules.HttpPayloadCollection{
 							MimeTypes:           &[]string{"application/json", "application/text"},
@@ -463,7 +463,7 @@ func TestUpdateInstrumentationConfigForWorkload_MultipleDefaultRules(t *testing.
 				},
 			},
 			{
-				Spec: odigosv1.InstrumentationRuleSpec{
+				Spec: odigosv1.KarmaInstrumentationRuleSpec{
 					PayloadCollection: &instrumentationrules.PayloadCollection{
 						HttpRequest: &instrumentationrules.HttpPayloadCollection{
 							MimeTypes:           &[]string{"application/xml", "application/json"},
@@ -476,7 +476,7 @@ func TestUpdateInstrumentationConfigForWorkload_MultipleDefaultRules(t *testing.
 		},
 	}
 
-	err := updateInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
+	err := updateKarmaInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -523,21 +523,21 @@ func TestUpdateInstrumentationConfigForWorkload_MultipleDefaultRules(t *testing.
 	}
 }
 
-func TestUpdateInstrumentationConfigForWorkload_RuleForLibrary(t *testing.T) {
+func TestUpdateKarmaInstrumentationConfigForWorkload_RuleForLibrary(t *testing.T) {
 
-	ic := odigosv1.InstrumentationConfig{
+	ic := odigosv1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{},
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{},
 	}
-	ia := odigosv1.InstrumentedApplication{
+	ia := odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 				{
 					ContainerName: "test-container",
@@ -547,10 +547,10 @@ func TestUpdateInstrumentationConfigForWorkload_RuleForLibrary(t *testing.T) {
 		},
 	}
 
-	rules := &odigosv1.InstrumentationRuleList{
-		Items: []odigosv1.InstrumentationRule{
+	rules := &odigosv1.KarmaInstrumentationRuleList{
+		Items: []odigosv1.KarmaInstrumentationRule{
 			{
-				Spec: odigosv1.InstrumentationRuleSpec{
+				Spec: odigosv1.KarmaInstrumentationRuleSpec{
 					InstrumentationLibraries: &[]odigosv1.InstrumentationLibraryGlobalId{
 						{
 							Name:     "test-library",
@@ -567,7 +567,7 @@ func TestUpdateInstrumentationConfigForWorkload_RuleForLibrary(t *testing.T) {
 		},
 	}
 
-	err := updateInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
+	err := updateKarmaInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}
@@ -585,21 +585,21 @@ func TestUpdateInstrumentationConfigForWorkload_RuleForLibrary(t *testing.T) {
 	}
 }
 
-func TestUpdateInstrumentationConfigForWorkload_LibraryRuleOtherLanguage(t *testing.T) {
+func TestUpdateKarmaInstrumentationConfigForWorkload_LibraryRuleOtherLanguage(t *testing.T) {
 
-	ic := odigosv1.InstrumentationConfig{
+	ic := odigosv1.KarmaInstrumentationConfig{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentationConfigSpec{},
+		Spec: odigosv1.KarmaInstrumentationConfigSpec{},
 	}
-	ia := odigosv1.InstrumentedApplication{
+	ia := odigosv1.KarmaInstrumentedApplication{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "deployment-test",
 			Namespace: "testns",
 		},
-		Spec: odigosv1.InstrumentedApplicationSpec{
+		Spec: odigosv1.KarmaInstrumentedApplicationSpec{
 			RuntimeDetails: []odigosv1.RuntimeDetailsByContainer{
 				{
 					ContainerName: "test-container",
@@ -609,10 +609,10 @@ func TestUpdateInstrumentationConfigForWorkload_LibraryRuleOtherLanguage(t *test
 		},
 	}
 
-	rules := &odigosv1.InstrumentationRuleList{
-		Items: []odigosv1.InstrumentationRule{
+	rules := &odigosv1.KarmaInstrumentationRuleList{
+		Items: []odigosv1.KarmaInstrumentationRule{
 			{
-				Spec: odigosv1.InstrumentationRuleSpec{
+				Spec: odigosv1.KarmaInstrumentationRuleSpec{
 					Disabled: true,
 					InstrumentationLibraries: &[]odigosv1.InstrumentationLibraryGlobalId{
 						{
@@ -630,7 +630,7 @@ func TestUpdateInstrumentationConfigForWorkload_LibraryRuleOtherLanguage(t *test
 		},
 	}
 
-	err := updateInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
+	err := updateKarmaInstrumentationConfigForWorkload(&ic, &ia, rules, "service-name")
 	if err != nil {
 		t.Errorf("Expected nil error, got %v", err)
 	}

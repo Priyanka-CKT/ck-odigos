@@ -23,45 +23,45 @@ import (
 	testing "k8s.io/client-go/testing"
 )
 
-type FakeOdigosV1alpha1 struct {
+type FakeCodekarmaV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeOdigosV1alpha1) CollectorsGroups(namespace string) v1alpha1.CollectorsGroupInterface {
+func (c *FakeCodekarmaV1alpha1) CodekarmaConfigurations(namespace string) v1alpha1.CodekarmaConfigurationInterface {
+	return &FakeCodekarmaConfigurations{c, namespace}
+}
+
+func (c *FakeCodekarmaV1alpha1) CollectorsGroups(namespace string) v1alpha1.CollectorsGroupInterface {
 	return &FakeCollectorsGroups{c, namespace}
 }
 
-func (c *FakeOdigosV1alpha1) Destinations(namespace string) v1alpha1.DestinationInterface {
+func (c *FakeCodekarmaV1alpha1) Destinations(namespace string) v1alpha1.DestinationInterface {
 	return &FakeDestinations{c, namespace}
 }
 
-func (c *FakeOdigosV1alpha1) InstrumentationConfigs(namespace string) v1alpha1.InstrumentationConfigInterface {
-	return &FakeInstrumentationConfigs{c, namespace}
+func (c *FakeCodekarmaV1alpha1) KarmaInstrumentationConfigs(namespace string) v1alpha1.KarmaInstrumentationConfigInterface {
+	return &FakeKarmaInstrumentationConfigs{c, namespace}
 }
 
-func (c *FakeOdigosV1alpha1) InstrumentationInstances(namespace string) v1alpha1.InstrumentationInstanceInterface {
-	return &FakeInstrumentationInstances{c, namespace}
+func (c *FakeCodekarmaV1alpha1) KarmaInstrumentationInstances(namespace string) v1alpha1.KarmaInstrumentationInstanceInterface {
+	return &FakeKarmaInstrumentationInstances{c, namespace}
 }
 
-func (c *FakeOdigosV1alpha1) InstrumentationRules(namespace string) v1alpha1.InstrumentationRuleInterface {
-	return &FakeInstrumentationRules{c, namespace}
+func (c *FakeCodekarmaV1alpha1) KarmaInstrumentationRules(namespace string) v1alpha1.KarmaInstrumentationRuleInterface {
+	return &FakeKarmaInstrumentationRules{c, namespace}
 }
 
-func (c *FakeOdigosV1alpha1) InstrumentedApplications(namespace string) v1alpha1.InstrumentedApplicationInterface {
-	return &FakeInstrumentedApplications{c, namespace}
+func (c *FakeCodekarmaV1alpha1) KarmaInstrumentedApplications(namespace string) v1alpha1.KarmaInstrumentedApplicationInterface {
+	return &FakeKarmaInstrumentedApplications{c, namespace}
 }
 
-func (c *FakeOdigosV1alpha1) OdigosConfigurations(namespace string) v1alpha1.OdigosConfigurationInterface {
-	return &FakeOdigosConfigurations{c, namespace}
-}
-
-func (c *FakeOdigosV1alpha1) Processors(namespace string) v1alpha1.ProcessorInterface {
+func (c *FakeCodekarmaV1alpha1) Processors(namespace string) v1alpha1.ProcessorInterface {
 	return &FakeProcessors{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *FakeOdigosV1alpha1) RESTClient() rest.Interface {
+func (c *FakeCodekarmaV1alpha1) RESTClient() rest.Interface {
 	var ret *rest.RESTClient
 	return ret
 }

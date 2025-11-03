@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/odigos-io/odigos/common"
-	"github.com/odigos-io/odigos/common/envOverwrite"
 	"github.com/odigos-io/odigos/odiglet/pkg/env"
 	"github.com/odigos-io/odigos/odiglet/pkg/instrumentation/consts"
 	"k8s.io/kubelet/pkg/apis/deviceplugin/v1beta1"
@@ -25,8 +24,11 @@ const (
 
 func Java(deviceId string, uniqueDestinationSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse {
 	otlpEndpoint := fmt.Sprintf("http://%s:%d", env.Current.NodeIP, consts.OTLPPort)
-	javaOptsVal, _ := envOverwrite.ValToAppend(javaOptsEnvVar, common.OtelSdkNativeCommunity)
-	javaToolOptionsVal, _ := envOverwrite.ValToAppend(javaToolOptionsEnvVar, common.OtelSdkNativeCommunity)
+
+	// Use the correct agent jar file name
+	javaAgentPath := "/var/codekarma/java/ck-agent-universal.jar"
+	javaOptsVal := fmt.Sprintf("-javaagent:%s", javaAgentPath)
+	javaToolOptionsVal := fmt.Sprintf("-javaagent:%s", javaAgentPath)
 
 	logsExporter := "none"
 	metricsExporter := "none"
@@ -40,6 +42,11 @@ func Java(deviceId string, uniqueDestinationSignals map[common.ObservabilitySign
 		metricsExporter = "otlp"
 	}
 	if _, ok := uniqueDestinationSignals[common.TracesObservabilitySignal]; ok {
+		tracesExporter = "otlp"
+	}
+
+	// If no signals are enabled, enable traces by default
+	if logsExporter == "none" && metricsExporter == "none" && tracesExporter == "none" {
 		tracesExporter = "otlp"
 	}
 
@@ -57,8 +64,8 @@ func Java(deviceId string, uniqueDestinationSignals map[common.ObservabilitySign
 		},
 		Mounts: []*v1beta1.Mount{
 			{
-				ContainerPath: "/var/odigos/java",
-				HostPath:      "/var/odigos/java",
+				ContainerPath: "/var/codekarma/java",
+				HostPath:      "/var/codekarma/java",
 				ReadOnly:      true,
 			},
 		},

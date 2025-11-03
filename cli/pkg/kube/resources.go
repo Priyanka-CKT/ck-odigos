@@ -36,7 +36,7 @@ func newCoreV1ConfigMaps() schema.GroupVersionResource {
 
 func deprecatedOdigosConfigs() schema.GroupVersionResource {
 	return schema.GroupVersionResource{
-		Group:    "odigos.io",
+		Group:    "codekarma.tech",
 		Version:  "v1alpha1",
 		Resource: "odigosconfigurations",
 	}
@@ -90,9 +90,9 @@ func newRbacV1RoleBindings() schema.GroupVersionResource {
 	}
 }
 
-func newInstrumentationRules() schema.GroupVersionResource {
+func newKarmaInstrumentationRules() schema.GroupVersionResource {
 	return schema.GroupVersionResource{
-		Group:    "odigos.io",
+		Group:    "codekarma.tech",
 		Version:  "v1alpha1",
 		Resource: "instrumentationrules",
 	}
@@ -100,7 +100,7 @@ func newInstrumentationRules() schema.GroupVersionResource {
 
 func newRenameAttributeAction() schema.GroupVersionResource {
 	return schema.GroupVersionResource{
-		Group:    "actions.odigos.io",
+		Group:    "actions.codekarma.tech",
 		Version:  "v1alpha1",
 		Resource: "renameattributes",
 	}
@@ -108,7 +108,7 @@ func newRenameAttributeAction() schema.GroupVersionResource {
 
 func newProcessor() schema.GroupVersionResource {
 	return schema.GroupVersionResource{
-		Group:    "odigos.io",
+		Group:    "codekarma.tech",
 		Version:  "v1alpha1",
 		Resource: "processors",
 	}
@@ -132,7 +132,7 @@ func GetManagedResources(odigosNamespace string) []ResourceAndNs {
 		{Resource: newRbacV1ClusterRoleBindings(), Namespace: ""},
 		{Resource: newRbacV1Roles(), Namespace: odigosNamespace},
 		{Resource: newRbacV1RoleBindings(), Namespace: odigosNamespace},
-		{Resource: newInstrumentationRules(), Namespace: odigosNamespace},
+		{Resource: newKarmaInstrumentationRules(), Namespace: odigosNamespace},
 		{Resource: newRenameAttributeAction(), Namespace: odigosNamespace},
 		{Resource: newProcessor(), Namespace: odigosNamespace},
 	}

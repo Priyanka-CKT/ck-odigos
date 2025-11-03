@@ -5,11 +5,11 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/event"
 )
 
-type OtelSdkInstrumentationRulePredicate struct{}
+type OtelSdkKarmaInstrumentationRulePredicate struct{}
 
-func (o OtelSdkInstrumentationRulePredicate) Create(e event.CreateEvent) bool {
+func (o OtelSdkKarmaInstrumentationRulePredicate) Create(e event.CreateEvent) bool {
 	// check if delete rule is for otel sdk
-	instrumentationRule, ok := e.Object.(*odigosv1alpha1.InstrumentationRule)
+	instrumentationRule, ok := e.Object.(*odigosv1alpha1.KarmaInstrumentationRule)
 	if !ok {
 		return false
 	}
@@ -17,21 +17,21 @@ func (o OtelSdkInstrumentationRulePredicate) Create(e event.CreateEvent) bool {
 	return instrumentationRule.Spec.OtelSdks != nil
 }
 
-func (i OtelSdkInstrumentationRulePredicate) Update(e event.UpdateEvent) bool {
-	oldInstrumentationRule, oldOk := e.ObjectOld.(*odigosv1alpha1.InstrumentationRule)
-	newInstrumentationRule, newOk := e.ObjectNew.(*odigosv1alpha1.InstrumentationRule)
+func (i OtelSdkKarmaInstrumentationRulePredicate) Update(e event.UpdateEvent) bool {
+	oldKarmaInstrumentationRule, oldOk := e.ObjectOld.(*odigosv1alpha1.KarmaInstrumentationRule)
+	newKarmaInstrumentationRule, newOk := e.ObjectNew.(*odigosv1alpha1.KarmaInstrumentationRule)
 
 	if !oldOk || !newOk {
 		return false
 	}
 
 	// only handle rules for otel sdks
-	return oldInstrumentationRule.Spec.OtelSdks != nil || newInstrumentationRule.Spec.OtelSdks != nil
+	return oldKarmaInstrumentationRule.Spec.OtelSdks != nil || newKarmaInstrumentationRule.Spec.OtelSdks != nil
 }
 
-func (i OtelSdkInstrumentationRulePredicate) Delete(e event.DeleteEvent) bool {
+func (i OtelSdkKarmaInstrumentationRulePredicate) Delete(e event.DeleteEvent) bool {
 	// check if delete rule is for otel sdk
-	instrumentationRule, ok := e.Object.(*odigosv1alpha1.InstrumentationRule)
+	instrumentationRule, ok := e.Object.(*odigosv1alpha1.KarmaInstrumentationRule)
 	if !ok {
 		return false
 	}
@@ -39,6 +39,6 @@ func (i OtelSdkInstrumentationRulePredicate) Delete(e event.DeleteEvent) bool {
 	return instrumentationRule.Spec.OtelSdks != nil
 }
 
-func (i OtelSdkInstrumentationRulePredicate) Generic(e event.GenericEvent) bool {
+func (i OtelSdkKarmaInstrumentationRulePredicate) Generic(e event.GenericEvent) bool {
 	return false
 }

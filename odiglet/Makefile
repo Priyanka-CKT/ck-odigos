@@ -12,7 +12,9 @@ debug-build-odiglet: generate
 generate:
 	go mod download
 	@for lib in $(LIBRARIES); do \
+		echo "Processing: $$lib"; \
 		LIB_PATH=$$(go list -m -f '{{.Dir}}' $${lib%@*}) && \
+		echo "LIB_PATH for $$lib is: $$LIB_PATH"; \
 		chmod -R +w $$LIB_PATH && \
 		make -C "$$LIB_PATH" generate; \
 	done

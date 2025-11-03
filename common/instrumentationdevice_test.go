@@ -52,7 +52,7 @@ func TestInstrumentationDeviceName(t *testing.T) {
 		SdkTier: EnterpriseOtelSdkTier,
 	}
 	deviceName := InstrumentationDeviceName(language, otelSdk, nil)
-	want := "instrumentation.odigos.io/java-ebpf-enterprise"
+	want := "instrumentation.codekarma.tech/java-ebpf-enterprise"
 	if string(deviceName) != want {
 		t.Errorf("InstrumentationDeviceName() = %v, want %v", deviceName, want)
 	}
@@ -66,7 +66,7 @@ func TestInstrumentationDeviceNameGlib(t *testing.T) {
 	}
 	glib := Glibc
 	deviceName := InstrumentationDeviceName(language, otelSdk, &glib)
-	want := "instrumentation.odigos.io/java-ebpf-enterprise"
+	want := "instrumentation.codekarma.tech/java-ebpf-enterprise"
 	if string(deviceName) != want {
 		t.Errorf("InstrumentationDeviceName() = %v, want %v", deviceName, want)
 	}

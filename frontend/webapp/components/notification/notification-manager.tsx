@@ -159,11 +159,11 @@ const NotificationListItem: React.FC<Notification & { onClick: () => void }> = (
     const titleIncludes = title?.toLowerCase().includes(deleteAction);
 
     return titleIncludes || false;
-  }, [title, message]);
+  }, [title]);
 
   const Icon = getStatusIcon(type);
   const timeAgo = useTimeAgo();
-  const clickNotif = useClickNotif();
+  const { clickNotif } = useClickNotif();
 
   return (
     <NotifCard

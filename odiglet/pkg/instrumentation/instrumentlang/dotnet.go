@@ -15,19 +15,19 @@ const (
 	profilerEndVar        = "CORECLR_PROFILER"
 	profilerId            = "{918728DD-259F-4A6A-AC2B-B85E1B658318}"
 	profilerPathEnv       = "CORECLR_PROFILER_PATH"
-	profilerPath          = "/var/odigos/dotnet/linux-glibc-%s/OpenTelemetry.AutoInstrumentation.Native.so"
+	profilerPath          = "/var/codekarma/dotnet/linux-glibc-%s/OpenTelemetry.AutoInstrumentation.Native.so"
 	serviceNameEnv        = "OTEL_SERVICE_NAME"
 	collectorUrlEnv       = "OTEL_EXPORTER_OTLP_ENDPOINT"
 	tracerHomeEnv         = "OTEL_DOTNET_AUTO_HOME"
 	exportTypeEnv         = "OTEL_TRACES_EXPORTER"
-	tracerHome            = "/var/odigos/dotnet"
+	tracerHome            = "/var/codekarma/dotnet"
 	resourceAttrEnv       = "OTEL_RESOURCE_ATTRIBUTES"
 	startupHookEnv        = "DOTNET_STARTUP_HOOKS"
-	startupHook           = "/var/odigos/dotnet/net/OpenTelemetry.AutoInstrumentation.StartupHook.dll"
+	startupHook           = "/var/codekarma/dotnet/net/OpenTelemetry.AutoInstrumentation.StartupHook.dll"
 	additonalDepsEnv      = "DOTNET_ADDITIONAL_DEPS"
-	additonalDeps         = "/var/odigos/dotnet/AdditionalDeps"
+	additonalDeps         = "/var/codekarma/dotnet/AdditionalDeps"
 	sharedStoreEnv        = "DOTNET_SHARED_STORE"
-	sharedStore           = "/var/odigos/dotnet/store"
+	sharedStore           = "/var/codekarma/dotnet/store"
 )
 
 func DotNet(deviceId string, uniqueDestinationSignals map[common.ObservabilitySignal]struct{}) *v1beta1.ContainerAllocateResponse {
@@ -47,8 +47,8 @@ func DotNet(deviceId string, uniqueDestinationSignals map[common.ObservabilitySi
 		},
 		Mounts: []*v1beta1.Mount{
 			{
-				ContainerPath: "/var/odigos/dotnet",
-				HostPath:      "/var/odigos/dotnet",
+				ContainerPath: "/var/codekarma/dotnet",
+				HostPath:      "/var/codekarma/dotnet",
 				ReadOnly:      true,
 			},
 		},

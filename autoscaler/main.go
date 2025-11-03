@@ -161,7 +161,7 @@ func main() {
 		},
 		HealthProbeBindAddress: probeAddr,
 		LeaderElection:         enableLeaderElection,
-		LeaderElectionID:       "f681cfed.odigos.io",
+		LeaderElectionID:       "i9j0k1l2.codekarma.tech",
 	})
 	if err != nil {
 		setupLog.Error(err, "unable to start manager")
@@ -224,7 +224,7 @@ func main() {
 		setupLog.Error(err, "unable to create controller", "controller", "CollectorsGroup")
 		os.Exit(1)
 	}
-	if err = (&controllers.InstrumentedApplicationReconciler{
+	if err = (&controllers.KarmaInstrumentedApplicationReconciler{
 		Client:               mgr.GetClient(),
 		Scheme:               mgr.GetScheme(),
 		ImagePullSecrets:     imagePullSecrets,
@@ -232,7 +232,7 @@ func main() {
 		K8sVersion:           k8sVersion,
 		DisableNameProcessor: disableNameProcessor,
 	}).SetupWithManager(mgr); err != nil {
-		setupLog.Error(err, "unable to create controller", "controller", "InstrumentedApplication")
+		setupLog.Error(err, "unable to create controller", "controller", "KarmaInstrumentedApplication")
 		os.Exit(1)
 	}
 	if err = (&controllers.SecretReconciler{

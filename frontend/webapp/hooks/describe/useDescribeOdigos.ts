@@ -1,14 +1,14 @@
 import { useQuery } from '@apollo/client';
-import { DESCRIBE_ODIGOS } from '@/graphql';
-import type { DescribeOdigos } from '@/types';
+import { DESCRIBE_CK } from '@/graphql';
+import type { DescribeCodeKarma } from '@/types';
 
-export const useDescribeOdigos = () => {
-  const { data, loading, error } = useQuery<DescribeOdigos>(DESCRIBE_ODIGOS, {
+export const useDescribeCodeKarma = () => {
+  const { data, loading, error } = useQuery<DescribeCodeKarma>(DESCRIBE_CK, {
     pollInterval: 5000,
   });
 
   return {
-    data: data?.describeOdigos,
+    data: data?.describeCodeKarma,
     loading,
     error,
   };

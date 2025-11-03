@@ -13,7 +13,7 @@ import (
 )
 
 func StartDestinationWatcher(ctx context.Context, namespace string) error {
-	watcher, err := kube.DefaultClient.OdigosClient.Destinations(namespace).Watch(context.Background(), metav1.ListOptions{})
+	watcher, err := kube.DefaultClient.CodekarmaClient.Destinations(namespace).Watch(context.Background(), metav1.ListOptions{})
 	if err != nil {
 		return fmt.Errorf("error creating watcher: %v", err)
 	}

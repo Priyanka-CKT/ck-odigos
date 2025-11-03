@@ -1,12 +1,11 @@
 import React, { useId } from 'react';
 import styled from 'styled-components';
 import { NOTIFICATION_TYPE } from '@/types';
-import { ActiveStatus, Code, DataTab, Divider, InstrumentStatus, MonitorsIcons, NotificationNote, Text, Tooltip } from '@/reuseable-components';
+import { ActiveStatus, Code, DataTab, Divider, InstrumentStatus, NotificationNote, Text, Tooltip } from '@/reuseable-components';
 import { capitalizeFirstLetter, getProgrammingLanguageIcon, parseJsonStringToPrettyString, safeJsonParse, WORKLOAD_PROGRAMMING_LANGUAGES } from '@/utils';
 
 export enum DataCardFieldTypes {
   DIVIDER = 'divider',
-  MONITORS = 'monitors',
   ACTIVE_STATUS = 'active-status',
   SOURCE_CONTAINER = 'source-container',
   CODE = 'code',
@@ -75,8 +74,6 @@ const renderValue = (type: DataCardRow['type'], value: DataCardRow['value']) => 
     case DataCardFieldTypes.DIVIDER:
       return <Divider length='100%' margin='0' />;
 
-    case DataCardFieldTypes.MONITORS:
-      return <MonitorsIcons monitors={value?.split(', ') || []} withLabels />;
 
     case DataCardFieldTypes.ACTIVE_STATUS:
       return <ActiveStatus isActive={value == 'true'} size={10} withIcon withBorder />;
@@ -104,7 +101,7 @@ const renderValue = (type: DataCardRow['type'], value: DataCardRow['value']) => 
               type={NOTIFICATION_TYPE.INFO}
               message={
                 hasPresenceOfOtherAgent
-                  ? `By default, we do not operate alongside the ${otherAgent}. Please contact the Odigos team for guidance on enabling this configuration.`
+                  ? `By default, we do not operate alongside the ${otherAgent}. Please contact the CodeKarma team for guidance on enabling this configuration.`
                   : canRunInParallel
                   ? `We are operating alongside the ${otherAgent}, which is not the recommended configuration. We suggest disabling the ${otherAgent} for optimal performance.`
                   : `Concurrent execution with the ${otherAgent} is not supported. Please disable one of the agents to enable proper instrumentation.`

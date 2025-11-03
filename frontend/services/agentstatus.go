@@ -22,20 +22,35 @@ type AgentStatusResponse struct {
 	Status string `json:"status"`
 }
 
-// buildAgentStatusURL constructs the URL for agent status API calls
-func buildAgentStatusURL(serviceName string) string {
+// buildAgentStatusURL constructs the URL for agent status API calls and indicates if auth is required
+func buildAgentStatusURL(serviceName string) (string, bool) {
+	ckEndpoint := os.Getenv("CK_ENDPOINT")
+	if ckEndpoint != "" {
+		return fmt.Sprintf("%s/nexus/auto/api/agent-status/%s", ckEndpoint, serviceName), true
+	}
+
 	nexusEndpoint := os.Getenv("CK_NEXUS_ENDPOINT")
-	if nexusEndpoint == "" {
+	if nexusEndpoint != "" {
+		return fmt.Sprintf("%s/api/agent-status/%s", nexusEndpoint, serviceName), false
+	}
+
+	return "", false
+}
+
+// Get CK API Key
+func getCkApiKey() string {
+	ckApiKey := os.Getenv("CK_API_KEY")
+	if ckApiKey == "" {
 		return ""
 	}
-	return fmt.Sprintf("%s/api/agent-status/%s", nexusEndpoint, serviceName)
+	return ckApiKey
 }
 
 // GetAgentStatus retrieves the current status of an agent service
 func GetAgentStatus(ctx context.Context, serviceName string) (string, error) {
-	url := buildAgentStatusURL(serviceName)
+	url, requiresAuth := buildAgentStatusURL(serviceName)
 	if url == "" {
-		return "unknown", fmt.Errorf("CK_NEXUS_ENDPOINT not configured")
+		return "unknown", fmt.Errorf("CK_ENDPOINT or CK_NEXUS_ENDPOINT not configured")
 	}
 
 	client := &http.Client{Timeout: 10 * time.Second}
@@ -44,7 +59,13 @@ func GetAgentStatus(ctx context.Context, serviceName string) (string, error) {
 		return "unknown", fmt.Errorf("failed to create request: %w", err)
 	}
 	req.Header.Set("Accept", "*/*")
-
+	if requiresAuth {
+		ckApiKeyHeader := getCkApiKey()
+		if ckApiKeyHeader == "" {
+			return "unknown", fmt.Errorf("CK_API_KEY not configured")
+		}
+		req.Header.Set("Authorization", "Bearer "+ckApiKeyHeader)
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return "unknown", fmt.Errorf("failed to make request: %w", err)
@@ -70,19 +91,17 @@ func GetAgentStatus(ctx context.Context, serviceName string) (string, error) {
 
 // DisableAgentStatus sends a disable request to the agent status API
 func DisableAgentStatus(ctx context.Context, serviceName string, podID *string) (bool, error) {
-	url := buildAgentStatusURL(serviceName)
+	url, requiresAuth := buildAgentStatusURL(serviceName)
 	if url == "" {
-		return false, fmt.Errorf("CK_NEXUS_ENDPOINT not configured")
+		return false, fmt.Errorf("CK_ENDPOINT or CK_NEXUS_ENDPOINT not configured")
 	}
-
-	podIDValue := "string"
-	if podID != nil && *podID != "" {
-		podIDValue = *podID
-	}
+	// podIDValue := "string"
+	// if podID != nil && *podID != "" {
+	// 	podIDValue = *podID
+	// }
 
 	requestBody := AgentStatusRequest{
 		Status: "disabled",
-		PodID:  podIDValue,
 	}
 
 	jsonBody, err := json.Marshal(requestBody)
@@ -97,6 +116,13 @@ func DisableAgentStatus(ctx context.Context, serviceName string, podID *string) 
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "*/*")
+	if requiresAuth {
+		ckApiKeyHeader := getCkApiKey()
+		if ckApiKeyHeader == "" {
+			return false, fmt.Errorf("CK_API_KEY not configured")
+		}
+		req.Header.Set("Authorization", "Bearer "+ckApiKeyHeader)
+	}
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -115,19 +141,17 @@ func DisableAgentStatus(ctx context.Context, serviceName string, podID *string) 
 
 // EnableAgentStatus sends an enable request to the agent status API
 func EnableAgentStatus(ctx context.Context, serviceName string, podID *string) (bool, error) {
-	url := buildAgentStatusURL(serviceName)
+	url, requiresAuth := buildAgentStatusURL(serviceName)
 	if url == "" {
-		return false, fmt.Errorf("CK_NEXUS_ENDPOINT not configured")
+		return false, fmt.Errorf("CK_ENDPOINT or CK_NEXUS_ENDPOINT not configured")
 	}
-
-	podIDValue := "string"
-	if podID != nil && *podID != "" {
-		podIDValue = *podID
-	}
+	// podIDValue := "string"
+	// if podID != nil && *podID != "" {
+	// 	podIDValue = *podID
+	// }
 
 	requestBody := AgentStatusRequest{
 		Status: "enabled",
-		PodID:  podIDValue,
 	}
 
 	jsonBody, err := json.Marshal(requestBody)
@@ -142,7 +166,13 @@ func EnableAgentStatus(ctx context.Context, serviceName string, podID *string) (
 	}
 	req.Header.Set("Content-Type", "application/json")
 	req.Header.Set("Accept", "*/*")
-
+	if requiresAuth {
+		ckApiKeyHeader := getCkApiKey()
+		if ckApiKeyHeader == "" {
+			return false, fmt.Errorf("CK_API_KEY not configured")
+		}
+		req.Header.Set("Authorization", "Bearer "+ckApiKeyHeader)
+	}
 	resp, err := client.Do(req)
 	if err != nil {
 		return false, fmt.Errorf("failed to make request: %w", err)

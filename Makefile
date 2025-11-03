@@ -1,5 +1,5 @@
-TAG ?= v1.0.178
-ODIGOS_CLI_VERSION ?= v1.0.178
+TAG ?= v1.0.179
+ODIGOS_CLI_VERSION ?= v1.0.179
 ORG ?= ghcr.io/ckgitrepouser/codekarma/prod
 -include .env
 

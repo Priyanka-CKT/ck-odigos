@@ -34,8 +34,13 @@ func GetConfig(c context.Context) GetConfigResponse {
 		response.Installation = Finished
 	}
 
-	// Read CK_NEXUS_ENDPOINT from environment
-	response.NexusEndpoint = os.Getenv("CK_NEXUS_ENDPOINT")
+	// Read endpoint from environment, prefer CK_ENDPOINT over CK_NEXUS_ENDPOINT
+	ckEndpoint := os.Getenv("CK_ENDPOINT")
+	if ckEndpoint != "" {
+		response.NexusEndpoint = ckEndpoint
+	} else {
+		response.NexusEndpoint = os.Getenv("CK_NEXUS_ENDPOINT")
+	}
 
 	return response
 }
